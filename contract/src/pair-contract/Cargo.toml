@@ -1,0 +1,11 @@
+[package]
+name = "pair-contract"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+casper-contract = "1.4.3"
+casper-types = "1.4.6"
+casper-erc20 = { path = "../erc20" }
