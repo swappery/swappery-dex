@@ -1,0 +1,13 @@
+[workspace]
+members = [
+    "contract/src/pair-contract",
+    "contract/src/router-contract"
+]
+default-members = [
+    "contract/src/pair-contract",
+    "contract/src/router-contract"
+]
+
+[profile.release]
+codegen-units = 1
+lto = true

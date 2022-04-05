@@ -1,9 +1,12 @@
+ALL_CONTRACTS = router-contract
+CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
+
 prepare:
 	rustup target add wasm32-unknown-unknown
 
 build-contract:
-	cd contract && cargo build --release --target wasm32-unknown-unknown
-	wasm-strip contract/target/wasm32-unknown-unknown/release/contract.wasm 2>/dev/null | true
+	cargo build --release --target wasm32-unknown-unknown $(patsubst %, -p %, $(ALL_CONTRACTS))
+	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm 2>/dev/null | true;)
 
 test: build-contract
 	mkdir -p tests/wasm

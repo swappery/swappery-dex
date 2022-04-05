@@ -3,8 +3,17 @@ name = "router-contract"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "router_contract"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 casper-contract = "1.4.3"
 casper-types = "1.4.6"
+casper-erc20 = "0.2.1"
+swappery-pair = { path = "../pair-contract" }
