@@ -3,7 +3,7 @@ use alloc::{string::String, vec};
 use casper_erc20::{ entry_points, constants::{ OWNER_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME}, Address };
 
 use casper_types::{
-    URef, U256, CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter,
+    U256, CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter,
 };
 
 pub fn mint() -> EntryPoint {
