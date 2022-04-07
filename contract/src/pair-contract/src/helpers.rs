@@ -4,7 +4,7 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef};
+use casper_types::{bytesrepr::{ FromBytes, ToBytes }, system::CallStackElement, ApiError, CLTyped, URef};
 
 use casper_erc20::{Error, Address};
 
@@ -73,4 +73,40 @@ pub(crate) fn get_caller_address() -> Result<Address, Error> {
         .ok_or(Error::InvalidContext)?;
     let address = call_stack_element_to_address(top_of_the_stack);
     Ok(address)
+}
+
+
+pub(crate) fn get_self_address() -> Result<Address, Error> {
+    get_last_call_stack_item()
+        .map(call_stack_element_to_address)
+        .ok_or(Error::InvalidContext)
+}
+
+fn get_last_call_stack_item() -> Option<CallStackElement> {
+    let call_stack = runtime::get_call_stack();
+    call_stack.into_iter().rev().nth(0)
+}
+
+pub(crate) fn get_key<T: FromBytes + CLTyped>(name: &str) -> Option<T> {
+    match runtime::get_key(name) {
+        None => None,
+        Some(value) => {
+            let key = value.try_into().unwrap_or_revert();
+            let result = storage::read(key).unwrap_or_revert().unwrap_or_revert();
+            Some(result)
+        }
+    }
+}
+
+pub(crate) fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
+    match runtime::get_key(name) {
+        Some(key) => {
+            let key_ref = key.try_into().unwrap_or_revert();
+            storage::write(key_ref, value);
+        }
+        None => {
+            let key = storage::new_uref(value).into();
+            runtime::put_key(name, key);
+        }
+    }
 }
