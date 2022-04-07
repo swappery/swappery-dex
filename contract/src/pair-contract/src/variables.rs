@@ -2,10 +2,9 @@
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{URef, U256};
-use casper_erc20::Address;
 
 use crate::{constants::{
-    RESERVE0_KEY_NAME, RESERVE1_KEY_NAME, LOCKED_FLAG_KEY_NAME, FACTORY_KEY_NAME,
+    RESERVE0_KEY_NAME, RESERVE1_KEY_NAME, LOCKED_FLAG_KEY_NAME,
     KLAST_KEY_NAME,
 }, helpers};
 
