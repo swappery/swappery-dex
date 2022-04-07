@@ -5,3 +5,4 @@ pub const RESERVE0_KEY_NAME: &str = "reserve0";
 pub const RESERVE1_KEY_NAME: &str = "reserve1";
 pub const TOKEN0_KEY_NAME: &str = "token0";
 pub const TOKEN1_KEY_NAME: &str = "token1";
+pub const LOCKED_FLAG_KEY_NAME: &str = "locked";

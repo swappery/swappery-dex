@@ -9,3 +9,4 @@ edition = "2021"
 casper-contract = "1.4.3"
 casper-types = "1.4.6"
 casper-erc20 = { path = "../erc20" }
+once_cell = { version = "1.8.0", default-features = false }

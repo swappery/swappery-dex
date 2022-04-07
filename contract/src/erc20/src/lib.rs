@@ -123,6 +123,7 @@ impl ERC20 {
             decimals,
             initial_supply,
             ERC20_TOKEN_CONTRACT_KEY_NAME,
+            NamedKeys::new(),
             default_entry_points,
         )
     }
@@ -248,6 +249,7 @@ impl ERC20 {
         decimals: u8,
         initial_supply: U256,
         contract_key_name: &str,
+        named_keys: NamedKeys,
         entry_points: EntryPoints,
     ) -> Result<ERC20, Error> {
         let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
@@ -255,7 +257,7 @@ impl ERC20 {
         // We need to hold on a RW access rights because tokens can be minted or burned.
         let total_supply_uref = storage::new_uref(initial_supply).into_read_write();
 
-        let mut named_keys = NamedKeys::new();
+        let mut new_named_keys = named_keys.clone();
 
         let name_key = {
             let name_uref = storage::new_uref(name).into_read();
@@ -290,15 +292,15 @@ impl ERC20 {
             Key::from(allowances_uref)
         };
 
-        named_keys.insert(NAME_KEY_NAME.to_string(), name_key);
-        named_keys.insert(SYMBOL_KEY_NAME.to_string(), symbol_key);
-        named_keys.insert(DECIMALS_KEY_NAME.to_string(), decimals_key);
-        named_keys.insert(BALANCES_KEY_NAME.to_string(), balances_dictionary_key);
-        named_keys.insert(ALLOWANCES_KEY_NAME.to_string(), allowances_dictionary_key);
-        named_keys.insert(TOTAL_SUPPLY_KEY_NAME.to_string(), total_supply_key);
+        new_named_keys.insert(NAME_KEY_NAME.to_string(), name_key);
+        new_named_keys.insert(SYMBOL_KEY_NAME.to_string(), symbol_key);
+        new_named_keys.insert(DECIMALS_KEY_NAME.to_string(), decimals_key);
+        new_named_keys.insert(BALANCES_KEY_NAME.to_string(), balances_dictionary_key);
+        new_named_keys.insert(ALLOWANCES_KEY_NAME.to_string(), allowances_dictionary_key);
+        new_named_keys.insert(TOTAL_SUPPLY_KEY_NAME.to_string(), total_supply_key);
 
-        let (contract_hash, _version) =
-            storage::new_contract(entry_points, Some(named_keys), 
+        let _=
+            storage::new_contract(entry_points, Some(new_named_keys), 
             Some(String::from(contract_key_name)), None);
 
         // Hash of the installed contract will be reachable through named keys.
