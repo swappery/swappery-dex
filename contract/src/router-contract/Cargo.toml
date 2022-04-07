@@ -15,5 +15,5 @@ test = false
 [dependencies]
 casper-contract = "1.4.3"
 casper-types = "1.4.6"
-casper-erc20 = "0.2.1"
+casper-erc20 = { path = "../erc20" }
 swappery-pair = { path = "../pair-contract" }
