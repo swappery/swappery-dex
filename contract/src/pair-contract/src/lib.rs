@@ -25,7 +25,7 @@ use casper_erc20::{
     Address, ERC20
 };
 
-use casper_types::{CLValue, U256, URef, contracts::NamedKeys, Key, runtime_args, account::AccountHash};
+use casper_types::{CLValue, U256, URef, contracts::NamedKeys, Key, RuntimeArgs, runtime_args, account::AccountHash};
 
 use casper_contract::{
     contract_api::{runtime, storage},
@@ -139,7 +139,7 @@ impl SwapperyPair {
     }
 
     pub fn klast(&self) -> U256 {
-        helpers::read_from(KLAST_KEY_NAME)
+        self.read_klast()
     }
 
     pub fn _update(
@@ -154,29 +154,29 @@ impl SwapperyPair {
         self.write_reserve1(balance1);
     }
 
-    pub fn _mintFee(
+    pub fn _mint_fee(
         &mut self,
         _reserve0: U256,
         _reserve1: U256
     ) -> bool {
         // address feeTo = IPancakeFactory(factory).feeTo();
-        // feeOn = feeTo != address(0);
-        let _kLast: U256 = self.klast(); // gas savings
+        // fee_on = feeTo != address(0);
+        let _klast: U256 = self.klast(); // gas savings
         if true {
-            if !(_kLast.is_zero()) {
-                let mut rootK: U256 = _reserve0 * _reserve1;
-                rootK = rootK.integer_sqrt();
-                let rootKLast = _kLast.integer_sqrt();
-                if rootK > rootKLast {
-                    let numerator: U256 = U256::from(SwapperyPair::default().total_supply()) * (rootK - rootKLast);
-                    let denominator: U256 = rootK * U256::from("3") + rootKLast;
+            if !(_klast.is_zero()) {
+                let mut rootk: U256 = _reserve0 * _reserve1;
+                rootk = rootk.integer_sqrt();
+                let rootklast = _klast.integer_sqrt();
+                if rootk > rootklast {
+                    let numerator: U256 = U256::from(SwapperyPair::default().total_supply()) * (rootk - rootklast);
+                    let denominator: U256 = rootk * U256::from("3") + rootklast;
                     let liquidity: U256 = numerator / denominator;
                     if liquidity > U256::zero() {
                         //ERC20::default().mint(feeTo, liquidity).unwrap_or_revert();
                     }
                 }
             }
-        } else if !(_kLast.is_zero()) {
+        } else if !(_klast.is_zero()) {
             self.write_klast(U256::zero());
         }
         return true;
@@ -189,8 +189,7 @@ impl SwapperyPair {
         initial_supply: U256, 
         contract_key_name: &str, 
         token0: Address, 
-        token1: Address, 
-        factory: Address)
+        token1: Address)
      -> Result<SwapperyPair, Error> {
         let reserve0_uref = storage::new_uref(U256::zero()).into_read_write();
         let reserve1_uref = storage::new_uref(U256::zero()).into_read_write();
@@ -208,7 +207,7 @@ impl SwapperyPair {
         };
 
         let factory_key = {
-            let factory_uref = storage::new_uref(factory).into_read();
+            let factory_uref = storage::new_uref(helpers::get_caller_address().unwrap_or_revert()).into_read();
             Key::from(factory_uref)
         };
 
@@ -358,25 +357,25 @@ pub extern "C" fn mint() {
     let amount0: U256 = balance0 - _reserve0;
     let amount1: U256 = balance1 - _reserve1;
 
-    let feeOn: bool = SwapperyPair::default()._mintFee(_reserve0, _reserve1);
-    let _totalSupply: U256 = SwapperyPair::default().total_supply();
-    let mut liquidity: U256;
-    if _totalSupply.is_zero() {
+    let fee_on: bool = SwapperyPair::default()._mint_fee(_reserve0, _reserve1);
+    let _total_supply: U256 = SwapperyPair::default().total_supply();
+    let liquidity: U256;
+    if _total_supply.is_zero() {
         liquidity = (U256::from(amount0 * amount1).integer_sqrt()) - MINIMUM_LIQUIDITY;
-        SwapperyPair::default().mint(Address::from(AccountHash::new([0u8; 32])), MINIMUM_LIQUIDITY);
+        SwapperyPair::default().mint(Address::from(AccountHash::new([0u8; 32])), U256::from(MINIMUM_LIQUIDITY)).unwrap_or_revert();
     } else {
         liquidity = U256::min(
-            amount0 * _totalSupply / _reserve0,
-            amount1 * _totalSupply / _reserve1
+            amount0 * _total_supply / _reserve0,
+            amount1 * _total_supply / _reserve1
         );
     }
     if !(liquidity > U256::zero()) {
         runtime::revert(Error::InsufficientLiquidityMinted);
     }
-    SwapperyPair::default().mint(to, liquidity);
+    SwapperyPair::default().mint(to, liquidity).unwrap_or_revert();
 
     SwapperyPair::default()._update(balance0, balance1);
-    if feeOn {
+    if fee_on {
         SwapperyPair::default().write_klast( 
             SwapperyPair::default().reserve0() * 
             SwapperyPair::default().reserve1() );
@@ -423,16 +422,16 @@ pub extern "C" fn burn() {
     );
     let liquidity: U256 = SwapperyPair::default().balance_of(self_addr);
 
-    let feeOn: bool = SwapperyPair::default()._mintFee(_reserve0, _reserve1);
-    let _totalSupply: U256 = SwapperyPair::default().total_supply(); 
-    let amount0: U256 = liquidity * balance0 / _totalSupply;
-    let amount1: U256 = liquidity * balance1 / _totalSupply;
+    let fee_on: bool = SwapperyPair::default()._mint_fee(_reserve0, _reserve1);
+    let _total_supply: U256 = SwapperyPair::default().total_supply(); 
+    let amount0: U256 = liquidity * balance0 / _total_supply;
+    let amount1: U256 = liquidity * balance1 / _total_supply;
     if !(amount0 > U256::zero() && amount1 > U256::zero()) {
         runtime::revert(Error::InsufficientLiquidityBurned);
     }
 
-    SwapperyPair::default().burn(self_addr, liquidity);
-    runtime::call_versioned_contract(
+    SwapperyPair::default().burn(self_addr, liquidity).unwrap_or_revert();
+    runtime::call_versioned_contract::<()>(
         *token0.as_contract_package_hash().unwrap_or_revert(),
         None,
         TRANSFER_ENTRY_POINT_NAME,
@@ -441,7 +440,7 @@ pub extern "C" fn burn() {
             AMOUNT_RUNTIME_ARG_NAME => amount0
         }
     );
-    runtime::call_versioned_contract(
+    runtime::call_versioned_contract::<()>(
         *token1.as_contract_package_hash().unwrap_or_revert(),
         None,
         TRANSFER_ENTRY_POINT_NAME,
@@ -469,7 +468,7 @@ pub extern "C" fn burn() {
     );
 
     SwapperyPair::default()._update(balance0, balance1);
-    if feeOn {
+    if fee_on {
         SwapperyPair::default().write_klast( 
             SwapperyPair::default().reserve0() * 
             SwapperyPair::default().reserve1() );
@@ -488,23 +487,23 @@ pub extern "C" fn swap() {
     }
     SwapperyPair::default().write_locked(true);
 
-    let amount0Out: U256 = runtime::get_named_arg(AMOUNT0_RUNTIME_ARG_NAME);
-    let amount1Out: U256 = runtime::get_named_arg(AMOUNT1_RUNTIME_ARG_NAME);
+    let amount0_out: U256 = runtime::get_named_arg(AMOUNT0_RUNTIME_ARG_NAME);
+    let amount1_out: U256 = runtime::get_named_arg(AMOUNT1_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
 
-    if !(amount0Out > U256::zero() || amount1Out > U256::zero()) {
+    if !(amount0_out > U256::zero() || amount1_out > U256::zero()) {
         runtime::revert(Error::InsufficientOutputAmount);
     }
 
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
 
-    if !(amount0Out < _reserve0 && amount1Out < _reserve1) {
+    if !(amount0_out < _reserve0 && amount1_out < _reserve1) {
         runtime::revert(Error::InsufficientLiquidity);
     }
 
-    let mut balance0: U256;
-    let mut balance1: U256;
+    let balance0: U256;
+    let balance1: U256;
 
     let self_addr = helpers::get_self_address().unwrap_or_revert();
 
@@ -515,25 +514,25 @@ pub extern "C" fn swap() {
         runtime::revert(Error::InvalidTo);
     }
 
-    if amount0Out > U256::zero() {
-        runtime::call_versioned_contract(
+    if amount0_out > U256::zero() {
+        runtime::call_versioned_contract::<()>(
             *token0.as_contract_package_hash().unwrap_or_revert(),
             None,
             TRANSFER_ENTRY_POINT_NAME,
             runtime_args!{
                 RECIPIENT_RUNTIME_ARG_NAME => to,
-                AMOUNT_RUNTIME_ARG_NAME => amount0Out
+                AMOUNT_RUNTIME_ARG_NAME => amount0_out
             }
         );
     }
-    if amount1Out > U256::zero() {
-        runtime::call_versioned_contract(
+    if amount1_out > U256::zero() {
+        runtime::call_versioned_contract::<()>(
             *token1.as_contract_package_hash().unwrap_or_revert(),
             None,
             TRANSFER_ENTRY_POINT_NAME,
             runtime_args!{
                 RECIPIENT_RUNTIME_ARG_NAME => to,
-                AMOUNT_RUNTIME_ARG_NAME => amount1Out
+                AMOUNT_RUNTIME_ARG_NAME => amount1_out
             }
         );
     }
@@ -557,24 +556,24 @@ pub extern "C" fn swap() {
         }
     );
 
-    let mut amount0In: U256 = U256::zero();
-    if balance0 > ( _reserve0 - amount0Out ){
-        amount0In = balance0 - (_reserve0 - amount0Out);
+    let mut amount0_in: U256 = U256::zero();
+    if balance0 > ( _reserve0 - amount0_out ){
+        amount0_in = balance0 - (_reserve0 - amount0_out);
     }
 
-    let mut amount1In: U256 = U256::zero();
-    if balance1 > ( _reserve1 - amount1Out ){
-        amount1In = balance1 - (_reserve1 - amount1Out);
+    let mut amount1_in: U256 = U256::zero();
+    if balance1 > ( _reserve1 - amount1_out ){
+        amount1_in = balance1 - (_reserve1 - amount1_out);
     }
 
-    if !(amount0In > U256::zero() || amount1In > U256::zero()) {
+    if !(amount0_in > U256::zero() || amount1_in > U256::zero()) {
         runtime::revert(Error::InsufficientInputAmount);
     }
 
-    let balance0Adjusted: U256 = balance0 * U256::from("1000") - amount0In * U256::from("2");
-    let balance1Adjusted: U256 = balance1 * U256::from("1000") - amount1In * U256::from("2");
+    let balance0_adjusted: U256 = balance0 * U256::from("1000") - amount0_in * U256::from("2");
+    let balance1_adjusted: U256 = balance1 * U256::from("1000") - amount1_in * U256::from("2");
     
-    if !((balance0Adjusted * balance1Adjusted) >= (_reserve0 * _reserve1 * U256::from("1000000"))) {
+    if !((balance0_adjusted * balance1_adjusted) >= (_reserve0 * _reserve1 * U256::from("1000000"))) {
         runtime::revert(Error::K);
     }
 

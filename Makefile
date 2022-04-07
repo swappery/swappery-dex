@@ -1,4 +1,4 @@
-ALL_CONTRACTS = router-contract
+ALL_CONTRACTS = factory-contract
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:

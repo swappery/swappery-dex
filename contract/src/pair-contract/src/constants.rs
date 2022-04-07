@@ -1,5 +1,3 @@
-use casper_types::U256;
-
 pub const TO_RUNTIME_ARG_NAME: &str = "to";
 pub const AMOUNT0_RUNTIME_ARG_NAME: &str = "amount0";
 pub const AMOUNT1_RUNTIME_ARG_NAME: &str = "amount1";
@@ -14,4 +12,4 @@ pub const MINT_ENTRY_POINT_NAME: &str = "mint";
 pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 pub const SWAP_ENTRY_POINT_NAME: &str = "swap";
 pub const GET_RESERVES_ENTRY_POINT_NAME: &str = "get_reserves";
-pub const MINIMUM_LIQUIDITY: U256 = U256::from("1000");
+pub const MINIMUM_LIQUIDITY: u64 = 1000;

@@ -4,7 +4,7 @@ use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::{ FromBytes, ToBytes }, system::CallStackElement, ApiError, CLTyped, URef};
+use casper_types::{bytesrepr::{ FromBytes }, system::CallStackElement, ApiError, CLTyped, URef};
 
 use casper_erc20::{Error, Address};
 
@@ -27,10 +27,10 @@ where
 }
 
 /// Gets the immediate call stack element of the current execution.
-fn get_immediate_call_stack_item() -> Option<CallStackElement> {
-    let call_stack = runtime::get_call_stack();
-    call_stack.into_iter().rev().nth(1)
-}
+// fn get_immediate_call_stack_item() -> Option<CallStackElement> {
+//     let call_stack = runtime::get_call_stack();
+//     call_stack.into_iter().rev().nth(1)
+// }
 
 /// Returns address based on a [`CallStackElement`].
 ///
@@ -55,11 +55,11 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
 ///
 /// This function ensures that only session code can execute this function, and disallows stored
 /// session/stored contracts.
-pub(crate) fn get_immediate_caller_address() -> Result<Address, Error> {
-    get_immediate_call_stack_item()
-        .map(call_stack_element_to_address)
-        .ok_or(Error::InvalidContext)
-}
+// pub(crate) fn get_immediate_caller_address() -> Result<Address, Error> {
+//     get_immediate_call_stack_item()
+//         .map(call_stack_element_to_address)
+//         .ok_or(Error::InvalidContext)
+// }
 
 /// Gets the caller address which is stored on the top of the call stack.
 ///
@@ -87,26 +87,26 @@ fn get_last_call_stack_item() -> Option<CallStackElement> {
     call_stack.into_iter().rev().nth(0)
 }
 
-pub(crate) fn get_key<T: FromBytes + CLTyped>(name: &str) -> Option<T> {
-    match runtime::get_key(name) {
-        None => None,
-        Some(value) => {
-            let key = value.try_into().unwrap_or_revert();
-            let result = storage::read(key).unwrap_or_revert().unwrap_or_revert();
-            Some(result)
-        }
-    }
-}
+// pub(crate) fn get_key<T: FromBytes + CLTyped>(name: &str) -> Option<T> {
+//     match runtime::get_key(name) {
+//         None => None,
+//         Some(value) => {
+//             let key = value.try_into().unwrap_or_revert();
+//             let result = storage::read(key).unwrap_or_revert().unwrap_or_revert();
+//             Some(result)
+//         }
+//     }
+// }
 
-pub(crate) fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
-    match runtime::get_key(name) {
-        Some(key) => {
-            let key_ref = key.try_into().unwrap_or_revert();
-            storage::write(key_ref, value);
-        }
-        None => {
-            let key = storage::new_uref(value).into();
-            runtime::put_key(name, key);
-        }
-    }
-}
+// pub(crate) fn set_key<T: ToBytes + CLTyped>(name: &str, value: T) {
+//     match runtime::get_key(name) {
+//         Some(key) => {
+//             let key_ref = key.try_into().unwrap_or_revert();
+//             storage::write(key_ref, value);
+//         }
+//         None => {
+//             let key = storage::new_uref(value).into();
+//             runtime::put_key(name, key);
+//         }
+//     }
+// }

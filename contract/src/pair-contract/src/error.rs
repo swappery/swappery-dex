@@ -30,7 +30,7 @@ impl From<Error> for ApiError {
             Error::InsufficientInputAmount => ERROR_INSUFFICIENT_INPUT_AMOUNT,
             Error::InsufficientOutputAmount => ERROR_INSUFFICIENT_OUTPUT_AMOUNT,
             Error::InsufficientLiquidity => ERROR_INSUFFICIENT_LIQUIDITY,
-            Error::InsufficientLiquidityBurned => ERROR_INSUFFICIENT_LIQUIDITY_MINTED,
+            Error::InsufficientLiquidityBurned => ERROR_INSUFFICIENT_LIQUIDITY_BURNED,
             Error::InsufficientLiquidityMinted => ERROR_INSUFFICIENT_LIQUIDITY_MINTED,
             Error::InvalidTo => ERROR_INVALID_TO,
             Error::OverFlow => ERROR_OVERFLOW,
