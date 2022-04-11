@@ -1,5 +1,5 @@
 [package]
-name = "tests"
+name = "pair-tests"
 version = "0.1.0"
 edition = "2018"
 
@@ -7,11 +7,14 @@ edition = "2018"
 casper-contract = { version = "1.4.3", default-features = false, features = ["test-support"] }
 casper-engine-test-support = { version = "2.0.3", features = ["test-support"] }
 casper-execution-engine = "1.4.4"
+casper-erc20 = { path = "../../contract/src/erc20" }
 casper-types = "1.4.6"
+base64 = "0.13.0"
+blake2 = "0.10.4"
+hex = "0.4.3"
 
 [[bin]]
-name = "integration-tests"
-path = "src/integration_tests.rs"
+name = "pair-tests"
+path = "src/pair_tests.rs"
 bench = false
 doctest = false
-

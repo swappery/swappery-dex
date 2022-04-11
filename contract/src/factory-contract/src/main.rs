@@ -13,7 +13,7 @@ mod helpers;
 
 use alloc::string::String;
 
-use swappery_pair::SwapperyPair;
+// use swappery_pair::SwapperyPair;
 
 use casper_erc20::{
     constants::{
@@ -24,7 +24,7 @@ use casper_erc20::{
     Address,
 };
 
-use casper_types::{ HashAddr, ContractHash, Key, account::AccountHash, URef };
+use casper_types::{ HashAddr, ContractHash, Key, account::AccountHash, URef, U256 };
 
 use casper_contract::{ 
     contract_api::{ runtime },
@@ -90,19 +90,19 @@ impl SwapperyFactory {
 fn call() {
     let name: String = runtime::get_named_arg(NAME_RUNTIME_ARG_NAME);
     let symbol: String = runtime::get_named_arg(SYMBOL_RUNTIME_ARG_NAME);
-    let decimals = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
-    let initial_supply = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
+    let decimals: u8 = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
+    let initial_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
     let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
 
-    let _ = SwapperyPair::create(
-        name,
-        symbol,
-        decimals,
-        initial_supply,
-        contract_key_name.as_str(),
-        Address::from(AccountHash::new([0u8; 32])),
-        Address::from(AccountHash::new([0u8; 32]))
-    );
+    // let _ = SwapperyPair::create(
+    //     name,
+    //     symbol,
+    //     decimals,
+    //     initial_supply,
+    //     contract_key_name.as_str(),
+    //     Address::from(AccountHash::new([0u8; 32])),
+    //     Address::from(AccountHash::new([0u8; 32]))
+    // );
 
     let key: Key = runtime::get_key(contract_key_name.as_str()).unwrap_or_revert();
     let hash: HashAddr = key.into_hash().unwrap_or_revert();

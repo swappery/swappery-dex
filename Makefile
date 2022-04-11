@@ -1,4 +1,4 @@
-ALL_CONTRACTS = factory-contract
+ALL_CONTRACTS = swappery-pair
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:

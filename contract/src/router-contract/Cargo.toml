@@ -16,4 +16,4 @@ test = false
 casper-contract = "1.4.3"
 casper-types = "1.4.6"
 casper-erc20 = { path = "../erc20" }
-swappery-pair = { path = "../pair-contract" }
+# swappery-pair = { path = "../pair-contract" }

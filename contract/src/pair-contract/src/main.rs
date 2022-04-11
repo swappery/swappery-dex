@@ -1,5 +1,8 @@
 #![no_std]
 #![no_main]
+#![feature(default_alloc_error_handler)]
+#[cfg(not(target_arch = "wasm32"))]
+compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
 extern crate alloc;
 
@@ -20,7 +23,9 @@ use casper_erc20::{
         ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME,
         OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
         SPENDER_RUNTIME_ARG_NAME, BALANCE_OF_ENTRY_POINT_NAME,
-        TRANSFER_ENTRY_POINT_NAME,
+        TRANSFER_ENTRY_POINT_NAME, SYMBOL_RUNTIME_ARG_NAME, 
+        NAME_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
+        TOTAL_SUPPLY_RUNTIME_ARG_NAME, 
     },
     Address, ERC20
 };
@@ -35,7 +40,7 @@ use casper_contract::{
 use constants::{
     RESERVE0_KEY_NAME, RESERVE1_KEY_NAME, TOKEN0_KEY_NAME, TOKEN1_KEY_NAME,
     LOCKED_FLAG_KEY_NAME, TO_RUNTIME_ARG_NAME, AMOUNT0_RUNTIME_ARG_NAME, AMOUNT1_RUNTIME_ARG_NAME,
-    KLAST_KEY_NAME, FACTORY_KEY_NAME, MINIMUM_LIQUIDITY,
+    KLAST_KEY_NAME, FACTORY_KEY_NAME, MINIMUM_LIQUIDITY, 
 };
 use error::Error;
 
@@ -580,4 +585,33 @@ pub extern "C" fn swap() {
     SwapperyPair::default()._update(balance0, balance1);
 
     SwapperyPair::default().write_locked(false);
+}
+
+#[no_mangle]
+fn call() {
+
+    const CONTRACT_KEY_NAME_ARG_NAME: &str = "contract_key_name";
+
+    let name: String = runtime::get_named_arg(NAME_RUNTIME_ARG_NAME);
+    let symbol: String = runtime::get_named_arg(SYMBOL_RUNTIME_ARG_NAME);
+    let decimals: u8 = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
+    let initial_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
+    let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
+    let token0: Address = runtime::get_named_arg(TOKEN0_KEY_NAME);
+    let token1: Address = runtime::get_named_arg(TOKEN1_KEY_NAME);
+
+    let _= SwapperyPair::create(
+        name,
+        symbol,
+        decimals,
+        initial_supply,
+        contract_key_name.as_str(),
+        token0,
+        token1).unwrap_or_revert();
+
+}
+
+#[panic_handler]
+fn my_panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }
