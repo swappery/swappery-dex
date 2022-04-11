@@ -1,13 +1,13 @@
-use alloc::string::String;
+use alloc::{string::String, vec::Vec};
 
-use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
-use casper_types::{bytesrepr::ToBytes, URef, U256};
+use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
+use casper_types::{bytesrepr::ToBytes, URef};
 
-use casper_erc20::{Error, Address};
+use casper_erc20::{Address};
 
 use crate::helpers::{get_uref};
 
-const PAIR_LIST_KEY_NAME: &str = "pair_list";
+use crate::constants::{PAIR_LIST_KEY_NAME};
 
 pub(crate) fn get_pair_list_uref() -> URef {
     get_uref(PAIR_LIST_KEY_NAME)
@@ -36,5 +36,5 @@ pub(crate) fn get_pair_for(pair_list_uref: URef, token0: Address, token1: Addres
     let dictionary_item_key = make_dictionary_item_key(token0, token1);
     storage::dictionary_get(pair_list_uref, &dictionary_item_key)
         .unwrap_or_revert()
-        .unwrap_or_default()
+        .unwrap_or_revert()
 }

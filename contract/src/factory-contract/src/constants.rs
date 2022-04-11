@@ -1,0 +1,9 @@
+pub const CREATE_PAIR_ENTRY_POINT: &str = "create_pair";
+pub const GET_PAIR_ENTRY_POINT: &str = "get_pair";
+pub const SET_FEETO_ENTRY_POINT: &str = "set_feeto";
+pub const SET_FEETO_SETTER_ENTRY_POINT: &str = "set_feeto_setter";
+pub const TOKEN0_RUNTIME_ARG_NAME: &str = "token0";
+pub const TOKEN1_RUNTIME_ARG_NAME: &str = "token1";
+pub const FEETO_KEY_NAME: &str = "feeto";
+pub const FEETO_SETTER_KEY_NAME: &str = "feeto_setter";
+pub const PAIR_LIST_KEY_NAME: &str = "pair_list";
