@@ -3,7 +3,9 @@ mod test_fixture;
 
 #[cfg(test)]
 mod tests {
-    use casper_types::{Key, U256, contracts::ContractPackageHash };
+    use casper_types::{Key, U256, contracts::ContractPackageHash, account::AccountHash };
+
+    use casper_erc20::Address;
 
     use crate::test_fixture::{Sender, TestFixture};
 
@@ -15,8 +17,12 @@ mod tests {
         assert_eq!(fixture.pair_token_decimals(), TestFixture::TOKEN_DECIMALS);
         assert_eq!(
             fixture.pair_balance_of(Key::from(fixture.ali)),
-            Some(TestFixture::token_total_supply())
+            Some(U256::zero())
         );
+        assert_eq!(fixture.pair_reserve0(), U256::zero());
+        assert_eq!(fixture.pair_reserve1(), U256::zero());
+        assert_eq!(fixture.pair_token0(), Address::from(fixture.token0_contract_package_hash()));
+        assert_eq!(fixture.pair_token1(), Address::from(fixture.token1_contract_package_hash()));
     }
 
     #[test]
@@ -192,20 +198,118 @@ mod tests {
             U256::from(200u64),
             Sender(fixture.ali),
         );
+
+        assert_eq!(
+            fixture.token0_balance_of(Key::from(pair_contract_package_hash)),
+            Some(U256::from(200u64))
+        );
     }
 
     #[test]
     fn should_mint() {
         let mut fixture = TestFixture::install_contract();
+        let pair_contract_package_hash: ContractPackageHash = fixture.pair_contract_package_hash();
         fixture.token0_transfer(
-            Key::from(fixture.joe),
-            U256::from(500u64),
+            Key::from(pair_contract_package_hash),
+            U256::from(5_000u64),
             Sender(fixture.ali),
         );
         fixture.token1_transfer(
-            Key::from(fixture.joe),
-            U256::from(1000u64),
+            Key::from(pair_contract_package_hash),
+            U256::from(10_000u64),
             Sender(fixture.bob),
+        );
+
+        fixture.pair_mint(
+            Key::from(fixture.joe),
+            Sender(fixture.ali),
+        );
+        
+        assert_eq!(
+            fixture.pair_balance_of(Key::from(AccountHash::new([0u8; 32]))),
+            Some(U256::from(1000u64))
+        );
+
+        // assert_eq!(
+        //     fixture.pair_balance_of(Key::from(fixture.joe)),
+        //     Some(U256::zero())
+        // );
+
+    }
+
+    #[test]
+    fn should_burn() {
+        let mut fixture = TestFixture::install_contract();
+        let pair_contract_package_hash: ContractPackageHash = fixture.pair_contract_package_hash();
+        fixture.token0_transfer(
+            Key::from(pair_contract_package_hash),
+            U256::from(5_000u64),
+            Sender(fixture.ali),
+        );
+        fixture.token1_transfer(
+            Key::from(pair_contract_package_hash),
+            U256::from(10_000u64),
+            Sender(fixture.bob),
+        );
+
+        fixture.pair_mint(
+            Key::from(fixture.ali),
+            Sender(fixture.ali),
+        );
+
+        fixture.pair_transfer(
+            Key::from(pair_contract_package_hash),
+            U256::from(3000),
+            Sender(fixture.ali),
+        );
+
+        fixture.pair_burn(
+            Key::from(fixture.ali),
+            Sender(fixture.ali),
+        );
+        
+        assert_eq!(
+            fixture.pair_balance_of(Key::from(AccountHash::new([0u8; 32]))),
+            Some(U256::from(1000u64))
+        );
+    }
+
+    #[test]
+    fn should_swap() {
+        let mut fixture = TestFixture::install_contract();
+        let pair_contract_package_hash: ContractPackageHash = fixture.pair_contract_package_hash();
+        fixture.token0_transfer(
+            Key::from(pair_contract_package_hash),
+            U256::from(5_000u64),
+            Sender(fixture.ali),
+        );
+        fixture.token1_transfer(
+            Key::from(pair_contract_package_hash),
+            U256::from(10_000u64),
+            Sender(fixture.bob),
+        );
+
+        fixture.pair_mint(
+            Key::from(fixture.ali),
+            Sender(fixture.ali),
+        );
+
+        fixture.token0_transfer(
+            Key::from(pair_contract_package_hash),
+            U256::from(1000u64),
+            Sender(fixture.ali),
+        );
+
+        fixture.pair_swap(
+            U256::zero(),
+            U256::from(1500u64),
+            Key::from(fixture.ali),
+            Sender(fixture.ali),
+        );
+        
+        assert_eq!(
+            fixture.pair_balance_of(Key::from(AccountHash::new([0u8; 32]))),
+            Some(U256::from(1000u64))
         );
     }
 }

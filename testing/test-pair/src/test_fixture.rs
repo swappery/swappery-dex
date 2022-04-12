@@ -56,7 +56,7 @@ impl TestFixture {
     pub const PAIR_TOKEN0_SYMBOL: &'static str = "T0P";
     pub const PAIR_TOKEN1_NAME: &'static str = "token1_for_pair";
     pub const PAIR_TOKEN1_SYMBOL: &'static str = "T1P";
-    const TOKEN_TOTAL_SUPPLY_AS_U64: u64 = 1000;
+    const TOKEN_TOTAL_SUPPLY_AS_U64: u64 = 10_000;
 
     pub fn token_total_supply() -> U256 {
         Self::TOKEN_TOTAL_SUPPLY_AS_U64.into()
@@ -71,24 +71,6 @@ impl TestFixture {
             .with_public_key(ali.clone(), U512::from(500_000_000_000_000_000u64))
             .with_public_key(bob.clone(), U512::from(500_000_000_000_000_000u64))
             .build();
-
-        let session_code = Code::from(CONTRACT_SWAPPERY_PAIR);
-        let session_args = runtime_args! {
-            consts::NAME_RUNTIME_ARG_NAME => TestFixture::TOKEN_NAME,
-            consts::SYMBOL_RUNTIME_ARG_NAME => TestFixture::TOKEN_SYMBOL,
-            consts::DECIMALS_RUNTIME_ARG_NAME => TestFixture::TOKEN_DECIMALS,
-            consts::TOTAL_SUPPLY_RUNTIME_ARG_NAME => TestFixture::token_total_supply(),
-            "contract_key_name" => PAIR_CONTRACT_KEY_NAME,
-            TOKEN0_KEY_NAME => Address::from(ContractPackageHash::from([100u8; 32])),
-            TOKEN1_KEY_NAME => Address::from(ContractPackageHash::from([101u8; 32]))
-        };
-
-        let session = SessionBuilder::new(session_code, session_args)
-            .with_address(ali.to_account_hash())
-            .with_authorization_keys(&[ali.to_account_hash()])
-            .build();
-
-        context.run(session);
 
         let session_code = Code::from(CONTRACT_ERC20_TOKEN);
         let session_args = runtime_args! {
@@ -119,6 +101,30 @@ impl TestFixture {
             .build();
 
         context.run(session);
+
+        let token0: ContractPackageHash = context.get_account(ali.to_account_hash()).unwrap().named_keys()
+            .get(ERC20_CONTRACT_KEY_NAME).unwrap().normalize().into_hash().unwrap().into();
+        let token1: ContractPackageHash = context.get_account(bob.to_account_hash()).unwrap().named_keys()
+            .get(ERC20_CONTRACT_KEY_NAME).unwrap().normalize().into_hash().unwrap().into();
+
+        let session_code = Code::from(CONTRACT_SWAPPERY_PAIR);
+        let session_args = runtime_args! {
+            consts::NAME_RUNTIME_ARG_NAME => TestFixture::TOKEN_NAME,
+            consts::SYMBOL_RUNTIME_ARG_NAME => TestFixture::TOKEN_SYMBOL,
+            consts::DECIMALS_RUNTIME_ARG_NAME => TestFixture::TOKEN_DECIMALS,
+            consts::TOTAL_SUPPLY_RUNTIME_ARG_NAME => U256::zero(),
+            "contract_key_name" => PAIR_CONTRACT_KEY_NAME,
+            TOKEN0_KEY_NAME => Address::from(token0),
+            TOKEN1_KEY_NAME => Address::from(token1)
+        };
+
+        let session = SessionBuilder::new(session_code, session_args)
+            .with_address(ali.to_account_hash())
+            .with_authorization_keys(&[ali.to_account_hash()])
+            .build();
+
+        context.run(session);
+
         TestFixture {
             context,
             ali: ali.to_account_hash(),
@@ -181,6 +187,19 @@ impl TestFixture {
             .into()
     }
 
+    pub fn token0_contract_package_hash(&self) -> ContractPackageHash {
+        self.context
+            .get_account(self.ali)
+            .unwrap()
+            .named_keys()
+            .get(ERC20_CONTRACT_KEY_NAME)
+            .unwrap()
+            .normalize()
+            .into_hash()
+            .unwrap()
+            .into()
+    }
+
     fn query_token0_contract<T: CLTyped + FromBytes>(&self, name: &str) -> Option<T> {
         match self
             .context
@@ -202,6 +221,19 @@ impl TestFixture {
             .unwrap()
             .named_keys()
             .get(ERC20_CONTRACT_HASH_KEY_NAME)
+            .unwrap()
+            .normalize()
+            .into_hash()
+            .unwrap()
+            .into()
+    }
+
+    pub fn token1_contract_package_hash(&self) -> ContractPackageHash {
+        self.context
+            .get_account(self.bob)
+            .unwrap()
+            .named_keys()
+            .get(ERC20_CONTRACT_KEY_NAME)
             .unwrap()
             .normalize()
             .into_hash()
@@ -343,8 +375,30 @@ impl TestFixture {
     pub fn pair_mint(&mut self, to: Key, sender: Sender) {
         self.pair_call(
             sender,
-            "mint",
+            MINT_ENTRY_POINT_NAME,
             runtime_args! {
+                "to" => to
+            },
+        );
+    }
+
+    pub fn pair_burn(&mut self, to: Key, sender: Sender) {
+        self.pair_call(
+            sender,
+            BURN_ENTRY_POINT_NAME,
+            runtime_args! {
+                "to" => to
+            },
+        );
+    }
+
+    pub fn pair_swap(&mut self, amount0: U256, amount1: U256, to: Key, sender: Sender) {
+        self.pair_call(
+            sender,
+            SWAP_ENTRY_POINT_NAME,
+            runtime_args! {
+                "amount0" => amount0,
+                "amount1" => amount1,
                 "to" => to
             },
         );
