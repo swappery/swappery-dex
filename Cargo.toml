@@ -1,13 +1,17 @@
 [workspace]
 members = [
-    "contract/src/pair-contract",
-    "contract/src/factory-contract",
-    "contract/src/router-contract"
+    "contracts/pair-contract",
+    "contracts/factory-contract",
+    "contracts/router-contract",
+    "testing/test-pair",
+    "testing/erc20-token"
 ]
 default-members = [
-    "contract/src/pair-contract",
-    "contract/src/router-contract",
-    "contract/src/factory-contract"
+    "contracts/pair-contract",
+    "contracts/router-contract",
+    "contracts/factory-contract",
+    "testing/test-pair",
+    "testing/erc20-token"
 ]
 
 [profile.release]

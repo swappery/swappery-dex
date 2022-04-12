@@ -1,4 +1,4 @@
-ALL_CONTRACTS = swappery-pair
+ALL_CONTRACTS = swappery-pair erc20-token
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:
@@ -9,9 +9,10 @@ build-contract:
 	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm 2>/dev/null | true;)
 
 test: build-contract
-	mkdir -p tests/wasm
-	cp contract/target/wasm32-unknown-unknown/release/contract.wasm tests/wasm
-	cd tests && cargo test
+	mkdir -p testing/test-pair/wasm
+	cp target/wasm32-unknown-unknown/release/swappery_pair.wasm testing/test-pair/wasm
+	cp target/wasm32-unknown-unknown/release/erc20_token.wasm testing/test-pair/wasm
+	cargo test
 
 clippy:
 	cd contract && cargo clippy --all-targets -- -D warnings

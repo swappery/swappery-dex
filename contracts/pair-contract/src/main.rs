@@ -174,7 +174,7 @@ impl SwapperyPair {
                 let rootklast = _klast.integer_sqrt();
                 if rootk > rootklast {
                     let numerator: U256 = U256::from(SwapperyPair::default().total_supply()) * (rootk - rootklast);
-                    let denominator: U256 = rootk * U256::from("3") + rootklast;
+                    let denominator: U256 = rootk * U256::from(3u64) + rootklast;
                     let liquidity: U256 = numerator / denominator;
                     if liquidity > U256::zero() {
                         //ERC20::default().mint(feeTo, liquidity).unwrap_or_revert();
@@ -575,10 +575,10 @@ pub extern "C" fn swap() {
         runtime::revert(Error::InsufficientInputAmount);
     }
 
-    let balance0_adjusted: U256 = balance0 * U256::from("1000") - amount0_in * U256::from("2");
-    let balance1_adjusted: U256 = balance1 * U256::from("1000") - amount1_in * U256::from("2");
+    let balance0_adjusted: U256 = balance0 * U256::from(1_000u64) - amount0_in * U256::from(2u64);
+    let balance1_adjusted: U256 = balance1 * U256::from(1_000u64) - amount1_in * U256::from(2u64);
     
-    if !((balance0_adjusted * balance1_adjusted) >= (_reserve0 * _reserve1 * U256::from("1000000"))) {
+    if !((balance0_adjusted * balance1_adjusted) >= (_reserve0 * _reserve1 * U256::from(1_000_000u64))) {
         runtime::revert(Error::K);
     }
 
@@ -609,9 +609,4 @@ fn call() {
         token0,
         token1).unwrap_or_revert();
 
-}
-
-#[panic_handler]
-fn my_panic(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
 }
