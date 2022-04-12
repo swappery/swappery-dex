@@ -299,10 +299,13 @@ impl ERC20 {
         new_named_keys.insert(ALLOWANCES_KEY_NAME.to_string(), allowances_dictionary_key);
         new_named_keys.insert(TOTAL_SUPPLY_KEY_NAME.to_string(), total_supply_key);
 
-        let (contract_hash, _version) =
-            storage::new_contract(entry_points, Some(new_named_keys), 
-            Some(String::from(contract_key_name)), None);
-        
+        let (contract_hash, _version) = storage::new_contract(
+            entry_points,
+            Some(new_named_keys),
+            Some(String::from(contract_key_name)),
+            None,
+        );
+
         let mut contract_hash_key_name: String = String::from(contract_key_name);
         contract_hash_key_name.push_str("_contract_hash");
         // Hash of the installed contract will be reachable through named keys.
