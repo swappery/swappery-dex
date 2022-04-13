@@ -9,7 +9,7 @@ build-contract:
 	$(foreach WASM, $(ALL_CONTRACTS), wasm-strip $(CONTRACT_TARGET_DIR)/$(subst -,_,$(WASM)).wasm 2>/dev/null | true;)
 
 test: build-contract
-	mkdir -p testing/test-pair/wasm
+	mkdir -p tests/test-pair/wasm
 	cp target/wasm32-unknown-unknown/release/swappery_pair.wasm tests/test-pair/wasm
 	cargo test
 
