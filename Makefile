@@ -10,7 +10,7 @@ build-contract:
 
 test: build-contract
 	mkdir -p testing/test-pair/wasm
-	cp target/wasm32-unknown-unknown/release/swappery_pair.wasm testing/test-pair/wasm
+	cp target/wasm32-unknown-unknown/release/swappery_pair.wasm tests/test-pair/wasm
 	cargo test
 
 clippy:
