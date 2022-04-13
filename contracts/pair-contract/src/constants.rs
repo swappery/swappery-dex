@@ -20,8 +20,6 @@ pub const NAME_KEY_NAME: &str = "name";
 pub const SYMBOL_KEY_NAME: &str = "symbol";
 /// Name of named-key for `decimals`
 pub const DECIMALS_KEY_NAME: &str = "decimals";
-/// Name of named-key for `contract`
-pub const ERC20_TOKEN_CONTRACT_KEY_NAME: &str = "erc20_token_contract";
 /// Name of dictionary-key for `balances`
 pub const BALANCES_KEY_NAME: &str = "balances";
 /// Name of dictionary-key for `allowances`
