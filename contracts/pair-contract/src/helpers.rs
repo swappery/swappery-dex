@@ -6,7 +6,8 @@ use casper_contract::{
 };
 use casper_types::{bytesrepr::{ FromBytes }, system::CallStackElement, ApiError, CLTyped, URef};
 
-use casper_erc20::{Error, Address};
+use crate::error::Error;
+use crate::address::Address;
 
 /// Gets [`URef`] under a name.
 pub(crate) fn get_uref(name: &str) -> URef {
@@ -27,10 +28,10 @@ where
 }
 
 /// Gets the immediate call stack element of the current execution.
-// fn get_immediate_call_stack_item() -> Option<CallStackElement> {
-//     let call_stack = runtime::get_call_stack();
-//     call_stack.into_iter().rev().nth(1)
-// }
+fn get_immediate_call_stack_item() -> Option<CallStackElement> {
+    let call_stack = runtime::get_call_stack();
+    call_stack.into_iter().rev().nth(1)
+}
 
 /// Returns address based on a [`CallStackElement`].
 ///
@@ -55,11 +56,11 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
 ///
 /// This function ensures that only session code can execute this function, and disallows stored
 /// session/stored contracts.
-// pub(crate) fn get_immediate_caller_address() -> Result<Address, Error> {
-//     get_immediate_call_stack_item()
-//         .map(call_stack_element_to_address)
-//         .ok_or(Error::InvalidContext)
-// }
+pub(crate) fn get_immediate_caller_address() -> Result<Address, Error> {
+    get_immediate_call_stack_item()
+        .map(call_stack_element_to_address)
+        .ok_or(Error::InvalidContext)
+}
 
 /// Gets the caller address which is stored on the top of the call stack.
 ///

@@ -4,7 +4,7 @@ use alloc::string::String;
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::ToBytes, URef, U256};
 
-use crate::{constants::BALANCES_KEY_NAME, detail, error::Error, Address};
+use crate::{constants::BALANCES_KEY_NAME, helpers, error::Error, Address};
 
 /// Creates a dictionary item key for a dictionary item.
 #[inline]
@@ -20,7 +20,7 @@ fn make_dictionary_item_key(owner: Address) -> String {
 }
 
 pub(crate) fn get_balances_uref() -> URef {
-    detail::get_uref(BALANCES_KEY_NAME)
+    helpers::get_uref(BALANCES_KEY_NAME)
 }
 
 /// Writes token balance of a specified account into a dictionary.
@@ -65,7 +65,7 @@ pub(crate) fn transfer_balance(
         let recipient_balance = read_balance_from(balances_uref, recipient);
         recipient_balance
             .checked_add(amount)
-            .ok_or(Error::Overflow)?
+            .ok_or(Error::OverFlow)?
     };
 
     write_balance_to(balances_uref, sender, new_sender_balance);

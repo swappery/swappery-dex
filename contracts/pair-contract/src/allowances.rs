@@ -7,11 +7,11 @@ use casper_contract::{
 };
 use casper_types::{bytesrepr::ToBytes, URef, U256};
 
-use crate::{constants::ALLOWANCES_KEY_NAME, detail, Address};
+use crate::{constants::ALLOWANCES_KEY_NAME, helpers, Address};
 
 #[inline]
 pub(crate) fn allowances_uref() -> URef {
-    detail::get_uref(ALLOWANCES_KEY_NAME)
+    helpers::get_uref(ALLOWANCES_KEY_NAME)
 }
 
 /// Creates a dictionary item key for an (owner, spender) pair.

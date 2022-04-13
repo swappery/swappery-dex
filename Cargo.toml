@@ -3,15 +3,15 @@ members = [
     "contracts/pair-contract",
     "contracts/factory-contract",
     "contracts/router-contract",
-    "testing/test-pair",
-    "testing/erc20-token"
+    "tests/test-pair",
+    "tests/erc20-token"
 ]
 default-members = [
     "contracts/pair-contract",
     "contracts/router-contract",
     "contracts/factory-contract",
-    "testing/test-pair",
-    "testing/erc20-token"
+    "tests/test-pair",
+    "tests/erc20-token"
 ]
 
 [profile.release]

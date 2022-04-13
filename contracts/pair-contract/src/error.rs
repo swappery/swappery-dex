@@ -11,18 +11,24 @@ pub enum Error {
     Forbidden,
     Locked,
     K,
+    InvalidContext,
+    InsufficientBalance,
+    InsufficientAllowance,
 }
 
 const ERROR_INSUFFICIENT_INPUT_AMOUNT: u16 = u16::MAX;
-const ERROR_INSUFFICIENT_OUTPUT_AMOUNT: u16 = u16::MAX;
-const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 1;
-const ERROR_INSUFFICIENT_LIQUIDITY_BURNED: u16 = u16::MAX - 2;
-const ERROR_INSUFFICIENT_LIQUIDITY_MINTED: u16 = u16::MAX - 3;
-const ERROR_INVALID_TO: u16 = u16::MAX - 4;
-const ERROR_OVERFLOW: u16 = u16::MAX - 5;
-const ERROR_FORBIDDEN: u16 = u16::MAX - 6;
-const ERROR_LOCKED: u16 = u16::MAX - 7;
-const ERROR_K: u16 = u16::MAX - 8;
+const ERROR_INSUFFICIENT_OUTPUT_AMOUNT: u16 = u16::MAX-1;
+const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 2;
+const ERROR_INSUFFICIENT_LIQUIDITY_BURNED: u16 = u16::MAX - 3;
+const ERROR_INSUFFICIENT_LIQUIDITY_MINTED: u16 = u16::MAX - 4;
+const ERROR_INVALID_TO: u16 = u16::MAX - 5;
+const ERROR_OVERFLOW: u16 = u16::MAX - 6;
+const ERROR_FORBIDDEN: u16 = u16::MAX - 7;
+const ERROR_LOCKED: u16 = u16::MAX - 8;
+const ERROR_K: u16 = u16::MAX - 9;
+const ERROR_INVALID_CONTEXT: u16 = u16::MAX - 10;
+const ERROR_INSUFFICIENT_BALANCE: u16 = u16::MAX - 11;
+const ERROR_INSUFFICIENT_ALLOWANCE: u16 = u16::MAX - 12;
 
 impl From<Error> for ApiError {
     fn from(error: Error) -> Self {
@@ -37,6 +43,9 @@ impl From<Error> for ApiError {
             Error::Forbidden => ERROR_FORBIDDEN,
             Error::Locked => ERROR_LOCKED,
             Error::K => ERROR_K,
+            Error::InvalidContext => ERROR_INVALID_CONTEXT,
+            Error::InsufficientBalance => ERROR_INSUFFICIENT_BALANCE,
+            Error::InsufficientAllowance => ERROR_INSUFFICIENT_ALLOWANCE,
         };
         ApiError::User(user_error)
     }

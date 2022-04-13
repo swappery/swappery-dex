@@ -6,27 +6,19 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
+pub mod address;
+mod allowances;
+mod balances;
 mod constants;
 mod entry_points;
-mod error;
+pub mod error;
 mod helpers;
 mod variables;
+mod total_supply;
 
 use alloc::string::String;
 
 use once_cell::unsync::OnceCell;
-
-use core::ops::{Deref, DerefMut};
-
-use casper_erc20::{
-    constants::{
-        ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, BALANCE_OF_ENTRY_POINT_NAME,
-        DECIMALS_RUNTIME_ARG_NAME, NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME,
-        RECIPIENT_RUNTIME_ARG_NAME, SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME,
-        TOTAL_SUPPLY_RUNTIME_ARG_NAME, TRANSFER_ENTRY_POINT_NAME,
-    },
-    Address, ERC20,
-};
 
 use casper_types::{
     account::AccountHash, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, URef, U256,
@@ -40,13 +32,21 @@ use casper_contract::{
 use constants::{
     AMOUNT0_RUNTIME_ARG_NAME, AMOUNT1_RUNTIME_ARG_NAME, FACTORY_KEY_NAME, KLAST_KEY_NAME,
     LOCKED_FLAG_KEY_NAME, MINIMUM_LIQUIDITY, RESERVE0_KEY_NAME, RESERVE1_KEY_NAME, TOKEN0_KEY_NAME,
-    TOKEN1_KEY_NAME, TO_RUNTIME_ARG_NAME,
+    TOKEN1_KEY_NAME, TO_RUNTIME_ARG_NAME, ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, BALANCE_OF_ENTRY_POINT_NAME,
+    DECIMALS_RUNTIME_ARG_NAME, NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME,
+    RECIPIENT_RUNTIME_ARG_NAME, SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME,
+    TOTAL_SUPPLY_RUNTIME_ARG_NAME, TRANSFER_ENTRY_POINT_NAME, ALLOWANCES_KEY_NAME, BALANCES_KEY_NAME, DECIMALS_KEY_NAME,
+    NAME_KEY_NAME, SYMBOL_KEY_NAME, TOTAL_SUPPLY_KEY_NAME,
 };
-use error::Error;
+pub use error::Error;
+
+pub use address::Address;
 
 #[derive(Default)]
 pub struct SwapperyPair {
-    erc20: ERC20,
+    balances_uref: OnceCell<URef>,
+    allowances_uref: OnceCell<URef>,
+    total_supply_uref: OnceCell<URef>,
     reserve0_uref: OnceCell<URef>,
     reserve1_uref: OnceCell<URef>,
     locked_uref: OnceCell<URef>,
@@ -55,20 +55,181 @@ pub struct SwapperyPair {
 
 impl SwapperyPair {
     fn new(
-        erc20: ERC20,
+        balances_uref: URef,
+        allowances_uref: URef,
+        total_supply_uref: URef,
         reserve0_uref: URef,
         reserve1_uref: URef,
         locked_uref: URef,
         klast_uref: URef,
     ) -> Self {
         Self {
-            erc20: erc20,
+            balances_uref: balances_uref.into(),
+            allowances_uref: allowances_uref.into(),
+            total_supply_uref: total_supply_uref.into(),
             reserve0_uref: reserve0_uref.into(),
             reserve1_uref: reserve1_uref.into(),
             locked_uref: locked_uref.into(),
             klast_uref: klast_uref.into(),
         }
     }
+
+    fn total_supply_uref(&self) -> URef {
+        *self
+            .total_supply_uref
+            .get_or_init(total_supply::total_supply_uref)
+    }
+
+    fn read_total_supply(&self) -> U256 {
+        total_supply::read_total_supply_from(self.total_supply_uref())
+    }
+
+    fn write_total_supply(&self, total_supply: U256) {
+        total_supply::write_total_supply_to(self.total_supply_uref(), total_supply)
+    }
+
+    fn balances_uref(&self) -> URef {
+        *self.balances_uref.get_or_init(balances::get_balances_uref)
+    }
+
+    fn read_balance(&self, owner: Address) -> U256 {
+        balances::read_balance_from(self.balances_uref(), owner)
+    }
+
+    fn write_balance(&mut self, owner: Address, amount: U256) {
+        balances::write_balance_to(self.balances_uref(), owner, amount)
+    }
+
+    fn allowances_uref(&self) -> URef {
+        *self
+            .allowances_uref
+            .get_or_init(allowances::allowances_uref)
+    }
+
+    fn read_allowance(&self, owner: Address, spender: Address) -> U256 {
+        allowances::read_allowance_from(self.allowances_uref(), owner, spender)
+    }
+
+    fn write_allowance(&mut self, owner: Address, spender: Address, amount: U256) {
+        allowances::write_allowance_to(self.allowances_uref(), owner, spender, amount)
+    }
+
+    fn transfer_balance(
+        &mut self,
+        sender: Address,
+        recipient: Address,
+        amount: U256,
+    ) -> Result<(), Error> {
+        balances::transfer_balance(self.balances_uref(), sender, recipient, amount)
+    }
+
+    /// Returns the name of the token.
+    pub fn name(&self) -> String {
+        helpers::read_from(NAME_KEY_NAME)
+    }
+
+    /// Returns the symbol of the token.
+    pub fn symbol(&self) -> String {
+        helpers::read_from(SYMBOL_KEY_NAME)
+    }
+
+    /// Returns the decimals of the token.
+    pub fn decimals(&self) -> u8 {
+        helpers::read_from(DECIMALS_KEY_NAME)
+    }
+
+    /// Returns the total supply of the token.
+    pub fn total_supply(&self) -> U256 {
+        self.read_total_supply()
+    }
+
+    /// Returns the balance of `owner`.
+    pub fn balance_of(&self, owner: Address) -> U256 {
+        self.read_balance(owner)
+    }
+
+    /// Transfers `amount` of tokens from the direct caller to `recipient`.
+    pub fn transfer(&mut self, recipient: Address, amount: U256) -> Result<(), Error> {
+        let sender = helpers::get_immediate_caller_address()?;
+        self.transfer_balance(sender, recipient, amount)
+    }
+
+    /// Transfers `amount` of tokens from `owner` to `recipient` if the direct caller has been
+    /// previously approved to spend the specified amount on behalf of the owner.
+    pub fn transfer_from(
+        &mut self,
+        owner: Address,
+        recipient: Address,
+        amount: U256,
+    ) -> Result<(), Error> {
+        let spender = helpers::get_immediate_caller_address()?;
+        if amount.is_zero() {
+            return Ok(());
+        }
+        let spender_allowance = self.read_allowance(owner, spender);
+        let new_spender_allowance = spender_allowance
+            .checked_sub(amount)
+            .ok_or(Error::InsufficientAllowance)?;
+        self.transfer_balance(owner, recipient, amount)?;
+        self.write_allowance(owner, spender, new_spender_allowance);
+        Ok(())
+    }
+
+    /// Allows `spender` to transfer up to `amount` of the direct caller's tokens.
+    pub fn approve(&mut self, spender: Address, amount: U256) -> Result<(), Error> {
+        let owner = helpers::get_immediate_caller_address()?;
+        self.write_allowance(owner, spender, amount);
+        Ok(())
+    }
+
+    /// Returns the amount of `owner`'s tokens allowed to be spent by `spender`.
+    pub fn allowance(&self, owner: Address, spender: Address) -> U256 {
+        self.read_allowance(owner, spender)
+    }
+
+    /// Mints `amount` new tokens and adds them to `owner`'s balance and to the token total supply.
+    ///
+    /// # Security
+    ///
+    /// This offers no security whatsoever, hence it is advised to NOT expose this method through a
+    /// public entry point.
+    pub fn mint(&mut self, owner: Address, amount: U256) -> Result<(), Error> {
+        let new_balance = {
+            let balance = self.read_balance(owner);
+            balance.checked_add(amount).ok_or(Error::OverFlow)?
+        };
+        let new_total_supply = {
+            let total_supply: U256 = self.read_total_supply();
+            total_supply.checked_add(amount).ok_or(Error::OverFlow)?
+        };
+        self.write_balance(owner, new_balance);
+        self.write_total_supply(new_total_supply);
+        Ok(())
+    }
+
+    /// Burns (i.e. subtracts) `amount` of tokens from `owner`'s balance and from the token total
+    /// supply.
+    ///
+    /// # Security
+    ///
+    /// This offers no security whatsoever, hence it is advised to NOT expose this method through a
+    /// public entry point.
+    pub fn burn(&mut self, owner: Address, amount: U256) -> Result<(), Error> {
+        let new_balance = {
+            let balance = self.read_balance(owner);
+            balance
+                .checked_sub(amount)
+                .ok_or(Error::InsufficientBalance)?
+        };
+        let new_total_supply = {
+            let total_supply = self.read_total_supply();
+            total_supply.checked_sub(amount).ok_or(Error::OverFlow)?
+        };
+        self.write_balance(owner, new_balance);
+        self.write_total_supply(new_total_supply);
+        Ok(())
+    }
+
     fn reserve0_uref(&self) -> URef {
         *self.reserve0_uref.get_or_init(variables::reserve0_uref)
     }
@@ -164,7 +325,7 @@ impl SwapperyPair {
                 let rootklast = _klast.integer_sqrt();
                 if rootk > rootklast {
                     let numerator: U256 =
-                        U256::from(SwapperyPair::default().total_supply()) * (rootk - rootklast);
+                        U256::from(self.read_total_supply()) * (rootk - rootklast);
                     let denominator: U256 = rootk * U256::from(3u64) + rootklast;
                     let liquidity: U256 = numerator / denominator;
                     if liquidity > U256::zero() {
@@ -187,10 +348,46 @@ impl SwapperyPair {
         token0: Address,
         token1: Address,
     ) -> Result<SwapperyPair, Error> {
+        let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
+        let allowances_uref = storage::new_dictionary(ALLOWANCES_KEY_NAME).unwrap_or_revert();
+        let total_supply_uref = storage::new_uref(initial_supply).into_read_write();
         let reserve0_uref = storage::new_uref(U256::zero()).into_read_write();
         let reserve1_uref = storage::new_uref(U256::zero()).into_read_write();
         let locked_uref = storage::new_uref(false).into_read_write();
         let klast_uref = storage::new_uref(U256::zero()).into_read_write();
+
+        let name_key = {
+            let name_uref = storage::new_uref(name).into_read();
+            Key::from(name_uref)
+        };
+
+        let symbol_key = {
+            let symbol_uref = storage::new_uref(symbol).into_read();
+            Key::from(symbol_uref)
+        };
+
+        let decimals_key = {
+            let decimals_uref = storage::new_uref(decimals).into_read();
+            Key::from(decimals_uref)
+        };
+
+        let total_supply_key = Key::from(total_supply_uref);
+
+        let balances_dictionary_key = {
+            // Sets up initial balance for the caller - either an account, or a contract.
+            let caller = helpers::get_caller_address()?;
+            balances::write_balance_to(balances_uref, caller, initial_supply);
+
+            runtime::remove_key(BALANCES_KEY_NAME);
+
+            Key::from(balances_uref)
+        };
+
+        let allowances_dictionary_key = {
+            runtime::remove_key(ALLOWANCES_KEY_NAME);
+
+            Key::from(allowances_uref)
+        };
 
         let token0_key = {
             let token0_uref = storage::new_uref(token0).into_read();
@@ -210,6 +407,12 @@ impl SwapperyPair {
 
         let mut named_keys = NamedKeys::new();
 
+        named_keys.insert(String::from(NAME_KEY_NAME), name_key);
+        named_keys.insert(String::from(SYMBOL_KEY_NAME), symbol_key);
+        named_keys.insert(String::from(DECIMALS_KEY_NAME), decimals_key);
+        named_keys.insert(String::from(BALANCES_KEY_NAME), balances_dictionary_key);
+        named_keys.insert(String::from(ALLOWANCES_KEY_NAME), allowances_dictionary_key);
+        named_keys.insert(String::from(TOTAL_SUPPLY_KEY_NAME), total_supply_key);
         named_keys.insert(String::from(RESERVE0_KEY_NAME), Key::from(reserve0_uref));
         named_keys.insert(String::from(RESERVE1_KEY_NAME), Key::from(reserve1_uref));
         named_keys.insert(String::from(TOKEN0_KEY_NAME), token0_key);
@@ -217,37 +420,27 @@ impl SwapperyPair {
         named_keys.insert(String::from(LOCKED_FLAG_KEY_NAME), Key::from(locked_uref));
         named_keys.insert(String::from(KLAST_KEY_NAME), Key::from(klast_uref));
         named_keys.insert(String::from(FACTORY_KEY_NAME), factory_key);
-        let erc20 = ERC20::install_custom(
-            name,
-            symbol,
-            decimals,
-            initial_supply,
-            contract_key_name,
-            named_keys,
+
+        let (contract_hash, _version) = storage::new_contract(
             entry_points::default(),
-        )
-        .unwrap_or_revert();
+            Some(named_keys),
+            Some(String::from(contract_key_name)),
+            None,
+        );
+
+        let mut contract_hash_key_name: String = String::from(contract_key_name);
+        contract_hash_key_name.push_str("_contract_hash");
+        // Hash of the installed contract will be reachable through named keys.
+        runtime::put_key(contract_hash_key_name.as_str(), Key::from(contract_hash));
         Ok(SwapperyPair::new(
-            erc20,
+            balances_uref,
+            allowances_uref,
+            total_supply_uref,
             reserve0_uref,
             reserve1_uref,
             locked_uref,
             klast_uref,
         ))
-    }
-}
-
-impl Deref for SwapperyPair {
-    type Target = ERC20;
-
-    fn deref(&self) -> &Self::Target {
-        &self.erc20
-    }
-}
-
-impl DerefMut for SwapperyPair {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.erc20
     }
 }
 

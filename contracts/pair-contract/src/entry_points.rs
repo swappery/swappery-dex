@@ -1,10 +1,10 @@
 use alloc::{string::String, vec, vec::Vec};
 
-use casper_erc20::{entry_points, Address};
-
 use casper_types::{
     CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter, U256,
 };
+
+use crate::address::Address;
 
 use crate::constants::{
     ADDRESS_RUNTIME_ARG_NAME, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,

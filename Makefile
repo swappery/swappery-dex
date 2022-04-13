@@ -1,4 +1,4 @@
-ALL_CONTRACTS = swappery-pair erc20-token
+ALL_CONTRACTS = swappery-pair
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:
@@ -11,7 +11,6 @@ build-contract:
 test: build-contract
 	mkdir -p testing/test-pair/wasm
 	cp target/wasm32-unknown-unknown/release/swappery_pair.wasm testing/test-pair/wasm
-	cp target/wasm32-unknown-unknown/release/erc20_token.wasm testing/test-pair/wasm
 	cargo test
 
 clippy:
