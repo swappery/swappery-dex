@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(default_alloc_error_handler)]
 
 extern crate alloc;
 
@@ -812,4 +813,9 @@ fn call() {
         token1,
     )
     .unwrap_or_revert();
+}
+
+#[panic_handler]
+fn my_panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }
