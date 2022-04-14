@@ -3,7 +3,7 @@ use alloc::{string::String, vec::Vec};
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{bytesrepr::ToBytes, URef};
 
-use casper_erc20::{Address};
+use swappery_pair::{Address};
 
 use crate::helpers::{get_uref};
 

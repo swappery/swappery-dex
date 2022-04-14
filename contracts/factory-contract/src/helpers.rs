@@ -7,7 +7,7 @@ use casper_contract::{
 };
 use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef};
 
-use casper_erc20::{Error, Address};
+use swappery_pair::{Error, Address};
 
 pub(crate) fn get_uref(name: &str) -> URef {
     let key = runtime::get_key(name)

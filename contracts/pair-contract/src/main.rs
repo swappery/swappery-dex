@@ -6,7 +6,7 @@ extern crate alloc;
 pub mod address;
 mod allowances;
 mod balances;
-mod constants;
+pub mod constants;
 mod entry_points;
 pub mod error;
 mod helpers;

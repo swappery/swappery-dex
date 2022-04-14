@@ -1,8 +1,5 @@
 #![no_std]
 #![no_main]
-#![feature(default_alloc_error_handler)]
-#[cfg(not(target_arch = "wasm32"))]
-compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
 extern crate alloc;
 
@@ -15,7 +12,7 @@ use alloc::string::String;
 
 // use swappery_pair::SwapperyPair;
 
-use casper_erc20::{
+use swappery_pair::{
     constants::{
         ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
         NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
@@ -107,9 +104,4 @@ fn call() {
     let key: Key = runtime::get_key(contract_key_name.as_str()).unwrap_or_revert();
     let hash: HashAddr = key.into_hash().unwrap_or_revert();
     let contract_hash = ContractHash::new(hash);
-}
-
-#[panic_handler]
-fn my_panic(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
 }
