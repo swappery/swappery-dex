@@ -7,7 +7,7 @@ edition = "2021"
 
 [[bin]]
 name = "swappery_pair"
-path = "src/main.rs"
+path = "src/lib.rs"
 bench = false
 doctest = false
 test = false

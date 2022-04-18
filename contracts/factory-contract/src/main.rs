@@ -2,11 +2,12 @@
 #![no_main]
 
 extern crate alloc;
+extern crate swappery_pair;
 
-mod feeto;
-mod pair_list;
 mod constants;
+mod feeto;
 mod helpers;
+mod pair_list;
 
 use alloc::string::String;
 
@@ -21,12 +22,9 @@ use swappery_pair::{
     Address,
 };
 
-use casper_types::{ HashAddr, ContractHash, Key, account::AccountHash, URef, U256 };
+use casper_types::{account::AccountHash, ContractHash, HashAddr, Key, URef, U256};
 
-use casper_contract::{ 
-    contract_api::{ runtime },
-    unwrap_or_revert::UnwrapOrRevert
-};
+use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 
 use once_cell::unsync::OnceCell;
 
@@ -48,7 +46,9 @@ impl SwapperyFactory {
         }
     }
     fn pair_list_uref(&self) -> URef {
-        *self.pair_list_uref.get_or_init(pair_list::get_pair_list_uref)
+        *self
+            .pair_list_uref
+            .get_or_init(pair_list::get_pair_list_uref)
     }
     fn get_pair_for(&self, token0: Address, token1: Address) -> Address {
         pair_list::get_pair_for(self.pair_list_uref(), token0, token1)
@@ -81,7 +81,6 @@ impl SwapperyFactory {
         feeto::write_feeto_setter_to(self.feeto_setter_uref(), feeto_setter)
     }
 }
-
 
 #[no_mangle]
 fn call() {
