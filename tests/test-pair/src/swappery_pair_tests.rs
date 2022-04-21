@@ -220,8 +220,8 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
             ARG_DECIMALS => PAIR_DECIMALS,
             ARG_TOTAL_SUPPLY => U256::from(PAIR_TOTAL_SUPPLY),
             ARG_CONTRACT_KEY_NAME => PAIR_CONTRACT_KEY_NAME,
-            ARG_TOKEN0 => Key::from(token0_package),
-            ARG_TOKEN1 => Key::from(token1_package),
+            ARG_TOKEN0 => ContractHash::from(token0_contract),
+            ARG_TOKEN1 => ContractHash::from(token1_contract),
         },
     )
     .build();

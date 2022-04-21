@@ -20,6 +20,7 @@ use once_cell::unsync::OnceCell;
 
 use casper_types::{
     account::AccountHash, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, URef, U256,
+    ContractHash,
 };
 
 use casper_contract::{
@@ -289,11 +290,11 @@ impl SwapperyPair {
         self.read_locked()
     }
 
-    pub fn token0(&self) -> Address {
+    pub fn token0(&self) -> ContractHash {
         helpers::read_from(TOKEN0_KEY_NAME)
     }
 
-    pub fn token1(&self) -> Address {
+    pub fn token1(&self) -> ContractHash {
         helpers::read_from(TOKEN1_KEY_NAME)
     }
 
@@ -344,8 +345,8 @@ impl SwapperyPair {
         decimals: u8,
         initial_supply: U256,
         contract_key_name: &str,
-        token0: Address,
-        token1: Address,
+        token0: ContractHash,
+        token1: ContractHash,
     ) -> Result<SwapperyPair, Error> {
         let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
         let allowances_uref = storage::new_dictionary(ALLOWANCES_KEY_NAME).unwrap_or_revert();
@@ -534,22 +535,20 @@ pub extern "C" fn mint() {
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
 
-    let token0: Address = SwapperyPair::default().token0();
-    let token1: Address = SwapperyPair::default().token1();
+    let token0: ContractHash = SwapperyPair::default().token0();
+    let token1: ContractHash = SwapperyPair::default().token1();
 
     let self_addr = helpers::get_self_address().unwrap_or_revert();
 
-    let balance0: U256 = runtime::call_versioned_contract(
-        *token0.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    let balance0: U256 = runtime::call_contract(
+        token0,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
-    let balance1: U256 = runtime::call_versioned_contract(
-        *token1.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    let balance1: U256 = runtime::call_contract(
+        token1,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
@@ -606,22 +605,20 @@ pub extern "C" fn burn() {
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
 
-    let token0: Address = SwapperyPair::default().token0();
-    let token1: Address = SwapperyPair::default().token1();
+    let token0: ContractHash = SwapperyPair::default().token0();
+    let token1: ContractHash = SwapperyPair::default().token1();
 
     let self_addr = helpers::get_self_address().unwrap_or_revert();
 
-    let mut balance0: U256 = runtime::call_versioned_contract(
-        *token0.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    let mut balance0: U256 = runtime::call_contract(
+        token0,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
-    let mut balance1: U256 = runtime::call_versioned_contract(
-        *token1.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    let mut balance1: U256 = runtime::call_contract(
+        token1,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
@@ -640,18 +637,16 @@ pub extern "C" fn burn() {
     SwapperyPair::default()
         .burn(self_addr, liquidity)
         .unwrap_or_revert();
-    runtime::call_versioned_contract::<()>(
-        *token0.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    runtime::call_contract::<()>(
+        token0,
         TRANSFER_ENTRY_POINT_NAME,
         runtime_args! {
             RECIPIENT_RUNTIME_ARG_NAME => to,
             AMOUNT_RUNTIME_ARG_NAME => amount0
         },
     );
-    runtime::call_versioned_contract::<()>(
-        *token1.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    runtime::call_contract::<()>(
+        token1,
         TRANSFER_ENTRY_POINT_NAME,
         runtime_args! {
             RECIPIENT_RUNTIME_ARG_NAME => to,
@@ -659,17 +654,15 @@ pub extern "C" fn burn() {
         },
     );
 
-    balance0 = runtime::call_versioned_contract(
-        *token0.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    balance0 = runtime::call_contract(
+        token0,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
-    balance1 = runtime::call_versioned_contract(
-        *token1.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    balance1 = runtime::call_contract(
+        token1,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
@@ -715,17 +708,16 @@ pub extern "C" fn swap() {
 
     let self_addr = helpers::get_self_address().unwrap_or_revert();
 
-    let token0: Address = SwapperyPair::default().token0();
-    let token1: Address = SwapperyPair::default().token1();
+    let token0: ContractHash = SwapperyPair::default().token0();
+    let token1: ContractHash = SwapperyPair::default().token1();
 
-    if !(to != token0 && to != token1) {
-        runtime::revert(Error::InvalidTo);
-    }
+    // if !(to != token0 && to != token1) {
+    //     runtime::revert(Error::InvalidTo);
+    // }
 
     if amount0_out > U256::zero() {
-        runtime::call_versioned_contract::<()>(
-            *token0.as_contract_package_hash().unwrap_or_revert(),
-            None,
+        runtime::call_contract::<()>(
+            token0,
             TRANSFER_ENTRY_POINT_NAME,
             runtime_args! {
                 RECIPIENT_RUNTIME_ARG_NAME => to,
@@ -734,9 +726,8 @@ pub extern "C" fn swap() {
         );
     }
     if amount1_out > U256::zero() {
-        runtime::call_versioned_contract::<()>(
-            *token1.as_contract_package_hash().unwrap_or_revert(),
-            None,
+        runtime::call_contract::<()>(
+            token1,
             TRANSFER_ENTRY_POINT_NAME,
             runtime_args! {
                 RECIPIENT_RUNTIME_ARG_NAME => to,
@@ -747,17 +738,15 @@ pub extern "C" fn swap() {
 
     //     IPancakeCallee(to).pancakeCall(
 
-    balance0 = runtime::call_versioned_contract(
-        *token0.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    balance0 = runtime::call_contract(
+        token0,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
-    balance1 = runtime::call_versioned_contract(
-        *token1.as_contract_package_hash().unwrap_or_revert(),
-        None,
+    balance1 = runtime::call_contract(
+        token1,
         BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
             ADDRESS_RUNTIME_ARG_NAME => self_addr
@@ -801,8 +790,8 @@ fn call() {
     let decimals: u8 = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
     let initial_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
     let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
-    let token0: Address = runtime::get_named_arg(TOKEN0_KEY_NAME);
-    let token1: Address = runtime::get_named_arg(TOKEN1_KEY_NAME);
+    let token0: ContractHash = runtime::get_named_arg(TOKEN0_KEY_NAME);
+    let token1: ContractHash = runtime::get_named_arg(TOKEN1_KEY_NAME);
 
     let _ = SwapperyPair::create(
         name,
