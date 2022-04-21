@@ -815,3 +815,8 @@ fn call() {
     )
     .unwrap_or_revert();
 }
+
+#[panic_handler]
+fn my_panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
+}

@@ -5,7 +5,7 @@
 compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
 extern crate alloc;
-extern crate swappery_pair;
+// extern crate swappery_pair;
 
 mod constants;
 mod feeto;
