@@ -1,14 +1,12 @@
 [workspace]
 members = [
     "contracts/pair-contract",
-    "contracts/factory-contract",
     "contracts/router-contract",
     "tests/test-pair"
 ]
 default-members = [
     "contracts/pair-contract",
     "contracts/router-contract",
-    "contracts/factory-contract",
     "tests/test-pair"
 ]
 
