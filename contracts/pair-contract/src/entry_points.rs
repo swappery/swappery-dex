@@ -127,6 +127,7 @@ pub fn decimals() -> EntryPoint {
     )
 }
 
+/// Returns the 'mint' entry point.
 pub fn mint() -> EntryPoint {
     EntryPoint::new(
         String::from(MINT_ENTRY_POINT_NAME),
@@ -137,6 +138,7 @@ pub fn mint() -> EntryPoint {
     )
 }
 
+/// Returns the 'burn' entry point.
 pub fn burn() -> EntryPoint {
     EntryPoint::new(
         String::from(BURN_ENTRY_POINT_NAME),
@@ -147,6 +149,7 @@ pub fn burn() -> EntryPoint {
     )
 }
 
+/// Returns the 'swap' entry point.
 pub fn swap() -> EntryPoint {
     EntryPoint::new(
         String::from(SWAP_ENTRY_POINT_NAME),
@@ -161,6 +164,7 @@ pub fn swap() -> EntryPoint {
     )
 }
 
+/// Returns the 'get_reserves' entry point.
 pub fn get_reserves() -> EntryPoint {
     EntryPoint::new(
         String::from(GET_RESERVES_ENTRY_POINT_NAME),
@@ -171,6 +175,7 @@ pub fn get_reserves() -> EntryPoint {
     )
 }
 
+/// Returns the default entry points of LP token.
 pub fn default() -> EntryPoints {
     let mut entry_points = EntryPoints::new();
     entry_points.add_entry_point(name());
