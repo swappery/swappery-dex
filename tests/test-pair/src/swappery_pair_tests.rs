@@ -558,16 +558,16 @@ fn should_swap_tokens_with_pair() {
     ).build();
     builder.exec(swap_token_request).expect_success().commit();
 
-    // let pair_balance = erc20_check_balance_of(&mut builder, &pair_contract, pair_key);
-    // assert_eq!(pair_balance, U256::zero());
+    let pair_balance = erc20_check_balance_of(&mut builder, &pair_contract, pair_key);
+    assert_eq!(pair_balance, U256::zero());
 
-    // let pair_balance = erc20_check_balance_of(&mut builder, &token0_contract, pair_key);
-    // let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    // assert_eq!(pair_balance, U256::from(150_000u64));
-    // assert_eq!(pair_balance + owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    let pair_balance = erc20_check_balance_of(&mut builder, &token0_contract, pair_key);
+    let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
+    assert_eq!(pair_balance, U256::from(150_000u64));
+    assert_eq!(pair_balance + owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
 
-    // let pair_balance = erc20_check_balance_of(&mut builder, &token1_contract, pair_key);
-    // let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    // assert_eq!(pair_balance, U256::from(250_000u64));
-    // assert_eq!(pair_balance + owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    let pair_balance = erc20_check_balance_of(&mut builder, &token1_contract, pair_key);
+    let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
+    assert_eq!(pair_balance, U256::from(300_000u64));
+    assert_eq!(pair_balance + owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
 }
