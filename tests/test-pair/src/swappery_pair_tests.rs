@@ -513,7 +513,6 @@ fn should_mint_and_burn_lp_token() {
     assert_eq!(pair_balance + owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
 }
 
-
 #[test]
 fn should_swap_tokens_with_pair() {
     let (mut builder, TestContext { token0_package, token0_contract, token1_package, token1_contract, pair_package, pair_contract, .. }) = setup();
