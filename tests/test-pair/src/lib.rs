@@ -1,2 +1,2 @@
 #[cfg(test)]
-mod lib_integration_tests;
+mod swappery_pair_tests;

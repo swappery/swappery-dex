@@ -1,5 +1,8 @@
 #![no_std]
 #![no_main]
+#![feature(default_alloc_error_handler)]
+#[cfg(not(target_arch = "wasm32"))]
+compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
 extern crate alloc;
 
@@ -104,4 +107,9 @@ fn call() {
     let key: Key = runtime::get_key(contract_key_name.as_str()).unwrap_or_revert();
     let hash: HashAddr = key.into_hash().unwrap_or_revert();
     let contract_hash = ContractHash::new(hash);
+}
+
+#[panic_handler]
+fn my_panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }
