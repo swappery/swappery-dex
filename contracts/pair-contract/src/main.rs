@@ -589,7 +589,7 @@ pub extern "C" fn mint() {
 
     SwapperyPair::default().write_locked(false);
 
-    // runtime::ret(CLValue::from_t(liquidity).unwrap_or_revert());
+    runtime::ret(CLValue::from_t(liquidity).unwrap_or_revert());
 }
 
 #[no_mangle]
@@ -677,7 +677,7 @@ pub extern "C" fn burn() {
 
     SwapperyPair::default().write_locked(false);
 
-    // runtime::ret(CLValue::from_t((amount0, amount1)).unwrap_or_revert());
+    runtime::ret(CLValue::from_t((amount0, amount1)).unwrap_or_revert());
 }
 
 #[no_mangle]

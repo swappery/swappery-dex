@@ -12,13 +12,14 @@ mod helpers;
 mod pair_list;
 mod wcspr;
 
-use alloc::string::String;
+use alloc::{string::String, vec::Vec};
 
 use casper_erc20::{
     constants::{
-        ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
+        AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
         NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
-        SPENDER_RUNTIME_ARG_NAME, SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
+        SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
+        TRANSFER_FROM_ENTRY_POINT_NAME, 
     },
     Address,
 };
@@ -27,10 +28,12 @@ use constants::{
     GET_RESERVES_ENTRY_POINT_NAME, TOKEN0_RUNTIME_ARG_NAME, TOKEN1_RUNTIME_ARG_NAME,
     AMOUNT0_DESIRED_RUNTIME_ARG_NAME, AMOUNT1_DESIRED_RUNTIME_ARG_NAME,
     AMOUNT0_MIN_RUNTIME_ARG_NAME, AMOUNT1_MIN_RUNTIME_ARG_NAME,
-    TO_RUNTIME_ARG_NAME, DEAD_LINE_RUNTIME_ARG_NAME,
+    TO_RUNTIME_ARG_NAME, DEAD_LINE_RUNTIME_ARG_NAME,  MINT_ENTRY_POINT_NAME, 
+    LIQUIDITY_RUNTIME_ARG_NAME, BURN_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
+    AMOUNT1_RUNTIME_ARG_NAME, SWAP_ENTRY_POINT_NAME,
 };
 
-use casper_types::{account::AccountHash, ContractHash, HashAddr, Key, URef, U256, runtime_args};
+use casper_types::{ContractHash, HashAddr, Key, URef, U256, runtime_args, RuntimeArgs};
 
 use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 
@@ -103,7 +106,7 @@ impl SwapperyRouter {
         wcspr::write_wcspr_to(self.wcspr_uref(), wcspr);
     }
     
-    fn _add_liquidity(
+    pub fn _add_liquidity(
         &self,
         token0: ContractHash,
         token1: ContractHash,
@@ -139,6 +142,43 @@ impl SwapperyRouter {
         }
         amounts
     }
+
+    pub fn _swap(
+        &self,
+        amounts: Vec<U256>,
+        path: Vec<ContractHash>,
+        _to: Address
+    ) {
+        for i in 0..path.len() - 1 {
+            let (input, output): (&ContractHash, &ContractHash) = (path.get(i).unwrap_or_revert(), path.get(i + 1).unwrap_or_revert());
+            let (token0, ..) = helpers::sort_tokens(*input, *output);
+            let amount_out: &U256 = amounts.get(i + 1).unwrap_or_revert();
+            let mut amounts_out: (U256, U256);
+            if input.eq(&token0) {
+                amounts_out = (U256::zero(), *amount_out);
+            } else {
+                amounts_out = (*amount_out, U256::zero());
+            }
+            let to: Address;
+            if i < path.len() - 2 {
+                to = self.get_pair_for(*output, *(path.get(i + 2).unwrap_or_revert()));
+            } else {
+                to = _to;
+            }
+            
+            let pair: Address = self.get_pair_for(*input, *output);
+            runtime::call_versioned_contract::<()>(
+                *pair.as_contract_package_hash().unwrap_or_revert(),
+                None,
+                SWAP_ENTRY_POINT_NAME,
+                runtime_args! {
+                    AMOUNT0_RUNTIME_ARG_NAME => amounts_out.0,
+                    AMOUNT1_RUNTIME_ARG_NAME => amounts_out.1,
+                    TO_RUNTIME_ARG_NAME => to
+                }
+            );
+        }
+    }
 }
 
 #[no_mangle]
@@ -151,6 +191,79 @@ pub extern "C" fn add_liquidity() {
     let amount1_min: U256 = runtime::get_named_arg(AMOUNT1_MIN_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
     let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    
+    let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
+
+    let amounts: (U256, U256) = SwapperyRouter::default()._add_liquidity(tokens.0, tokens.1, amount0_desired, amount1_desired, amount0_min, amount1_min);    
+    let pair: Address = SwapperyRouter::default().get_pair_for(tokens.0, tokens.1);
+    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+    runtime::call_contract::<()>(
+        tokens.0,
+        TRANSFER_FROM_ENTRY_POINT_NAME,
+        runtime_args! {
+            OWNER_RUNTIME_ARG_NAME => caller,
+            RECIPIENT_RUNTIME_ARG_NAME => pair,
+            AMOUNT_RUNTIME_ARG_NAME => amounts.0
+        },
+    );
+    runtime::call_contract::<()>(
+        tokens.1,
+        TRANSFER_FROM_ENTRY_POINT_NAME,
+        runtime_args! {
+            OWNER_RUNTIME_ARG_NAME => caller,
+            RECIPIENT_RUNTIME_ARG_NAME => pair,
+            AMOUNT_RUNTIME_ARG_NAME => amounts.1
+        },
+    );
+    runtime::call_versioned_contract::<()>(
+        *pair.as_contract_package_hash().unwrap_or_revert(),
+        None,
+        MINT_ENTRY_POINT_NAME,
+        runtime_args! {
+            TO_RUNTIME_ARG_NAME => to
+        },
+    );
+}
+
+#[no_mangle]
+pub extern "C" fn remove_liquidity() {
+    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
+    let liquidity: U256 = runtime::get_named_arg(LIQUIDITY_RUNTIME_ARG_NAME);
+    let amount0_min: U256 = runtime::get_named_arg(AMOUNT0_MIN_RUNTIME_ARG_NAME);
+    let amount1_min: U256 = runtime::get_named_arg(AMOUNT1_MIN_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+
+    let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
+
+    let pair: Address = SwapperyRouter::default().get_pair_for(tokens.0, tokens.1);
+    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+
+    runtime::call_versioned_contract::<()>(
+        *pair.as_contract_package_hash().unwrap_or_revert(),
+        None,
+        TRANSFER_FROM_ENTRY_POINT_NAME,
+        runtime_args! {
+            OWNER_RUNTIME_ARG_NAME => caller,
+            RECIPIENT_RUNTIME_ARG_NAME => pair,
+            AMOUNT_RUNTIME_ARG_NAME => liquidity
+        },
+    );
+    let amounts: (U256, U256) = runtime::call_versioned_contract(
+        *pair.as_contract_package_hash().unwrap_or_revert(),
+        None,
+        BURN_ENTRY_POINT_NAME,
+        runtime_args! {
+            TO_RUNTIME_ARG_NAME => to
+        },
+    );
+    if amounts.0 < amount0_min {
+
+    }
+    if amounts.1 < amount1_min {
+
+    }
 }
 
 #[no_mangle]
@@ -174,9 +287,4 @@ fn call() {
     let key: Key = runtime::get_key(contract_key_name.as_str()).unwrap_or_revert();
     let hash: HashAddr = key.into_hash().unwrap_or_revert();
     let contract_hash = ContractHash::new(hash);
-}
-
-#[panic_handler]
-fn my_panic(_info: &core::panic::PanicInfo) -> ! {
-    loop {}
 }

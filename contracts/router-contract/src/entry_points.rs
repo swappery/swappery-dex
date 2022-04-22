@@ -8,15 +8,17 @@ use casper_types::{
 
 use crate::constants::{
     CREATE_PAIR_ENTRY_POINT, GET_PAIR_ENTRY_POINT, SET_FEETO_ENTRY_POINT, SET_FEETO_SETTER_ENTRY_POINT,
-    TOKEN0_RUNTIME_ARG_NAME, TOKEN1_RUNTIME_ARG_NAME,
+    TOKEN0_RUNTIME_ARG_NAME, TOKEN1_RUNTIME_ARG_NAME, ADD_LIQUIDITY_ENTRY_POINT_NAME, 
+    AMOUNT0_DESIRED_RUNTIME_ARG_NAME, AMOUNT1_DESIRED_RUNTIME_ARG_NAME, AMOUNT0_MIN_RUNTIME_ARG_NAME,
+    AMOUNT1_MIN_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME, DEAD_LINE_RUNTIME_ARG_NAME, 
 }
 
 pub fn create_pair() -> EntryPoint {
     EntryPoint::new(
         String::from(CREATE_PAIR_ENTRY_POINT),
         vec![
-            Parameter::new(TOKEN0_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(TOKEN1_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -28,8 +30,8 @@ pub fn get_pair() -> EntryPoint {
     EntryPoint::new(
         String::from(GET_PAIR_ENTRY_POINT),
         vec![
-            Parameter::new(TOKEN0_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(TOKEN1_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -61,11 +63,31 @@ pub fn set_feeto_setter() -> EntryPoint {
     )
 }
 
+pub fn add_liquidity() -> EntryPoint {
+    EntryPoint::new(
+        String::from(ADD_LIQUIDITY_ENTRY_POINT_NAME),
+        vec![
+            Parameter::new(TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(AMOUNT0_DESIRED_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(AMOUNT1_DESIRED_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(AMOUNT0_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(AMOUNT1_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
 pub fn default() -> EntryPoints {
     let mut contract_entry_points = EntryPoints::new();
     contract_entry_points.add_entry_point(create_pair());
     contract_entry_points.add_entry_point(get_pair());
     contract_entry_points.add_entry_point(set_feeto());
     contract_entry_points.add_entry_point(set_feeto_setter());
+    contract_entry_points.add_entry_point(add_liquidity());
     contract_entry_points
 }

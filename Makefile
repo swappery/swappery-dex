@@ -1,4 +1,4 @@
-ALL_CONTRACTS = swappery-pair
+ALL_CONTRACTS = swappery-pair router-contract
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:

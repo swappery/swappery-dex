@@ -7,6 +7,7 @@ pub const MINT_ENTRY_POINT_NAME: &str = "mint";
 pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 pub const SWAP_ENTRY_POINT_NAME: &str = "swap";
 pub const GET_RESERVES_ENTRY_POINT_NAME: &str = "get_reserves";
+pub const ADD_LIQUIDITY_ENTRY_POINT_NAME: &str = "add_liquidity";
 
 //runtime args names
 pub const TOKEN0_RUNTIME_ARG_NAME: &str = "token0";
@@ -17,6 +18,9 @@ pub const AMOUNT0_MIN_RUNTIME_ARG_NAME: &str = "amount0_min";
 pub const AMOUNT1_MIN_RUNTIME_ARG_NAME: &str = "amount1_min";
 pub const TO_RUNTIME_ARG_NAME: &str = "to";
 pub const DEAD_LINE_RUNTIME_ARG_NAME: &str = "dead_line";
+pub const LIQUIDITY_RUNTIME_ARG_NAME: &str = "liquidity";
+pub const AMOUNT0_RUNTIME_ARG_NAME: &str = "amount0";
+pub const AMOUNT1_RUNTIME_ARG_NAME: &str = "amount1";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";
