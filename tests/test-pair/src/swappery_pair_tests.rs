@@ -103,18 +103,6 @@ const METHOD_FROM_AS_STORED_CONTRACT: &str = "transfer_from_as_stored_contract";
 const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 2;
 const ERROR_K: u16 = u16::MAX - 9;
 
-/// Converts hash addr of Account into Hash, and Hash into Account
-///
-/// This is useful for making sure ERC20 library respects different variants of Key when storing
-/// balances.
-fn invert_erc20_address(address: Key) -> Key {
-    match address {
-        Key::Account(account_hash) => Key::Hash(account_hash.value()),
-        Key::Hash(contract_hash) => Key::Account(AccountHash::new(contract_hash)),
-        _ => panic!("Unsupported Key variant"),
-    }
-}
-
 #[derive(Copy, Clone)]
 struct TestContext {
     token0_package: ContractPackageHash,
