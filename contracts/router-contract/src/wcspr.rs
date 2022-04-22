@@ -1,7 +1,7 @@
 //! Implementation of total supply.
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
-use casper_types::{URef, U256, ContractHash};
+use casper_types::{URef, ContractHash};
 
 use crate::{constants::WCSPR_CONTRACT_KEY_NAME, helpers};
 

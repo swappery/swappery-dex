@@ -3,8 +3,6 @@ use core::convert::TryInto;
 
 extern crate std;
 
-use std::cmp::Ordering;
-
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
@@ -87,17 +85,4 @@ pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (Contra
         tokens = (token1, token0);
     }
     tokens
-}
-
-pub(crate) fn sort_addresses(token0: Address, token1: Address) -> (Address, Address) {
-    let mut addresses: (Address, Address);
-    if token0.as_contract_package_hash().unwrap_or_revert().eq(token1.as_contract_package_hash().unwrap_or_revert()) {
-        //
-    }
-    if token0.as_contract_package_hash().unwrap_or_revert().lt(token1.as_contract_package_hash().unwrap_or_revert()) {
-        addresses = (token0, token1);
-    } else {
-        addresses = (token1, token0);
-    }
-    addresses
 }
