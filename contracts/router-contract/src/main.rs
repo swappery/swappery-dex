@@ -13,7 +13,7 @@ mod pair_list;
 
 use alloc::string::String;
 
-use swappery_pair::{
+use casper_erc20::{
     constants::{
         ADDRESS_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
         NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
@@ -31,13 +31,13 @@ use once_cell::unsync::OnceCell;
 const CONTRACT_KEY_NAME_ARG_NAME: &str = "contract_key_name";
 
 #[derive(Default)]
-pub struct SwapperyFactory {
+pub struct SwapperyRouter {
     pair_list_uref: OnceCell<URef>,
     feeto_uref: OnceCell<URef>,
     feeto_setter_uref: OnceCell<URef>,
 }
 
-impl SwapperyFactory {
+impl SwapperyRouter {
     fn new(pair_list_uref: URef, feeto_uref: URef, feeto_setter_uref: URef) -> Self {
         Self {
             pair_list_uref: pair_list_uref.into(),
