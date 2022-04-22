@@ -1,10 +1,10 @@
 [package]
-name = "factory-contract"
+name = "router-contract"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "factory_contract"
+name = "router_contract"
 path = "src/main.rs"
 bench = false
 doctest = false
