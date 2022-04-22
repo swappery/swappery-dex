@@ -1,11 +1,17 @@
 //! Implementation details.
 use core::convert::TryInto;
 
+extern crate std;
+
+use std::cmp::Ordering;
+
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef};
+use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef, U256,
+    ContractHash,
+};
 
 use casper_erc20::{Error, Address};
 
@@ -58,4 +64,27 @@ pub(crate) fn get_caller_address() -> Result<Address, Error> {
         .ok_or(Error::InvalidContext)?;
     let address = call_stack_element_to_address(top_of_the_stack);
     Ok(address)
+}
+
+pub(crate) fn quote(amount0: U256, reserve0: U256, reserve1: U256) -> U256 {
+    if !(amount0 > U256::zero()) {
+        // require(amountA > 0, 'PancakeLibrary: INSUFFICIENT_AMOUNT');
+    }
+    if !(reserve0 > U256::zero() && reserve1 > U256::zero()) {
+        // require(reserveA > 0 && reserveB > 0, 'PancakeLibrary: INSUFFICIENT_LIQUIDITY');
+    }
+    amount0 * reserve1 / reserve0
+}
+
+pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (ContractHash, ContractHash) {
+    let mut tokens: (ContractHash, ContractHash);
+    if token0.eq(&token1) {
+        //
+    }
+    if token0.lt(&token1) {
+        tokens = (token0, token1);
+    } else{
+        tokens = (token1, token0);
+    }
+    tokens
 }

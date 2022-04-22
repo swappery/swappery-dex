@@ -2,7 +2,7 @@
 
 use casper_contract::{contract_api::storage, unwrap_or_revert::UnwrapOrRevert};
 use casper_types::{URef};
-use swappery_pair::Address;
+use casper_erc20::Address;
 
 use crate::{constants::{
     FEETO_KEY_NAME, FEETO_SETTER_KEY_NAME,
