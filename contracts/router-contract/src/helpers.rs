@@ -91,6 +91,15 @@ pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (Contra
     tokens
 }
 
+pub(crate) fn revert_vector(input: Vec<U256>) -> Vec<U256> {
+    let len = input.len();
+    let mut result: Vec<U256> = Vec::with_capacity(len);
+    for i in 1..input.len() {
+        result.push(*input.get(len - i).unwrap_or_revert());
+    }
+    result
+}
+
 pub(crate) fn get_amount_out(amount_in: U256, reserve_in: U256, reserve_out: U256) -> U256 {
     // require(amountIn > 0, 'PancakeLibrary: INSUFFICIENT_INPUT_AMOUNT');
     // require(reserveIn > 0 && reserveOut > 0, 'PancakeLibrary: INSUFFICIENT_LIQUIDITY');
@@ -113,7 +122,7 @@ pub(crate) fn get_amount_in(amount_out: U256, reserve_in: U256, reserve_out: U25
 pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> {
     // require(path.length >= 2, 'PancakeLibrary: INVALID_PATH');
 
-    let mut amounts: Vec<U256> = Vec::with_capacity(path.len());
+    let mut amounts: Vec<U256> = Vec::with_capacity(path.len() + 1);
     amounts.push(amount_in);
     for i in 0..path.len() - 1 {
         let pair: Address = *path.get(i).unwrap_or_revert();
@@ -128,20 +137,20 @@ pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> 
     amounts
 }
 
-pub(crate) fn get_amounts_in(amount_in: U256, path: Vec<Address>) -> Vec<U256> {
+pub(crate) fn get_amounts_in(amount_out: U256, path: Vec<Address>) -> Vec<U256> {
     // require(path.length >= 2, 'PancakeLibrary: INVALID_PATH');
 
-    let mut amounts: Vec<U256> = Vec::with_capacity(path.len());
-    amounts.push(amount_in);
-    for i in 0..path.len() - 1 {
-        let pair: Address = *path.get(i).unwrap_or_revert();
+    let mut amounts: Vec<U256> = Vec::with_capacity(path.len() + 1);
+    amounts.push(amount_out);
+    for i in 1..path.len() {
+        let pair: Address = *path.get(path.len() - i).unwrap_or_revert();
         let reserves: (U256, U256) = runtime::call_versioned_contract(
             *pair.as_contract_package_hash().unwrap_or_revert(),
             None,
             GET_RESERVES_ENTRY_POINT_NAME,
             runtime_args! {},
         );
-        amounts.push(get_amount_out(*amounts.get(i).unwrap_or_revert(), reserves.0, reserves.1));
+        amounts.push(get_amount_in(*amounts.get(i - 1).unwrap_or_revert(), reserves.0, reserves.1));
     }
-    amounts
+    revert_vector(amounts)
 }
