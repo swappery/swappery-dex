@@ -105,6 +105,14 @@ impl SwapperyRouter {
     fn write_wcspr(&self, wcspr: ContractHash) {
         wcspr::write_wcspr_to(self.wcspr_uref(), wcspr);
     }
+
+    pub fn make_pair_path_from_token_path(&self, token_path: Vec<ContractHash>) -> Vec<Address> {
+        let mut pair_path: Vec<Address> = Vec::with_capacity(token_path.len() - 1);
+        for i in 0..token_path.len() - 2 {
+            pair_path.push(self.get_pair_for(*token_path.get(i).unwrap_or_revert(), *token_path.get(i + 1).unwrap_or_revert()));
+        }
+        pair_path
+    }
     
     pub fn _add_liquidity(
         &self,
