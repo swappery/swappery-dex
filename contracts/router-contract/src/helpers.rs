@@ -1,17 +1,21 @@
 //! Implementation details.
 use core::convert::TryInto;
 
-extern crate std;
+extern crate alloc;
+
+use alloc::vec::Vec;
 
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLTyped, URef, U256,
-    ContractHash,
+    ContractHash, runtime_args, RuntimeArgs,
 };
 
 use casper_erc20::{Error, Address};
+
+use crate::constants::{GET_RESERVES_ENTRY_POINT_NAME};
 
 pub(crate) fn get_uref(name: &str) -> URef {
     let key = runtime::get_key(name)
@@ -85,4 +89,41 @@ pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (Contra
         tokens = (token1, token0);
     }
     tokens
+}
+
+pub(crate) fn get_amount_out(amount_in: U256, reserve_in: U256, reserve_out: U256) -> U256 {
+    // require(amountIn > 0, 'PancakeLibrary: INSUFFICIENT_INPUT_AMOUNT');
+    // require(reserveIn > 0 && reserveOut > 0, 'PancakeLibrary: INSUFFICIENT_LIQUIDITY');
+
+    let amount_with_fee: U256 = amount_in * U256::from(998u64);
+    let nume: U256 = amount_with_fee * reserve_out;
+    let deno: U256 = reserve_in * U256::from(1000u64) + amount_with_fee;
+    nume / deno
+}
+
+pub(crate) fn get_amount_in(amount_out: U256, reserve_in: U256, reserve_out: U256) -> U256 {
+    // require(amountOut > 0, 'PancakeLibrary: INSUFFICIENT_OUTPUT_AMOUNT');
+    // require(reserveIn > 0 && reserveOut > 0, 'PancakeLibrary: INSUFFICIENT_LIQUIDITY');
+
+    let nume: U256 = reserve_in * amount_out * U256::from(1000u64);
+    let deno: U256 = (reserve_out - amount_out) * U256::from(998u64);
+    (nume / deno) + U256::one()
+}
+
+pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> {
+    // require(path.length >= 2, 'PancakeLibrary: INVALID_PATH');
+
+    let mut amounts: Vec<U256> = Vec::with_capacity(path.len());
+    amounts.push(amount_in);
+    for i in 0..path.len() - 1 {
+        let pair: Address = *path.get(i).unwrap_or_revert();
+        let reserves: (U256, U256) = runtime::call_versioned_contract(
+            *pair.as_contract_package_hash().unwrap_or_revert(),
+            None,
+            GET_RESERVES_ENTRY_POINT_NAME,
+            runtime_args! {},
+        );
+        amounts.push(get_amount_out(*amounts.get(i).unwrap_or_revert(), reserves.0, reserves.1));
+    }
+    amounts
 }

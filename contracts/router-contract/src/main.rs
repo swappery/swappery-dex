@@ -161,7 +161,7 @@ impl SwapperyRouter {
             }
             let to: Address;
             if i < path.len() - 2 {
-                to = self.get_pair_for(*output, *(path.get(i + 2).unwrap_or_revert()));
+                to = self.get_pair_for(*output, *path.get(i + 2).unwrap_or_revert());
             } else {
                 to = _to;
             }
@@ -287,4 +287,9 @@ fn call() {
     let key: Key = runtime::get_key(contract_key_name.as_str()).unwrap_or_revert();
     let hash: HashAddr = key.into_hash().unwrap_or_revert();
     let contract_hash = ContractHash::new(hash);
+}
+
+#[panic_handler]
+fn my_panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }
