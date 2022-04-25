@@ -127,3 +127,21 @@ pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> 
     }
     amounts
 }
+
+pub(crate) fn get_amounts_in(amount_in: U256, path: Vec<Address>) -> Vec<U256> {
+    // require(path.length >= 2, 'PancakeLibrary: INVALID_PATH');
+
+    let mut amounts: Vec<U256> = Vec::with_capacity(path.len());
+    amounts.push(amount_in);
+    for i in 0..path.len() - 1 {
+        let pair: Address = *path.get(i).unwrap_or_revert();
+        let reserves: (U256, U256) = runtime::call_versioned_contract(
+            *pair.as_contract_package_hash().unwrap_or_revert(),
+            None,
+            GET_RESERVES_ENTRY_POINT_NAME,
+            runtime_args! {},
+        );
+        amounts.push(get_amount_out(*amounts.get(i).unwrap_or_revert(), reserves.0, reserves.1));
+    }
+    amounts
+}
