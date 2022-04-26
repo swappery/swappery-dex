@@ -284,8 +284,35 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
     let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
-    let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path));
+    let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
     // require(amounts[amounts.length - 1] >= amountOutMin, 'PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+
+    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+    runtime::call_contract::<()>(
+        *path.get(0).unwrap_or_revert(),
+        TRANSFER_FROM_ENTRY_POINT_NAME,
+        runtime_args! {
+            OWNER_RUNTIME_ARG_NAME => caller,
+            RECIPIENT_RUNTIME_ARG_NAME => SwapperyRouter::default().get_pair_for(
+                *path.get(0).unwrap_or_revert(),
+                *path.get(1).unwrap_or_revert(),
+            ),
+            AMOUNT_RUNTIME_ARG_NAME => *amounts.get(0).unwrap_or_revert(),
+        },
+    );
+    SwapperyRouter::default()._swap(amounts, path, to);
+}
+
+#[no_mangle]
+pub extern "C" fn swap_tokens_for_exact_tokens() {
+    let amount_out: U256 = runtime::get_named_arg(AMOUNT_OUT_RUNTIME_ARG_NAME);
+    let amount_in_max: U256 = runtime::get_named_arg(AMOUNT_IN_MAX_RUNTIME_ARG_NAME);
+    let path: Vec<ContractHash> = runtime::get_named_arg(PATH_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+
+    let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
+    // require(amounts[0] <= amountInMax, 'PancakeRouter: EXCESSIVE_INPUT_AMOUNT');
 
     let caller: Address = helpers::get_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(

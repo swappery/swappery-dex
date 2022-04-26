@@ -13,7 +13,7 @@ use crate::constants::{
     AMOUNT1_MIN_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME, DEAD_LINE_RUNTIME_ARG_NAME,  LIQUIDITY_RUNTIME_ARG_NAME,
     REMOVE_LIQUIDITY_ENTRY_POINT_NAME, SWAP_EXACT_TOKENS_FOR_TOKENS_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
     AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
-    PATH_RUNTIME_ARG_NAME, 
+    PATH_RUNTIME_ARG_NAME, SWAP_TOKENS_FOR_EXACT_TOKENS_ENTRY_POINT_NAME,
 }
 
 pub fn create_pair() -> EntryPoint {
@@ -107,8 +107,24 @@ pub fn swap_exact_tokens_for_tokens() -> EntryPoint {
     EntryPoint::new(
         String::from(SWAP_EXACT_TOKENS_FOR_TOKENS_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(AMOUNT_IN_RUNTIME_ARG_NAME, ContractHash::cl_type()),
-            Parameter::new(AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(AMOUNT_IN_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(PATH_RUNTIME_ARG_NAME, Vec<ContractHash>::cl_type()),
+            Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
+pub fn swap_tokens_for_exact_tokens() -> EntryPoint {
+    EntryPoint::new(
+        String::from(SWAP_EXACT_TOKENS_FOR_TOKENS_ENTRY_POINT_NAME),
+        vec![
+            Parameter::new(AMOUNT_OUT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(AMOUNT_in_MAX_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(PATH_RUNTIME_ARG_NAME, Vec<ContractHash>::cl_type()),
             Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type()),
             Parameter::new(DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
@@ -128,5 +144,6 @@ pub fn default() -> EntryPoints {
     contract_entry_points.add_entry_point(add_liquidity());
     contract_entry_points.add_entry_point(remove_liquidity());
     contract_entry_points.add_entry_point(swap_exact_tokens_for_tokens());
+    contract_entry_points.add_entry_point(swap_tokens_for_exact_tokens());
     contract_entry_points
 }
