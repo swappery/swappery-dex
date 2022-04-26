@@ -8,6 +8,8 @@ pub const BURN_ENTRY_POINT_NAME: &str = "burn";
 pub const SWAP_ENTRY_POINT_NAME: &str = "swap";
 pub const GET_RESERVES_ENTRY_POINT_NAME: &str = "get_reserves";
 pub const ADD_LIQUIDITY_ENTRY_POINT_NAME: &str = "add_liquidity";
+pub const REMOVE_LIQUIDITY_ENTRY_POINT_NAME: &str = "remove_liquidity";
+pub const SWAP_EXACT_TOKENS_FOR_TOKENS_ENTRY_POINT_NAME: &str = "swap_exact_tokens_for_tokens";
 
 //runtime args names
 pub const TOKEN0_RUNTIME_ARG_NAME: &str = "token0";
