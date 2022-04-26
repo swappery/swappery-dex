@@ -1,5 +1,3 @@
-use once_cell::sync::Lazy;
-
 use casper_engine_test_support::{
     ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_RUN_GENESIS_REQUEST,
     DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE,
@@ -10,71 +8,10 @@ use casper_execution_engine::core::{
 };
 use casper_types::{
     account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped,
-    ContractHash, ContractPackageHash, Key, PublicKey, RuntimeArgs, SecretKey, U256,
+    ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
     ApiError,
 };
-
-const EXAMPLE_ERC20_TOKEN: &str = "erc20_token.wasm";
-const SWAPPERY_PAIR: &str = "swappery_pair.wasm";
-const CONTRACT_ERC20_TEST_CALL: &str = "erc20_test_call.wasm";
-
-const ARG_NAME: &str = "name";
-const ARG_SYMBOL: &str = "symbol";
-const ARG_DECIMALS: &str = "decimals";
-const ARG_TOTAL_SUPPLY: &str = "total_supply";
-const ARG_CONTRACT_KEY_NAME: &str = "contract_key_name";
-const ARG_TOKEN0: &str = "token0";
-const ARG_TOKEN1: &str = "token1";
-const ARG_TO: &str = "to";
-const ARG_AMOUNT0: &str = "amount0";
-const ARG_AMOUNT1: &str = "amount1";
-
-const PAIR_NAME: &str = "SwapperyPair";
-const PAIR_SYMBOL: &str = "SWP";
-const PAIR_DECIMALS: u8 = 8;
-const PAIR_TOTAL_SUPPLY: u64 = 0;
-const PAIR_CONTRACT_KEY_NAME: &str = "swappery_pair";
-const PAIR_CONTRACT_HASH_KEY_NAME: &str = "swappery_pair_contract_hash";
-
-const TOKEN0_NAME: &str = "PairTestToken0";
-const TOKEN0_SYMBOL: &str = "PTT0";
-const TOKEN0_DECIMALS: u8 = 8;
-const TOKEN0_TOTAL_SUPPLY: u64 = 1_000_000;
-const TOKEN0_CONTRACT_KEY_NAME: &str = "token0";
-const TOKEN0_CONTRACT_HASH_KEY_NAME: &str = "token0_contract_hash";
-
-const TOKEN1_NAME: &str = "PairTestToken1";
-const TOKEN1_SYMBOL: &str = "PTT1";
-const TOKEN1_DECIMALS: u8 = 8;
-const TOKEN1_TOTAL_SUPPLY: u64 = 2_000_000;
-const TOKEN1_CONTRACT_KEY_NAME: &str = "token1";
-const TOKEN1_CONTRACT_HASH_KEY_NAME: &str = "token1_contract_hash";
-
-const METHOD_TRANSFER: &str = "transfer";
-const ARG_AMOUNT: &str = "amount";
-const ARG_RECIPIENT: &str = "recipient";
-
-static ACCOUNT_1_SECRET_KEY: Lazy<SecretKey> =
-    Lazy::new(|| SecretKey::secp256k1_from_bytes(&[221u8; 32]).unwrap());
-static ACCOUNT_1_PUBLIC_KEY: Lazy<PublicKey> =
-    Lazy::new(|| PublicKey::from(&*ACCOUNT_1_SECRET_KEY));
-static ACCOUNT_1_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_1_PUBLIC_KEY.to_account_hash());
-
-const METHOD_MINT: &str = "mint";
-const METHOD_BURN: &str = "burn";
-const METHOD_SWAP: &str = "swap";
-
-const CHECK_BALANCE_OF_ENTRYPOINT: &str = "check_balance_of";
-const ARG_TOKEN_CONTRACT: &str = "token_contract";
-const ARG_ADDRESS: &str = "address";
-const RESULT_KEY: &str = "result";
-const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
-
-const METHOD_TRANSFER_AS_STORED_CONTRACT: &str = "transfer_as_stored_contract";
-
-
-const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 2;
-const ERROR_K: u16 = u16::MAX - 9;
+use crate::constants as consts;
 
 #[derive(Copy, Clone)]
 struct TestContext {
@@ -90,7 +27,7 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     let id: Option<u64> = None;
     let transfer_args = runtime_args! {
-        mint::ARG_TARGET => *ACCOUNT_1_ADDR,
+        mint::ARG_TARGET => *consts::ACCOUNT_1_ADDR,
         mint::ARG_AMOUNT => MINIMUM_ACCOUNT_CREATION_BALANCE,
         mint::ARG_ID => id,
     };
@@ -100,33 +37,33 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     let install_request_token0 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        EXAMPLE_ERC20_TOKEN,
+        consts::CONTRACT_ERC20_TOKEN,
         runtime_args! {
-            ARG_NAME => TOKEN0_NAME,
-            ARG_SYMBOL => TOKEN0_SYMBOL,
-            ARG_DECIMALS => TOKEN0_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN0_TOTAL_SUPPLY),
-            ARG_CONTRACT_KEY_NAME => TOKEN0_CONTRACT_KEY_NAME,
+            consts::ARG_NAME => consts::TOKEN0_NAME,
+            consts::ARG_SYMBOL => consts::TOKEN0_SYMBOL,
+            consts::ARG_DECIMALS => consts::TOKEN0_DECIMALS,
+            consts::ARG_TOTAL_SUPPLY => U256::from(consts::TOKEN0_TOTAL_SUPPLY),
+            consts::ARG_CONTRACT_KEY_NAME => consts::TOKEN0_CONTRACT_KEY_NAME,
         },
     )
     .build();
 
     let install_request_token1 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        EXAMPLE_ERC20_TOKEN,
+        consts::CONTRACT_ERC20_TOKEN,
         runtime_args! {
-            ARG_NAME => TOKEN1_NAME,
-            ARG_SYMBOL => TOKEN1_SYMBOL,
-            ARG_DECIMALS => TOKEN1_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(TOKEN1_TOTAL_SUPPLY),
-            ARG_CONTRACT_KEY_NAME => TOKEN1_CONTRACT_KEY_NAME,
+            consts::ARG_NAME => consts::TOKEN1_NAME,
+            consts::ARG_SYMBOL => consts::TOKEN1_SYMBOL,
+            consts::ARG_DECIMALS => consts::TOKEN1_DECIMALS,
+            consts::ARG_TOTAL_SUPPLY => U256::from(consts::TOKEN1_TOTAL_SUPPLY),
+            consts::ARG_CONTRACT_KEY_NAME => consts::TOKEN1_CONTRACT_KEY_NAME,
         },
     )
     .build();
 
     let install_request_test_call = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        CONTRACT_ERC20_TEST_CALL,
+        consts::CONTRACT_ERC20_TEST_CALL,
         RuntimeArgs::default(),
     )
     .build();
@@ -142,29 +79,29 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     let token0_contract = account
         .named_keys()
-        .get(TOKEN0_CONTRACT_HASH_KEY_NAME)
+        .get(consts::TOKEN0_CONTRACT_HASH_KEY_NAME)
         .and_then(|key| key.into_hash())
         .map(ContractHash::new)
         .expect("should have contract hash");
 
     let token1_contract = account
         .named_keys()
-        .get(TOKEN1_CONTRACT_HASH_KEY_NAME)
+        .get(consts::TOKEN1_CONTRACT_HASH_KEY_NAME)
         .and_then(|key| key.into_hash())
         .map(ContractHash::new)
         .expect("should have contract hash");
 
     let install_request_pair = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
-        SWAPPERY_PAIR,
+        consts::CONTRACT_SWAPPERY_PAIR,
         runtime_args! {
-            ARG_NAME => PAIR_NAME,
-            ARG_SYMBOL => PAIR_SYMBOL,
-            ARG_DECIMALS => PAIR_DECIMALS,
-            ARG_TOTAL_SUPPLY => U256::from(PAIR_TOTAL_SUPPLY),
-            ARG_CONTRACT_KEY_NAME => PAIR_CONTRACT_KEY_NAME,
-            ARG_TOKEN0 => ContractHash::from(token0_contract),
-            ARG_TOKEN1 => ContractHash::from(token1_contract),
+            consts::ARG_NAME => consts::PAIR_NAME,
+            consts::ARG_SYMBOL => consts::PAIR_SYMBOL,
+            consts::ARG_DECIMALS => consts::PAIR_DECIMALS,
+            consts::ARG_TOTAL_SUPPLY => U256::from(consts::PAIR_TOTAL_SUPPLY),
+            consts::ARG_CONTRACT_KEY_NAME => consts::PAIR_CONTRACT_KEY_NAME,
+            consts::ARG_TOKEN0 => ContractHash::from(token0_contract),
+            consts::ARG_TOKEN1 => ContractHash::from(token1_contract),
         },
     )
     .build();
@@ -177,14 +114,14 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     let pair_package = account
         .named_keys()
-        .get(PAIR_CONTRACT_KEY_NAME)
+        .get(consts::PAIR_CONTRACT_KEY_NAME)
         .and_then(|key| key.into_hash())
         .map(ContractPackageHash::new)
         .expect("should have contract package hash");
 
     let pair_contract = account
         .named_keys()
-        .get(PAIR_CONTRACT_HASH_KEY_NAME)
+        .get(consts::PAIR_CONTRACT_HASH_KEY_NAME)
         .and_then(|key| key.into_hash())
         .map(ContractHash::new)
         .expect("should have contract hash");
@@ -213,7 +150,7 @@ fn get_test_result<T: FromBytes + CLTyped>(
         .next()
         .expect("should have latest version");
 
-    builder.get_value(*contract_hash, RESULT_KEY)
+    builder.get_value(*contract_hash, consts::RESULT_KEY)
 }
 
 fn erc20_check_balance_of(
@@ -227,20 +164,20 @@ fn erc20_check_balance_of(
 
     let erc20_test_contract_hash = account
         .named_keys()
-        .get(ERC20_TEST_CALL_KEY)
+        .get(consts::ERC20_TEST_CALL_KEY)
         .and_then(|key| key.into_hash())
         .map(ContractPackageHash::new)
         .expect("should have test contract hash");
 
     let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => *erc20_contract_hash,
-        ARG_ADDRESS => address,
+        consts::ARG_TOKEN_CONTRACT => *erc20_contract_hash,
+        consts::ARG_ADDRESS => address,
     };
     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         erc20_test_contract_hash,
         None,
-        CHECK_BALANCE_OF_ENTRYPOINT,
+        consts::CHECK_BALANCE_OF_ENTRYPOINT,
         check_balance_args,
     )
     .build();
@@ -259,10 +196,10 @@ fn make_erc20_transfer_request(
         Key::Account(sender) => ExecuteRequestBuilder::contract_call_by_hash(
             sender,
             *erc20_token,
-            METHOD_TRANSFER,
+            consts::METHOD_TRANSFER,
             runtime_args! {
-                ARG_AMOUNT => amount,
-                ARG_RECIPIENT => recipient,
+                consts::ARG_AMOUNT => amount,
+                consts::ARG_RECIPIENT => recipient,
             },
         )
         .build(),
@@ -270,11 +207,11 @@ fn make_erc20_transfer_request(
             *DEFAULT_ACCOUNT_ADDR,
             ContractPackageHash::new(contract_package_hash),
             None,
-            METHOD_TRANSFER_AS_STORED_CONTRACT,
+            consts::METHOD_TRANSFER_AS_STORED_CONTRACT,
             runtime_args! {
-                ARG_TOKEN_CONTRACT => *erc20_token,
-                ARG_AMOUNT => amount,
-                ARG_RECIPIENT => recipient,
+                consts::ARG_TOKEN_CONTRACT => *erc20_token,
+                consts::ARG_AMOUNT => amount,
+                consts::ARG_RECIPIENT => recipient,
             },
         )
         .build(),
@@ -290,29 +227,29 @@ fn should_mint_and_burn_lp_token() {
     let pair_key = Key::from(pair_package);
     
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
-    let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(TOKEN0_TOTAL_SUPPLY));
+    let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     builder.exec(token0_transfer_request).expect_success().commit();
     
     let pair_balance = erc20_check_balance_of(&mut builder, &token0_contract, pair_key);
-    assert_eq!(pair_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(pair_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
 
-    let token1_transfer_request = make_erc20_transfer_request(owner_key, &token1_contract, pair_key, U256::from(TOKEN1_TOTAL_SUPPLY));
+    let token1_transfer_request = make_erc20_transfer_request(owner_key, &token1_contract, pair_key, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
     builder.exec(token1_transfer_request).expect_success().commit();
         
     let pair_balance = erc20_check_balance_of(&mut builder, &token1_contract, pair_key);
-    assert_eq!(pair_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(pair_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
     let pair_mint_request: ExecuteRequest = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_MINT,
+        consts::METHOD_MINT,
         runtime_args!{
-            ARG_TO => owner_key,
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -329,9 +266,9 @@ fn should_mint_and_burn_lp_token() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_BURN,
+        consts::METHOD_BURN,
         runtime_args!{
-            ARG_TO => owner_key,
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(pair_burn_request).expect_success().commit();
@@ -341,11 +278,11 @@ fn should_mint_and_burn_lp_token() {
 
     let pair_balance = erc20_check_balance_of(&mut builder, &token0_contract, pair_key);
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(pair_balance + owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(pair_balance + owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
 
     let pair_balance = erc20_check_balance_of(&mut builder, &token1_contract, pair_key);
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(pair_balance + owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(pair_balance + owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 }
 
 #[test]
@@ -356,9 +293,9 @@ fn should_swap_tokens_with_pair() {
     let pair_key = Key::from(pair_package);
     
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
     let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(100_000u64));
     builder.exec(token0_transfer_request).expect_success().commit();
@@ -370,9 +307,9 @@ fn should_swap_tokens_with_pair() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_MINT,
+        consts::METHOD_MINT,
         runtime_args!{
-            ARG_TO => owner_key,
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -384,11 +321,11 @@ fn should_swap_tokens_with_pair() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_SWAP,
+        consts::METHOD_SWAP,
         runtime_args!{
-            ARG_AMOUNT0 => U256::zero(),
-            ARG_AMOUNT1 => U256::from(100_000u64),
-            ARG_TO => owner_key,
+            consts::ARG_AMOUNT0 => U256::zero(),
+            consts::ARG_AMOUNT1 => U256::from(100_000u64),
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(swap_token_request).expect_success().commit();
@@ -399,12 +336,12 @@ fn should_swap_tokens_with_pair() {
     let pair_balance = erc20_check_balance_of(&mut builder, &token0_contract, pair_key);
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
     assert_eq!(pair_balance, U256::from(150_000u64));
-    assert_eq!(pair_balance + owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(pair_balance + owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
 
     let pair_balance = erc20_check_balance_of(&mut builder, &token1_contract, pair_key);
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
     assert_eq!(pair_balance, U256::from(300_000u64));
-    assert_eq!(pair_balance + owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(pair_balance + owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 }
 
 #[test]
@@ -415,9 +352,9 @@ fn should_not_swap_tokens_above_reserves() {
     let pair_key = Key::from(pair_package);
     
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
     let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(100_000u64));
     builder.exec(token0_transfer_request).expect_success().commit();
@@ -429,9 +366,9 @@ fn should_not_swap_tokens_above_reserves() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_MINT,
+        consts::METHOD_MINT,
         runtime_args!{
-            ARG_TO => owner_key,
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -443,18 +380,18 @@ fn should_not_swap_tokens_above_reserves() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_SWAP,
+        consts::METHOD_SWAP,
         runtime_args!{
-            ARG_AMOUNT0 => U256::zero(),
-            ARG_AMOUNT1 => U256::from(400_000u64),
-            ARG_TO => owner_key,
+            consts::ARG_AMOUNT0 => U256::zero(),
+            consts::ARG_AMOUNT1 => U256::from(400_000u64),
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(swap_token_request).commit();
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == ERROR_INSUFFICIENT_LIQUIDITY),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == consts::ERROR_INSUFFICIENT_LIQUIDITY),
         "{:?}",
         error
     );
@@ -468,9 +405,9 @@ fn should_not_swap_over_limits() {
     let pair_key = Key::from(pair_package);
     
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
     let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(100_000u64));
     builder.exec(token0_transfer_request).expect_success().commit();
@@ -482,9 +419,9 @@ fn should_not_swap_over_limits() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_MINT,
+        consts::METHOD_MINT,
         runtime_args!{
-            ARG_TO => owner_key,
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -496,18 +433,18 @@ fn should_not_swap_over_limits() {
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_SWAP,
+        consts::METHOD_SWAP,
         runtime_args!{
-            ARG_AMOUNT0 => U256::zero(),
-            ARG_AMOUNT1 => U256::from(200_000u64),
-            ARG_TO => owner_key,
+            consts::ARG_AMOUNT0 => U256::zero(),
+            consts::ARG_AMOUNT1 => U256::from(200_000u64),
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(swap_token_request).commit();
 
     let error = builder.get_error().expect("should have error");
     assert!(
-        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == ERROR_K),
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == consts::ERROR_K),
         "{:?}",
         error
     );
@@ -522,29 +459,29 @@ fn should_mint_minimum_liquidity_to_zero_address() {
     let pair_key = Key::from(pair_package);
     
     let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
-    let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(TOKEN0_TOTAL_SUPPLY));
+    let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
     builder.exec(token0_transfer_request).expect_success().commit();
     
     let pair_balance = erc20_check_balance_of(&mut builder, &token0_contract, pair_key);
-    assert_eq!(pair_balance, U256::from(TOKEN0_TOTAL_SUPPLY));
+    assert_eq!(pair_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
 
-    let token1_transfer_request = make_erc20_transfer_request(owner_key, &token1_contract, pair_key, U256::from(TOKEN1_TOTAL_SUPPLY));
+    let token1_transfer_request = make_erc20_transfer_request(owner_key, &token1_contract, pair_key, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
     builder.exec(token1_transfer_request).expect_success().commit();
         
     let pair_balance = erc20_check_balance_of(&mut builder, &token1_contract, pair_key);
-    assert_eq!(pair_balance, U256::from(TOKEN1_TOTAL_SUPPLY));
+    assert_eq!(pair_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
     let pair_mint_request: ExecuteRequest = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *DEFAULT_ACCOUNT_ADDR,
         pair_package,
         None,
-        METHOD_MINT,
+        consts::METHOD_MINT,
         runtime_args!{
-            ARG_TO => owner_key,
+            consts::ARG_TO => owner_key,
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
