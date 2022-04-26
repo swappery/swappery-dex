@@ -21,6 +21,11 @@ pub const DEAD_LINE_RUNTIME_ARG_NAME: &str = "dead_line";
 pub const LIQUIDITY_RUNTIME_ARG_NAME: &str = "liquidity";
 pub const AMOUNT0_RUNTIME_ARG_NAME: &str = "amount0";
 pub const AMOUNT1_RUNTIME_ARG_NAME: &str = "amount1";
+pub const AMOUNT_IN_RUNTIME_ARG_NAME: &str = "amount_in";
+pub const AMOUNT_OUT_RUNTIME_ARG_NAME: &str = "amount_out";
+pub const AMOUNT_IN_MAX_RUNTIME_ARG_NAME: &str = "amount_in_max";
+pub const AMOUNT_OUT_MIN_RUNTIME_ARG_NAME: &str = "amount_out_min";
+pub const PATH_RUNTIME_ARG_NAME: &str = "path";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";
