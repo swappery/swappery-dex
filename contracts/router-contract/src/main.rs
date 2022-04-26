@@ -32,7 +32,7 @@ use constants::{
     LIQUIDITY_RUNTIME_ARG_NAME, BURN_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
     AMOUNT1_RUNTIME_ARG_NAME, SWAP_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
     AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
-    PATH_RUNTIME_ARG_NAME, 
+    PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, 
 };
 
 use casper_types::{ContractHash, HashAddr, Key, URef, U256, runtime_args, RuntimeArgs};
@@ -48,7 +48,6 @@ pub struct SwapperyRouter {
     pair_list_uref: OnceCell<URef>,
     feeto_uref: OnceCell<URef>,
     feeto_setter_uref: OnceCell<URef>,
-    wcspr_uref: OnceCell<URef>,
 }
 
 impl SwapperyRouter {
@@ -57,7 +56,6 @@ impl SwapperyRouter {
             pair_list_uref: pair_list_uref.into(),
             feeto_uref: feeto_uref.into(),
             feeto_setter_uref: feeto_setter_uref.into(),
-            wcspr_uref: wcspr_uref.into(),
         }
     }
     fn pair_list_uref(&self) -> URef {
@@ -96,16 +94,8 @@ impl SwapperyRouter {
         feeto::write_feeto_setter_to(self.feeto_setter_uref(), feeto_setter)
     }
 
-    fn wcspr_uref(&self) -> URef {
-        *self.wcspr_uref.get_or_init(wcspr::wcspr_uref)
-    }
-
-    fn read_wcspr(&self) -> ContractHash {
-        wcspr::read_wcspr_from(self.wcspr_uref())
-    }
-
-    fn write_wcspr(&self, wcspr: ContractHash) {
-        wcspr::write_wcspr_to(self.wcspr_uref(), wcspr);
+    pub fn wcspr_token(&self) -> ContractHash {
+        helpers::read_from(WCSPR_CONTRACT_KEY_NAME)
     }
 
     pub fn make_pair_path_from_token_path(&self, token_path: Vec<ContractHash>) -> Vec<Address> {
