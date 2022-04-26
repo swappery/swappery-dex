@@ -13,7 +13,7 @@ use casper_types::{
     ContractHash, ContractPackageHash, Key, PublicKey, RuntimeArgs, SecretKey, U256,
     ApiError,
 };
-use constants as consts;
+use crate::constants as consts;
 
 #[derive(Copy, Clone)]
 struct TestContext {
