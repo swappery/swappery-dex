@@ -1,10 +1,10 @@
 [package]
-name = "router-contract"
+name = "swappery-router"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "router_contract"
+name = "swappery_router"
 path = "src/main.rs"
 bench = false
 doctest = false

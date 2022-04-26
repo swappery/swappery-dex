@@ -1,4 +1,4 @@
-ALL_CONTRACTS = swappery-pair router-contract
+ALL_CONTRACTS = swappery-pair swappery-router
 CONTRACT_TARGET_DIR = target/wasm32-unknown-unknown/release
 
 prepare:
@@ -11,6 +11,7 @@ build-contract:
 test: build-contract
 	mkdir -p tests/wasm
 	cp target/wasm32-unknown-unknown/release/swappery_pair.wasm tests/wasm
+	cp target/wasm32-unknown-unknown/release/swappery_router.wasm tests/wasm
 	cargo test
 
 clippy:

@@ -10,6 +10,7 @@ mod constants;
 mod feeto;
 mod helpers;
 mod pair_list;
+mod entry_points;
 
 use alloc::{string::String, vec::Vec};
 
@@ -35,9 +36,12 @@ use constants::{
     FEETO_SETTER_KEY_NAME, 
 };
 
-use casper_types::{ContractHash, HashAddr, Key, URef, U256, runtime_args, RuntimeArgs};
+use casper_types::{
+    ContractHash, HashAddr, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
+    EntryPoint, EntryPoints, Error,
+};
 
-use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
 
 use once_cell::unsync::OnceCell;
 
@@ -51,7 +55,7 @@ pub struct SwapperyRouter {
 }
 
 impl SwapperyRouter {
-    fn new(pair_list_uref: URef, feeto_uref: URef, feeto_setter_uref: URef, wcspr_uref: URef) -> Self {
+    fn new(pair_list_uref: URef, feeto_uref: URef, feeto_setter_uref: URef) -> Self {
         Self {
             pair_list_uref: pair_list_uref.into(),
             feeto_uref: feeto_uref.into(),
@@ -110,7 +114,7 @@ impl SwapperyRouter {
         feeto: Address,
         feeto_setter: Address,
         wcspr_token: ContractHash,
-        contract_key_name: &str,
+        contract_key_name: String,
     ) -> Result<SwapperyRouter, Error> {
         let pair_list_uref: URef = storage::new_dictionary(PAIR_LIST_KEY_NAME).unwrap_or_revert();
         let feeto_uref: URef = storage::new_uref(feeto).into_read_write();
@@ -128,11 +132,11 @@ impl SwapperyRouter {
 
         let mut named_keys = NamedKeys::new();
         named_keys.insert(String::from(PAIR_LIST_KEY_NAME), pair_list_key);
-        named_keys.insert(String::from(FEETO_KEY), feeto_key);
+        named_keys.insert(String::from(FEETO_KEY_NAME), feeto_key);
         named_keys.insert(String::from(FEETO_SETTER_KEY_NAME), feeto_setter_key);
         named_keys.insert(String::from(WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
 
-        let (contract_hash, _version) = sotrage::new_contract(
+        let (contract_hash, _version) = storage::new_contract(
             entry_points::default(),
             Some(named_keys),
             Some(contract_key_name),
@@ -361,25 +365,17 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
 
 #[no_mangle]
 fn call() {
-    let name: String = runtime::get_named_arg(NAME_RUNTIME_ARG_NAME);
-    let symbol: String = runtime::get_named_arg(SYMBOL_RUNTIME_ARG_NAME);
-    let decimals: u8 = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
-    let initial_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
+    let feeto: Address = runtime::get_named_arg(FEETO_KEY_NAME);
+    let feeto_setter: Address = runtime::get_named_arg(FEETO_SETTER_KEY_NAME);
+    let wcspr_token: ContractHash = runtime::get_named_arg(WCSPR_CONTRACT_KEY_NAME);
     let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
 
-    // let _ = SwapperyPair::create(
-    //     name,
-    //     symbol,
-    //     decimals,
-    //     initial_supply,
-    //     contract_key_name.as_str(),
-    //     Address::from(AccountHash::new([0u8; 32])),
-    //     Address::from(AccountHash::new([0u8; 32]))
-    // );
-
-    let key: Key = runtime::get_key(contract_key_name.as_str()).unwrap_or_revert();
-    let hash: HashAddr = key.into_hash().unwrap_or_revert();
-    let contract_hash = ContractHash::new(hash);
+    let _ = SwapperyRouter::create(
+        feeto,
+        feeto_setter,
+        wcspr_token,
+        contract_key_name,
+    );
 }
 
 #[panic_handler]
