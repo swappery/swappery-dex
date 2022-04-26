@@ -17,12 +17,12 @@ use casper_types::{
 const EXAMPLE_ERC20_TOKEN: &str = "erc20_token.wasm";
 const SWAPPERY_PAIR: &str = "swappery_pair.wasm";
 const CONTRACT_ERC20_TEST_CALL: &str = "erc20_test_call.wasm";
-const NAME_KEY: &str = "name";
-const SYMBOL_KEY: &str = "symbol";
-const DECIMALS_KEY: &str = "decimals";
-const TOTAL_SUPPLY_KEY: &str = "total_supply";
-const BALANCES_KEY: &str = "balances";
-const ALLOWANCES_KEY: &str = "allowances";
+// const NAME_KEY: &str = "name";
+// const SYMBOL_KEY: &str = "symbol";
+// const DECIMALS_KEY: &str = "decimals";
+// const TOTAL_SUPPLY_KEY: &str = "total_supply";
+// const BALANCES_KEY: &str = "balances";
+// const ALLOWANCES_KEY: &str = "allowances";
 
 const ARG_NAME: &str = "name";
 const ARG_SYMBOL: &str = "symbol";
@@ -60,11 +60,11 @@ const METHOD_TRANSFER: &str = "transfer";
 const ARG_AMOUNT: &str = "amount";
 const ARG_RECIPIENT: &str = "recipient";
 
-const METHOD_APPROVE: &str = "approve";
-const ARG_OWNER: &str = "owner";
-const ARG_SPENDER: &str = "spender";
+// const METHOD_APPROVE: &str = "approve";
+// const ARG_OWNER: &str = "owner";
+// const ARG_SPENDER: &str = "spender";
 
-const METHOD_TRANSFER_FROM: &str = "transfer_from";
+// const METHOD_TRANSFER_FROM: &str = "transfer_from";
 
 static ACCOUNT_1_SECRET_KEY: Lazy<SecretKey> =
     Lazy::new(|| SecretKey::secp256k1_from_bytes(&[221u8; 32]).unwrap());
@@ -72,32 +72,32 @@ static ACCOUNT_1_PUBLIC_KEY: Lazy<PublicKey> =
     Lazy::new(|| PublicKey::from(&*ACCOUNT_1_SECRET_KEY));
 static ACCOUNT_1_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_1_PUBLIC_KEY.to_account_hash());
 
-static ACCOUNT_2_SECRET_KEY: Lazy<SecretKey> =
-    Lazy::new(|| SecretKey::secp256k1_from_bytes(&[212u8; 32]).unwrap());
-static ACCOUNT_2_PUBLIC_KEY: Lazy<PublicKey> =
-    Lazy::new(|| PublicKey::from(&*ACCOUNT_2_SECRET_KEY));
-static ACCOUNT_2_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_2_PUBLIC_KEY.to_account_hash());
+// static ACCOUNT_2_SECRET_KEY: Lazy<SecretKey> =
+//     Lazy::new(|| SecretKey::secp256k1_from_bytes(&[212u8; 32]).unwrap());
+// static ACCOUNT_2_PUBLIC_KEY: Lazy<PublicKey> =
+//     Lazy::new(|| PublicKey::from(&*ACCOUNT_2_SECRET_KEY));
+// static ACCOUNT_2_ADDR: Lazy<AccountHash> = Lazy::new(|| ACCOUNT_2_PUBLIC_KEY.to_account_hash());
 
-const TOKEN_OWNER_ADDRESS_1: Key = Key::Account(AccountHash::new([42; 32]));
-const TOKEN_OWNER_AMOUNT_1: u64 = 1_000_000;
-const TOKEN_OWNER_ADDRESS_2: Key = Key::Hash([42; 32]);
-const TOKEN_OWNER_AMOUNT_2: u64 = 2_000_000;
+// const TOKEN_OWNER_ADDRESS_1: Key = Key::Account(AccountHash::new([42; 32]));
+// const TOKEN_OWNER_AMOUNT_1: u64 = 1_000_000;
+// const TOKEN_OWNER_ADDRESS_2: Key = Key::Hash([42; 32]);
+// const TOKEN_OWNER_AMOUNT_2: u64 = 2_000_000;
 
 const METHOD_MINT: &str = "mint";
 const METHOD_BURN: &str = "burn";
 const METHOD_SWAP: &str = "swap";
 
-const CHECK_TOTAL_SUPPLY_ENTRYPOINT: &str = "check_total_supply";
+// const CHECK_TOTAL_SUPPLY_ENTRYPOINT: &str = "check_total_supply";
 const CHECK_BALANCE_OF_ENTRYPOINT: &str = "check_balance_of";
-const CHECK_ALLOWANCE_OF_ENTRYPOINT: &str = "check_allowance_of";
+// const CHECK_ALLOWANCE_OF_ENTRYPOINT: &str = "check_allowance_of";
 const ARG_TOKEN_CONTRACT: &str = "token_contract";
 const ARG_ADDRESS: &str = "address";
 const RESULT_KEY: &str = "result";
 const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
 
 const METHOD_TRANSFER_AS_STORED_CONTRACT: &str = "transfer_as_stored_contract";
-const METHOD_APPROVE_AS_STORED_CONTRACT: &str = "approve_as_stored_contract";
-const METHOD_FROM_AS_STORED_CONTRACT: &str = "transfer_from_as_stored_contract";
+// const METHOD_APPROVE_AS_STORED_CONTRACT: &str = "approve_as_stored_contract";
+// const METHOD_FROM_AS_STORED_CONTRACT: &str = "transfer_from_as_stored_contract";
 
 
 const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 2;
@@ -105,13 +105,13 @@ const ERROR_K: u16 = u16::MAX - 9;
 
 #[derive(Copy, Clone)]
 struct TestContext {
-    token0_package: ContractPackageHash,
+    // token0_package: ContractPackageHash,
     token0_contract: ContractHash,
-    token1_package: ContractPackageHash,
+    // token1_package: ContractPackageHash,
     token1_contract: ContractHash,
     pair_package: ContractPackageHash,
     pair_contract: ContractHash,
-    erc20_test_call: ContractPackageHash,
+    // erc20_test_call: ContractPackageHash,
 }
 
 fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
@@ -170,12 +170,12 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
 
-    let token0_package = account
-        .named_keys()
-        .get(TOKEN0_CONTRACT_KEY_NAME)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have contract package hash");
+    // let token0_package = account
+    //     .named_keys()
+    //     .get(TOKEN0_CONTRACT_KEY_NAME)
+    //     .and_then(|key| key.into_hash())
+    //     .map(ContractPackageHash::new)
+    //     .expect("should have contract package hash");
 
     let token0_contract = account
         .named_keys()
@@ -184,12 +184,12 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .map(ContractHash::new)
         .expect("should have contract hash");
 
-    let token1_package = account
-        .named_keys()
-        .get(TOKEN1_CONTRACT_KEY_NAME)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have contract package hash");
+    // let token1_package = account
+    //     .named_keys()
+    //     .get(TOKEN1_CONTRACT_KEY_NAME)
+    //     .and_then(|key| key.into_hash())
+    //     .map(ContractPackageHash::new)
+    //     .expect("should have contract package hash");
 
     let token1_contract = account
         .named_keys()
@@ -198,12 +198,12 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .map(ContractHash::new)
         .expect("should have contract hash");
         
-    let erc20_test_call = account
-        .named_keys()
-        .get(ERC20_TEST_CALL_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have contract hash");
+    // let erc20_test_call = account
+    //     .named_keys()
+    //     .get(ERC20_TEST_CALL_KEY)
+    //     .and_then(|key| key.into_hash())
+    //     .map(ContractPackageHash::new)
+    //     .expect("should have contract hash");
 
     let install_request_pair = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
@@ -241,49 +241,49 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .expect("should have contract hash");
 
     let test_context = TestContext {
-        token0_package,
+        // token0_package,
         token0_contract,
-        token1_package,
+        // token1_package,
         token1_contract,
         pair_package,
         pair_contract,
-        erc20_test_call,
+        // erc20_test_call,
     };
 
     (builder, test_context)
 }
 
-fn erc20_check_total_supply(
-    builder: &mut InMemoryWasmTestBuilder,
-    erc20_contract_hash: &ContractHash,
-) -> U256 {
-    let account = builder
-        .get_account(*DEFAULT_ACCOUNT_ADDR)
-        .expect("should have account");
+// fn erc20_check_total_supply(
+//     builder: &mut InMemoryWasmTestBuilder,
+//     erc20_contract_hash: &ContractHash,
+// ) -> U256 {
+//     let account = builder
+//         .get_account(*DEFAULT_ACCOUNT_ADDR)
+//         .expect("should have account");
 
-    let erc20_test_contract_hash = account
-        .named_keys()
-        .get(ERC20_TEST_CALL_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have test contract hash");
+//     let erc20_test_contract_hash = account
+//         .named_keys()
+//         .get(ERC20_TEST_CALL_KEY)
+//         .and_then(|key| key.into_hash())
+//         .map(ContractPackageHash::new)
+//         .expect("should have test contract hash");
 
-    let check_total_supply_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => *erc20_contract_hash,
-    };
+//     let check_total_supply_args = runtime_args! {
+//         ARG_TOKEN_CONTRACT => *erc20_contract_hash,
+//     };
 
-    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
-        *DEFAULT_ACCOUNT_ADDR,
-        erc20_test_contract_hash,
-        None,
-        CHECK_TOTAL_SUPPLY_ENTRYPOINT,
-        check_total_supply_args,
-    )
-    .build();
-    builder.exec(exec_request).expect_success().commit();
+//     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
+//         *DEFAULT_ACCOUNT_ADDR,
+//         erc20_test_contract_hash,
+//         None,
+//         CHECK_TOTAL_SUPPLY_ENTRYPOINT,
+//         check_total_supply_args,
+//     )
+//     .build();
+//     builder.exec(exec_request).expect_success().commit();
 
-    get_test_result(builder, erc20_test_contract_hash)
-}
+//     get_test_result(builder, erc20_test_contract_hash)
+// }
 
 fn get_test_result<T: FromBytes + CLTyped>(
     builder: &mut InMemoryWasmTestBuilder,
@@ -335,44 +335,44 @@ fn erc20_check_balance_of(
     get_test_result(builder, erc20_test_contract_hash)
 }
 
-fn erc20_check_allowance_of(
-    builder: &mut InMemoryWasmTestBuilder,
-    owner: Key,
-    spender: Key,
-) -> U256 {
-    let account = builder
-        .get_account(*DEFAULT_ACCOUNT_ADDR)
-        .expect("should have account");
-    let erc20_contract_hash = account
-        .named_keys()
-        .get(TOKEN0_CONTRACT_HASH_KEY_NAME)
-        .and_then(|key| key.into_hash())
-        .map(ContractHash::new)
-        .expect("should have test contract hash");
-    let erc20_test_contract_hash = account
-        .named_keys()
-        .get(ERC20_TEST_CALL_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have test contract hash");
+// fn erc20_check_allowance_of(
+//     builder: &mut InMemoryWasmTestBuilder,
+//     owner: Key,
+//     spender: Key,
+// ) -> U256 {
+//     let account = builder
+//         .get_account(*DEFAULT_ACCOUNT_ADDR)
+//         .expect("should have account");
+//     let erc20_contract_hash = account
+//         .named_keys()
+//         .get(TOKEN0_CONTRACT_HASH_KEY_NAME)
+//         .and_then(|key| key.into_hash())
+//         .map(ContractHash::new)
+//         .expect("should have test contract hash");
+//     let erc20_test_contract_hash = account
+//         .named_keys()
+//         .get(ERC20_TEST_CALL_KEY)
+//         .and_then(|key| key.into_hash())
+//         .map(ContractPackageHash::new)
+//         .expect("should have test contract hash");
 
-    let check_balance_args = runtime_args! {
-        ARG_TOKEN_CONTRACT => erc20_contract_hash,
-        ARG_OWNER => owner,
-        ARG_SPENDER => spender,
-    };
-    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
-        *DEFAULT_ACCOUNT_ADDR,
-        erc20_test_contract_hash,
-        None,
-        CHECK_ALLOWANCE_OF_ENTRYPOINT,
-        check_balance_args,
-    )
-    .build();
-    builder.exec(exec_request).expect_success().commit();
+//     let check_balance_args = runtime_args! {
+//         ARG_TOKEN_CONTRACT => erc20_contract_hash,
+//         ARG_OWNER => owner,
+//         ARG_SPENDER => spender,
+//     };
+//     let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
+//         *DEFAULT_ACCOUNT_ADDR,
+//         erc20_test_contract_hash,
+//         None,
+//         CHECK_ALLOWANCE_OF_ENTRYPOINT,
+//         check_balance_args,
+//     )
+//     .build();
+//     builder.exec(exec_request).expect_success().commit();
 
-    get_test_result(builder, erc20_test_contract_hash)
-}
+//     get_test_result(builder, erc20_test_contract_hash)
+// }
 
 fn make_erc20_transfer_request(
     sender: Key,
@@ -407,42 +407,42 @@ fn make_erc20_transfer_request(
     }
 }
 
-fn make_erc20_approve_request(
-    sender: Key,
-    erc20_token: &ContractHash,
-    spender: Key,
-    amount: U256,
-) -> ExecuteRequest {
-    match sender {
-        Key::Account(sender) => ExecuteRequestBuilder::contract_call_by_hash(
-            sender,
-            *erc20_token,
-            METHOD_APPROVE,
-            runtime_args! {
-                ARG_SPENDER => spender,
-                ARG_AMOUNT => amount,
-            },
-        )
-        .build(),
-        Key::Hash(contract_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
-            *DEFAULT_ACCOUNT_ADDR,
-            ContractPackageHash::new(contract_hash),
-            None,
-            METHOD_APPROVE_AS_STORED_CONTRACT,
-            runtime_args! {
-                ARG_TOKEN_CONTRACT => *erc20_token,
-                ARG_SPENDER => spender,
-                ARG_AMOUNT => amount,
-            },
-        )
-        .build(),
-        _ => panic!("Unknown variant"),
-    }
-}
+// fn make_erc20_approve_request(
+//     sender: Key,
+//     erc20_token: &ContractHash,
+//     spender: Key,
+//     amount: U256,
+// ) -> ExecuteRequest {
+//     match sender {
+//         Key::Account(sender) => ExecuteRequestBuilder::contract_call_by_hash(
+//             sender,
+//             *erc20_token,
+//             METHOD_APPROVE,
+//             runtime_args! {
+//                 ARG_SPENDER => spender,
+//                 ARG_AMOUNT => amount,
+//             },
+//         )
+//         .build(),
+//         Key::Hash(contract_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
+//             *DEFAULT_ACCOUNT_ADDR,
+//             ContractPackageHash::new(contract_hash),
+//             None,
+//             METHOD_APPROVE_AS_STORED_CONTRACT,
+//             runtime_args! {
+//                 ARG_TOKEN_CONTRACT => *erc20_token,
+//                 ARG_SPENDER => spender,
+//                 ARG_AMOUNT => amount,
+//             },
+//         )
+//         .build(),
+//         _ => panic!("Unknown variant"),
+//     }
+// }
 
 #[test]
 fn should_mint_and_burn_lp_token() {
-    let (mut builder, TestContext { token0_package, token0_contract, token1_package, token1_contract, pair_package, pair_contract, .. }) = setup();
+    let (mut builder, TestContext { token0_contract, token1_contract, pair_package, pair_contract, .. }) = setup();
         
     let owner_key = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let pair_key = Key::from(pair_package);
@@ -509,7 +509,7 @@ fn should_mint_and_burn_lp_token() {
 
 #[test]
 fn should_swap_tokens_with_pair() {
-    let (mut builder, TestContext { token0_package, token0_contract, token1_package, token1_contract, pair_package, pair_contract, .. }) = setup();
+    let (mut builder, TestContext { token0_contract, token1_contract, pair_package, pair_contract, .. }) = setup();
         
     let owner_key = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let pair_key = Key::from(pair_package);
@@ -568,7 +568,7 @@ fn should_swap_tokens_with_pair() {
 
 #[test]
 fn should_not_swap_tokens_above_reserves() {
-    let (mut builder, TestContext { token0_package, token0_contract, token1_package, token1_contract, pair_package, pair_contract, .. }) = setup();
+    let (mut builder, TestContext { token0_contract, token1_contract, pair_package, .. }) = setup();
         
     let owner_key = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let pair_key = Key::from(pair_package);
@@ -621,7 +621,7 @@ fn should_not_swap_tokens_above_reserves() {
 
 #[test]
 fn should_not_swap_over_limits() {
-    let (mut builder, TestContext { token0_package, token0_contract, token1_package, token1_contract, pair_package, pair_contract, .. }) = setup();
+    let (mut builder, TestContext { token0_contract, token1_contract, pair_package, .. }) = setup();
         
     let owner_key = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let pair_key = Key::from(pair_package);
@@ -674,7 +674,7 @@ fn should_not_swap_over_limits() {
 
 #[test]
 fn should_mint_minimum_liquidity_to_zero_address() {
-    let (mut builder, TestContext { token0_package, token0_contract, token1_package, token1_contract, pair_package, pair_contract, .. }) = setup();
+    let (mut builder, TestContext { token0_contract, token1_contract, pair_package, pair_contract, .. }) = setup();
         
     let owner_key = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let zero_key = Key::from(AccountHash::new([0u8; 32]));
