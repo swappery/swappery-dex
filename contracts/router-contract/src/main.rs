@@ -173,13 +173,13 @@ impl SwapperyRouter {
             let amount1_optimal: U256 = helpers::quote(amount0_desired, reserves.0, reserves.1);
             if amount1_optimal <= amount1_desired {
                 if !(amount1_optimal >= amount1_min) {
-                    // require(amountBOptimal >= amountBMin, 'PancakeRouter: INSUFFICIENT_B_AMOUNT);
+                    runtime::revert(error::Error::InsufficientBAmount);
                 }
                 amounts = (amount0_desired, amount1_optimal);
             } else {
                 let amount0_optimal: U256 = helpers::quote(amount1_desired, reserves.1, reserves.0);
                 if !(amount0_optimal >= amount0_min) {
-                    // require(amountAOptimal >= amountAMin, 'PancakeRouter: INSUFFICIENT_A_AMOUNT');
+                    runtime::revert(error::Error::InsufficientAAmount);
                 }
                 amounts = (amount0_optimal, amount1_desired);
             }
@@ -303,10 +303,10 @@ pub extern "C" fn remove_liquidity() {
         },
     );
     if amounts.0 < amount0_min {
-
+        runtime::revert(error::Error::InsufficientAAmount);
     }
     if amounts.1 < amount1_min {
-
+        runtime::revert(error::Error::InsufficientBAmount);
     }
 }
 
@@ -319,7 +319,9 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
-    // require(amounts[amounts.length - 1] >= amountOutMin, 'PancakeRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+    if !(amounts.last().unwrap_or_revert() >= &amount_out_min) {
+        runtime::revert(error::Error::InsufficientOutputAmount);
+    }
 
     let caller: Address = helpers::get_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(
@@ -346,7 +348,10 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
     let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
-    // require(amounts[0] <= amountInMax, 'PancakeRouter: EXCESSIVE_INPUT_AMOUNT');
+    
+    if !(amounts.get(0).unwrap_or_revert() >= &amount_in_max) {
+        runtime::revert(error::Error::InsufficientInputAmount);
+    }
 
     let caller: Address = helpers::get_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(
