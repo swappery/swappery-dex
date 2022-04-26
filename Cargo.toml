@@ -2,12 +2,12 @@
 members = [
     "contracts/pair-contract",
     "contracts/router-contract",
-    "tests/test-pair"
+    "tests"
 ]
 default-members = [
     "contracts/pair-contract",
     "contracts/router-contract",
-    "tests/test-pair"
+    "tests"
 ]
 
 [profile.release]
