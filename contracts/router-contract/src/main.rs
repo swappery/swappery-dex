@@ -27,12 +27,12 @@ use constants::{
     GET_RESERVES_ENTRY_POINT_NAME, TOKEN0_RUNTIME_ARG_NAME, TOKEN1_RUNTIME_ARG_NAME,
     AMOUNT0_DESIRED_RUNTIME_ARG_NAME, AMOUNT1_DESIRED_RUNTIME_ARG_NAME,
     AMOUNT0_MIN_RUNTIME_ARG_NAME, AMOUNT1_MIN_RUNTIME_ARG_NAME,
-    TO_RUNTIME_ARG_NAME, DEAD_LINE_RUNTIME_ARG_NAME,  MINT_ENTRY_POINT_NAME, 
+    TO_RUNTIME_ARG_NAME, FEETO_SETTER_KEY_NAME,  MINT_ENTRY_POINT_NAME, 
     LIQUIDITY_RUNTIME_ARG_NAME, BURN_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
     AMOUNT1_RUNTIME_ARG_NAME, SWAP_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
     AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
     PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, PAIR_LIST_KEY_NAME, FEETO_KEY_NAME,
-    FEETO_SETTER_KEY_NAME, 
+    // DEAD_LINE_RUNTIME_ARG_NAME,
 };
 
 use casper_types::{
@@ -135,7 +135,7 @@ impl SwapperyRouter {
         named_keys.insert(String::from(FEETO_SETTER_KEY_NAME), feeto_setter_key);
         named_keys.insert(String::from(WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
 
-        let (contract_hash, _version) = storage::new_contract(
+        let _ = storage::new_contract(
             entry_points::default(),
             Some(named_keys),
             Some(contract_key_name),
@@ -157,7 +157,7 @@ impl SwapperyRouter {
         amount0_min: U256,
         amount1_min: U256
     ) -> (U256, U256) {
-        let mut amounts: (U256, U256);
+        let amounts: (U256, U256);
         let pair: Address = self.get_pair_for(token0, token1);
         let reserves: (U256, U256) = runtime::call_versioned_contract(
             *pair.as_contract_package_hash().unwrap_or_revert(),
@@ -195,7 +195,7 @@ impl SwapperyRouter {
             let (input, output): (&ContractHash, &ContractHash) = (path.get(i).unwrap_or_revert(), path.get(i + 1).unwrap_or_revert());
             let (token0, ..) = helpers::sort_tokens(*input, *output);
             let amount_out: &U256 = amounts.get(i + 1).unwrap_or_revert();
-            let mut amounts_out: (U256, U256);
+            let amounts_out: (U256, U256);
             if input.eq(&token0) {
                 amounts_out = (U256::zero(), *amount_out);
             } else {
@@ -232,7 +232,7 @@ pub extern "C" fn add_liquidity() {
     let amount0_min: U256 = runtime::get_named_arg(AMOUNT0_MIN_RUNTIME_ARG_NAME);
     let amount1_min: U256 = runtime::get_named_arg(AMOUNT1_MIN_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
-    let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
     
     let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
 
@@ -275,7 +275,7 @@ pub extern "C" fn remove_liquidity() {
     let amount0_min: U256 = runtime::get_named_arg(AMOUNT0_MIN_RUNTIME_ARG_NAME);
     let amount1_min: U256 = runtime::get_named_arg(AMOUNT1_MIN_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
-    let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
 
@@ -314,7 +314,7 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     let amount_out_min: U256 = runtime::get_named_arg(AMOUNT_OUT_MIN_RUNTIME_ARG_NAME);
     let path: Vec<ContractHash> = runtime::get_named_arg(PATH_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
-    let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
     if !(amounts.last().unwrap_or_revert() >= &amount_out_min) {
@@ -343,7 +343,7 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
     let amount_in_max: U256 = runtime::get_named_arg(AMOUNT_IN_MAX_RUNTIME_ARG_NAME);
     let path: Vec<ContractHash> = runtime::get_named_arg(PATH_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
-    let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
     
