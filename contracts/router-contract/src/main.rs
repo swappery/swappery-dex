@@ -10,7 +10,6 @@ mod constants;
 mod feeto;
 mod helpers;
 mod pair_list;
-mod wcspr;
 
 use alloc::{string::String, vec::Vec};
 
