@@ -31,7 +31,8 @@ use constants::{
     LIQUIDITY_RUNTIME_ARG_NAME, BURN_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
     AMOUNT1_RUNTIME_ARG_NAME, SWAP_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
     AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
-    PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, 
+    PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, PAIR_LIST_KEY_NAME, FEETO_KEY_NAME,
+    FEETO_SETTER_KEY_NAME, 
 };
 
 use casper_types::{ContractHash, HashAddr, Key, URef, U256, runtime_args, RuntimeArgs};
@@ -103,6 +104,45 @@ impl SwapperyRouter {
             pair_path.push(self.get_pair_for(*token_path.get(i).unwrap_or_revert(), *token_path.get(i + 1).unwrap_or_revert()));
         }
         pair_path
+    }
+
+    pub fn create(
+        feeto: Address,
+        feeto_setter: Address,
+        wcspr_token: ContractHash,
+        contract_key_name: &str,
+    ) -> Result<SwapperyRouter, Error> {
+        let pair_list_uref: URef = storage::new_dictionary(PAIR_LIST_KEY_NAME).unwrap_or_revert();
+        let feeto_uref: URef = storage::new_uref(feeto).into_read_write();
+        let feeto_setter_uref: URef = storage::new_uref(feeto_setter).into_read_write();
+        let wcspr_token_key: Key = {
+            let wcspr_token_uref = storage::new_uref(wcspr_token).into_read();
+            Key::from(wcspr_token_uref)
+        };
+        let pair_list_key = {
+            runtime::remove_key(PAIR_LIST_KEY_NAME);
+            Key::from(pair_list_uref)
+        };
+        let feeto_key = Key::from(feeto_uref);
+        let feeto_setter_key = Key::from(feeto_setter_uref);
+
+        let mut named_keys = NamedKeys::new();
+        named_keys.insert(String::from(PAIR_LIST_KEY_NAME), pair_list_key);
+        named_keys.insert(String::from(FEETO_KEY), feeto_key);
+        named_keys.insert(String::from(FEETO_SETTER_KEY_NAME), feeto_setter_key);
+        named_keys.insert(String::from(WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
+
+        let (contract_hash, _version) = sotrage::new_contract(
+            entry_points::default(),
+            Some(named_keys),
+            Some(contract_key_name),
+            None,
+        );
+        Ok(SwapperyRouter::new(
+            pair_list_uref,
+            feeto_uref,
+            feeto_setter_uref,
+        ))
     }
     
     pub fn _add_liquidity(
