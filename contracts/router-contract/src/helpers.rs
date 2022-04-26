@@ -15,6 +15,8 @@ use casper_types::{bytesrepr::FromBytes, system::CallStackElement, ApiError, CLT
 
 use casper_erc20::{Error, Address};
 
+use crate::error::Error as RouterError;
+
 use crate::constants::{GET_RESERVES_ENTRY_POINT_NAME};
 
 pub(crate) fn get_uref(name: &str) -> URef {
@@ -80,9 +82,6 @@ pub(crate) fn quote(amount0: U256, reserve0: U256, reserve1: U256) -> U256 {
 
 pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (ContractHash, ContractHash) {
     let mut tokens: (ContractHash, ContractHash);
-    if token0.eq(&token1) {
-        //
-    }
     if token0.lt(&token1) {
         tokens = (token0, token1);
     } else{
@@ -101,8 +100,10 @@ pub(crate) fn revert_vector(input: Vec<U256>) -> Vec<U256> {
 }
 
 pub(crate) fn get_amount_out(amount_in: U256, reserve_in: U256, reserve_out: U256) -> U256 {
-    // require(amountIn > 0, 'PancakeLibrary: INSUFFICIENT_INPUT_AMOUNT');
-    // require(reserveIn > 0 && reserveOut > 0, 'PancakeLibrary: INSUFFICIENT_LIQUIDITY');
+    if !(amount_in > U256::zero()) { runtime::revert(RouterError::InsufficientInputAmount); }
+    if !(reserve_in > U256::zero() && reserve_out > U256::zero()) {
+        runtime::revert(RouterError::InsufficientLiquidity);
+    }
 
     let amount_with_fee: U256 = amount_in * U256::from(998u64);
     let nume: U256 = amount_with_fee * reserve_out;
@@ -111,8 +112,10 @@ pub(crate) fn get_amount_out(amount_in: U256, reserve_in: U256, reserve_out: U25
 }
 
 pub(crate) fn get_amount_in(amount_out: U256, reserve_in: U256, reserve_out: U256) -> U256 {
-    // require(amountOut > 0, 'PancakeLibrary: INSUFFICIENT_OUTPUT_AMOUNT');
-    // require(reserveIn > 0 && reserveOut > 0, 'PancakeLibrary: INSUFFICIENT_LIQUIDITY');
+    if !(amount_out > U256::zero()) { runtime::revert(RouterError::InsufficientOutputAmount); }
+    if !(reserve_in > U256::zero() && reserve_out > U256::zero()) {
+        runtime::revert(RouterError::InsufficientLiquidity);
+    }
 
     let nume: U256 = reserve_in * amount_out * U256::from(1000u64);
     let deno: U256 = (reserve_out - amount_out) * U256::from(998u64);
@@ -120,7 +123,7 @@ pub(crate) fn get_amount_in(amount_out: U256, reserve_in: U256, reserve_out: U25
 }
 
 pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> {
-    // require(path.length >= 2, 'PancakeLibrary: INVALID_PATH');
+    if !(U256::from(path.len()) >= U256::one()) { runtime::revert(RouterError::InvalidPath); }
 
     let mut amounts: Vec<U256> = Vec::with_capacity(path.len() + 1);
     amounts.push(amount_in);
@@ -138,7 +141,7 @@ pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> 
 }
 
 pub(crate) fn get_amounts_in(amount_out: U256, path: Vec<Address>) -> Vec<U256> {
-    // require(path.length >= 2, 'PancakeLibrary: INVALID_PATH');
+    if !(U256::from(path.len()) >= U256::one()) { runtime::revert(RouterError::InvalidPath); }
 
     let mut amounts: Vec<U256> = Vec::with_capacity(path.len() + 1);
     amounts.push(amount_out);

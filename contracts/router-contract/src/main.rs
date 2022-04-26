@@ -11,6 +11,7 @@ mod feeto;
 mod helpers;
 mod pair_list;
 mod entry_points;
+mod error;
 
 use alloc::{string::String, vec::Vec};
 
