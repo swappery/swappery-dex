@@ -127,5 +127,6 @@ pub fn default() -> EntryPoints {
     contract_entry_points.add_entry_point(set_feeto_setter());
     contract_entry_points.add_entry_point(add_liquidity());
     contract_entry_points.add_entry_point(remove_liquidity());
+    contract_entry_points.add_entry_point(swap_exact_tokens_for_tokens());
     contract_entry_points
 }
