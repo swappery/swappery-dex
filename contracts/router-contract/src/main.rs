@@ -17,9 +17,7 @@ use alloc::{string::String, vec::Vec};
 
 use casper_erc20::{
     constants::{
-        AMOUNT_RUNTIME_ARG_NAME, DECIMALS_RUNTIME_ARG_NAME,
-        NAME_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
-        SYMBOL_RUNTIME_ARG_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME,
+        AMOUNT_RUNTIME_ARG_NAME, OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME,
         TRANSFER_FROM_ENTRY_POINT_NAME, 
     },
     Address,
@@ -38,8 +36,8 @@ use constants::{
 };
 
 use casper_types::{
-    ContractHash, HashAddr, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
-    EntryPoint, EntryPoints, Error,
+    ContractHash, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
+    Error,
 };
 
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
