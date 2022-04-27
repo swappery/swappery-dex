@@ -242,6 +242,18 @@ pub extern "C" fn get_pair() {
 }
 
 #[no_mangle]
+pub extern "C" fn set_feeto() {
+    let feeto: Address = runtime::get_named_arg(FEETO_KEY_NAME);
+    SwapperyRouter::default().write_feeto(feeto);
+}
+
+#[no_mangle]
+pub extern "C" fn set_feeto_setter() {
+    let feeto: Address = runtime::get_named_arg(FEETO_SETTER_KEY_NAME);
+    SwapperyRouter::default().write_feeto_setter(feeto);
+}
+
+#[no_mangle]
 pub extern "C" fn add_liquidity() {
     let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
     let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
