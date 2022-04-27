@@ -30,6 +30,7 @@ pub const AMOUNT_OUT_RUNTIME_ARG_NAME: &str = "amount_out";
 pub const AMOUNT_IN_MAX_RUNTIME_ARG_NAME: &str = "amount_in_max";
 pub const AMOUNT_OUT_MIN_RUNTIME_ARG_NAME: &str = "amount_out_min";
 pub const PATH_RUNTIME_ARG_NAME: &str = "path";
+pub const CONTRACT_KEY_NAME_ARG_NAME: &str = "contract_key_name";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";

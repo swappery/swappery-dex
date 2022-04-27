@@ -23,17 +23,7 @@ use casper_erc20::{
     Address,
 };
 
-use constants::{
-    GET_RESERVES_ENTRY_POINT_NAME, TOKEN0_RUNTIME_ARG_NAME, TOKEN1_RUNTIME_ARG_NAME,
-    AMOUNT0_DESIRED_RUNTIME_ARG_NAME, AMOUNT1_DESIRED_RUNTIME_ARG_NAME,
-    AMOUNT0_MIN_RUNTIME_ARG_NAME, AMOUNT1_MIN_RUNTIME_ARG_NAME,
-    TO_RUNTIME_ARG_NAME, FEETO_SETTER_KEY_NAME,  MINT_ENTRY_POINT_NAME, 
-    LIQUIDITY_RUNTIME_ARG_NAME, BURN_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
-    AMOUNT1_RUNTIME_ARG_NAME, SWAP_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
-    AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
-    PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, PAIR_LIST_KEY_NAME, FEETO_KEY_NAME, PAIR_RUNTIME_ARG_NAME
-    // DEAD_LINE_RUNTIME_ARG_NAME,
-};
+use constants as consts;
 
 use casper_types::{
     ContractHash, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
@@ -43,8 +33,6 @@ use casper_types::{
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
 
 use once_cell::unsync::OnceCell;
-
-const CONTRACT_KEY_NAME_ARG_NAME: &str = "contract_key_name";
 
 #[derive(Default)]
 pub struct SwapperyRouter {
@@ -98,7 +86,7 @@ impl SwapperyRouter {
     }
 
     pub fn wcspr_token(&self) -> ContractHash {
-        helpers::read_from(WCSPR_CONTRACT_KEY_NAME)
+        helpers::read_from(consts::WCSPR_CONTRACT_KEY_NAME)
     }
 
     pub fn make_pair_path_from_token_path(&self, token_path: Vec<ContractHash>) -> Vec<Address> {
@@ -115,7 +103,7 @@ impl SwapperyRouter {
         wcspr_token: ContractHash,
         contract_key_name: String,
     ) -> Result<SwapperyRouter, Error> {
-        let pair_list_uref: URef = storage::new_dictionary(PAIR_LIST_KEY_NAME).unwrap_or_revert();
+        let pair_list_uref: URef = storage::new_dictionary(consts::PAIR_LIST_KEY_NAME).unwrap_or_revert();
         let feeto_uref: URef = storage::new_uref(feeto).into_read_write();
         let feeto_setter_uref: URef = storage::new_uref(feeto_setter).into_read_write();
         let wcspr_token_key: Key = {
@@ -123,17 +111,17 @@ impl SwapperyRouter {
             Key::from(wcspr_token_uref)
         };
         let pair_list_key = {
-            runtime::remove_key(PAIR_LIST_KEY_NAME);
+            runtime::remove_key(consts::PAIR_LIST_KEY_NAME);
             Key::from(pair_list_uref)
         };
         let feeto_key = Key::from(feeto_uref);
         let feeto_setter_key = Key::from(feeto_setter_uref);
 
         let mut named_keys = NamedKeys::new();
-        named_keys.insert(String::from(PAIR_LIST_KEY_NAME), pair_list_key);
-        named_keys.insert(String::from(FEETO_KEY_NAME), feeto_key);
-        named_keys.insert(String::from(FEETO_SETTER_KEY_NAME), feeto_setter_key);
-        named_keys.insert(String::from(WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
+        named_keys.insert(String::from(consts::PAIR_LIST_KEY_NAME), pair_list_key);
+        named_keys.insert(String::from(consts::FEETO_KEY_NAME), feeto_key);
+        named_keys.insert(String::from(consts::FEETO_SETTER_KEY_NAME), feeto_setter_key);
+        named_keys.insert(String::from(consts::WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
 
         let _ = storage::new_contract(
             entry_points::default(),
@@ -162,7 +150,7 @@ impl SwapperyRouter {
         let reserves: (U256, U256) = runtime::call_versioned_contract(
             *pair.as_contract_package_hash().unwrap_or_revert(),
             None,
-            GET_RESERVES_ENTRY_POINT_NAME,
+            consts::GET_RESERVES_ENTRY_POINT_NAME,
             runtime_args! {},
         );
         if !(reserves.0 == U256::zero() && reserves.1 == U256::zero()) {
@@ -212,11 +200,11 @@ impl SwapperyRouter {
             runtime::call_versioned_contract::<()>(
                 *pair.as_contract_package_hash().unwrap_or_revert(),
                 None,
-                SWAP_ENTRY_POINT_NAME,
+                consts::SWAP_ENTRY_POINT_NAME,
                 runtime_args! {
-                    AMOUNT0_RUNTIME_ARG_NAME => amounts_out.0,
-                    AMOUNT1_RUNTIME_ARG_NAME => amounts_out.1,
-                    TO_RUNTIME_ARG_NAME => to
+                    consts::AMOUNT0_RUNTIME_ARG_NAME => amounts_out.0,
+                    consts::AMOUNT1_RUNTIME_ARG_NAME => amounts_out.1,
+                    consts::TO_RUNTIME_ARG_NAME => to
                 }
             );
         }
@@ -225,17 +213,17 @@ impl SwapperyRouter {
 
 #[no_mangle]
 pub extern "C" fn create_pair() {
-    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
-    let pair: Address = runtime::get_named_arg(PAIR_RUNTIME_ARG_NAME);
+    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let pair: Address = runtime::get_named_arg(consts::PAIR_RUNTIME_ARG_NAME);
 
     SwapperyRouter::default().add_pair_for(token0, token1, pair);
 }
 
 #[no_mangle]
 pub extern "C" fn get_pair() {
-    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
+    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
 
     let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     runtime::ret(CLValue::from_t(pair).unwrap_or_revert());
@@ -243,25 +231,25 @@ pub extern "C" fn get_pair() {
 
 #[no_mangle]
 pub extern "C" fn set_feeto() {
-    let feeto: Address = runtime::get_named_arg(FEETO_KEY_NAME);
+    let feeto: Address = runtime::get_named_arg(consts::FEETO_KEY_NAME);
     SwapperyRouter::default().write_feeto(feeto);
 }
 
 #[no_mangle]
 pub extern "C" fn set_feeto_setter() {
-    let feeto: Address = runtime::get_named_arg(FEETO_SETTER_KEY_NAME);
+    let feeto: Address = runtime::get_named_arg(consts::FEETO_SETTER_KEY_NAME);
     SwapperyRouter::default().write_feeto_setter(feeto);
 }
 
 #[no_mangle]
 pub extern "C" fn add_liquidity() {
-    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
-    let amount0_desired: U256 = runtime::get_named_arg(AMOUNT0_DESIRED_RUNTIME_ARG_NAME);
-    let amount1_desired: U256 = runtime::get_named_arg(AMOUNT1_DESIRED_RUNTIME_ARG_NAME);
-    let amount0_min: U256 = runtime::get_named_arg(AMOUNT0_MIN_RUNTIME_ARG_NAME);
-    let amount1_min: U256 = runtime::get_named_arg(AMOUNT1_MIN_RUNTIME_ARG_NAME);
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let amount0_desired: U256 = runtime::get_named_arg(consts::AMOUNT0_DESIRED_RUNTIME_ARG_NAME);
+    let amount1_desired: U256 = runtime::get_named_arg(consts::AMOUNT1_DESIRED_RUNTIME_ARG_NAME);
+    let amount0_min: U256 = runtime::get_named_arg(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME);
+    let amount1_min: U256 = runtime::get_named_arg(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
     
     let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
@@ -290,21 +278,21 @@ pub extern "C" fn add_liquidity() {
     runtime::call_versioned_contract::<()>(
         *pair.as_contract_package_hash().unwrap_or_revert(),
         None,
-        MINT_ENTRY_POINT_NAME,
+        consts::MINT_ENTRY_POINT_NAME,
         runtime_args! {
-            TO_RUNTIME_ARG_NAME => to
+            consts::TO_RUNTIME_ARG_NAME => to
         },
     );
 }
 
 #[no_mangle]
 pub extern "C" fn remove_liquidity() {
-    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
-    let liquidity: U256 = runtime::get_named_arg(LIQUIDITY_RUNTIME_ARG_NAME);
-    let amount0_min: U256 = runtime::get_named_arg(AMOUNT0_MIN_RUNTIME_ARG_NAME);
-    let amount1_min: U256 = runtime::get_named_arg(AMOUNT1_MIN_RUNTIME_ARG_NAME);
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let liquidity: U256 = runtime::get_named_arg(consts::LIQUIDITY_RUNTIME_ARG_NAME);
+    let amount0_min: U256 = runtime::get_named_arg(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME);
+    let amount1_min: U256 = runtime::get_named_arg(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
@@ -325,9 +313,9 @@ pub extern "C" fn remove_liquidity() {
     let amounts: (U256, U256) = runtime::call_versioned_contract(
         *pair.as_contract_package_hash().unwrap_or_revert(),
         None,
-        BURN_ENTRY_POINT_NAME,
+        consts::BURN_ENTRY_POINT_NAME,
         runtime_args! {
-            TO_RUNTIME_ARG_NAME => to
+            consts::TO_RUNTIME_ARG_NAME => to
         },
     );
     if amounts.0 < amount0_min {
@@ -340,10 +328,10 @@ pub extern "C" fn remove_liquidity() {
 
 #[no_mangle]
 pub extern "C" fn swap_exact_tokens_for_tokens() {
-    let amount_in: U256 = runtime::get_named_arg(AMOUNT_IN_RUNTIME_ARG_NAME);
-    let amount_out_min: U256 = runtime::get_named_arg(AMOUNT_OUT_MIN_RUNTIME_ARG_NAME);
-    let path: Vec<ContractHash> = runtime::get_named_arg(PATH_RUNTIME_ARG_NAME);
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let amount_in: U256 = runtime::get_named_arg(consts::AMOUNT_IN_RUNTIME_ARG_NAME);
+    let amount_out_min: U256 = runtime::get_named_arg(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME);
+    let path: Vec<ContractHash> = runtime::get_named_arg(consts::PATH_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
@@ -369,10 +357,10 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
 
 #[no_mangle]
 pub extern "C" fn swap_tokens_for_exact_tokens() {
-    let amount_out: U256 = runtime::get_named_arg(AMOUNT_OUT_RUNTIME_ARG_NAME);
-    let amount_in_max: U256 = runtime::get_named_arg(AMOUNT_IN_MAX_RUNTIME_ARG_NAME);
-    let path: Vec<ContractHash> = runtime::get_named_arg(PATH_RUNTIME_ARG_NAME);
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let amount_out: U256 = runtime::get_named_arg(consts::AMOUNT_OUT_RUNTIME_ARG_NAME);
+    let amount_in_max: U256 = runtime::get_named_arg(consts::AMOUNT_IN_MAX_RUNTIME_ARG_NAME);
+    let path: Vec<ContractHash> = runtime::get_named_arg(consts::PATH_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
@@ -399,10 +387,10 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
 
 #[no_mangle]
 fn call() {
-    let feeto: Address = runtime::get_named_arg(FEETO_KEY_NAME);
-    let feeto_setter: Address = runtime::get_named_arg(FEETO_SETTER_KEY_NAME);
-    let wcspr_token: ContractHash = runtime::get_named_arg(WCSPR_CONTRACT_KEY_NAME);
-    let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
+    let feeto: Address = runtime::get_named_arg(consts::FEETO_KEY_NAME);
+    let feeto_setter: Address = runtime::get_named_arg(consts::FEETO_SETTER_KEY_NAME);
+    let wcspr_token: ContractHash = runtime::get_named_arg(consts::WCSPR_CONTRACT_KEY_NAME);
+    let contract_key_name: String = runtime::get_named_arg(consts::CONTRACT_KEY_NAME_ARG_NAME);
 
     let _ = SwapperyRouter::create(
         feeto,
