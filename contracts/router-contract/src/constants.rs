@@ -15,6 +15,7 @@ pub const SWAP_TOKENS_FOR_EXACT_TOKENS_ENTRY_POINT_NAME: &str = "swap_tokens_for
 //runtime args names
 pub const TOKEN0_RUNTIME_ARG_NAME: &str = "token0";
 pub const TOKEN1_RUNTIME_ARG_NAME: &str = "token1";
+pub const PAIR_RUNTIME_ARG_NAME: &str = "pair";
 pub const AMOUNT0_DESIRED_RUNTIME_ARG_NAME: &str = "amount0_desired";
 pub const AMOUNT1_DESIRED_RUNTIME_ARG_NAME: &str = "amount1_desired";
 pub const AMOUNT0_MIN_RUNTIME_ARG_NAME: &str = "amount0_min";

@@ -31,13 +31,13 @@ use constants::{
     LIQUIDITY_RUNTIME_ARG_NAME, BURN_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
     AMOUNT1_RUNTIME_ARG_NAME, SWAP_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
     AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
-    PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, PAIR_LIST_KEY_NAME, FEETO_KEY_NAME,
+    PATH_RUNTIME_ARG_NAME, WCSPR_CONTRACT_KEY_NAME, PAIR_LIST_KEY_NAME, FEETO_KEY_NAME, PAIR_RUNTIME_ARG_NAME
     // DEAD_LINE_RUNTIME_ARG_NAME,
 };
 
 use casper_types::{
     ContractHash, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
-    Error,
+    Error, CLValue, 
 };
 
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
@@ -221,6 +221,24 @@ impl SwapperyRouter {
             );
         }
     }
+}
+
+#[no_mangle]
+pub extern "C" fn create_pair() {
+    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
+    let pair: Address = runtime::get_named_arg(PAIR_RUNTIME_ARG_NAME);
+
+    SwapperyRouter::default().add_pair_for(token0, token1, pair);
+}
+
+#[no_mangle]
+pub extern "C" fn get_pair() {
+    let token0: ContractHash = runtime::get_named_arg(TOKEN0_RUNTIME_ARG_NAME);
+    let token1: ContractHash = runtime::get_named_arg(TOKEN1_RUNTIME_ARG_NAME);
+
+    let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
+    runtime::ret(CLValue::from_t(pair).unwrap_or_revert());
 }
 
 #[no_mangle]
