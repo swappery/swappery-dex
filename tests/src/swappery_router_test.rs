@@ -1,5 +1,3 @@
-use once_cell::sync::Lazy;
-
 use casper_engine_test_support::{
     ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_RUN_GENESIS_REQUEST,
     DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE,
@@ -13,6 +11,7 @@ use casper_types::{
     ContractHash, ContractPackageHash, Key, PublicKey, RuntimeArgs, SecretKey, U256,
     ApiError,
 };
+use casper_erc20::Address;
 use crate::constants as consts;
 
 #[derive(Copy, Clone)]
@@ -115,6 +114,18 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .map(ContractHash::new)
         .expect("should have contract hash");
 
+    let install_request_router = ExecuteRequestBuilder::standard(
+        *DEFAULT_ACCOUNT_ADDR,
+        consts::CONTRACT_SWAPPERY_ROUTER,
+        runtime_args! {
+            consts::FEETO_KEY_NAME => Address::from(AccountHash::new([10u8; 32])),
+            consts::FEETO_SETTER_KEY_NAME => Address::from(AccountHash::new([11u8; 32])),
+            consts::WCSPR_CONTRACT_KEY_NAME => wcspr_contract,
+            consts::ARG_CONTRACT_KEY_NAME => consts::ROUTER_CONTRACT_KEY_NAME,
+        }
+    )
+    .build();
+
     let install_request_pair_0_1 = ExecuteRequestBuilder::standard(
         *DEFAULT_ACCOUNT_ADDR,
         consts::CONTRACT_SWAPPERY_PAIR,
@@ -131,10 +142,18 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     .build();
 
     builder.exec(install_request_pair_0_1).expect_success().commit();
+    builder.exec(install_request_router).expect_success().commit();
 
     let account = builder
         .get_account(*DEFAULT_ACCOUNT_ADDR)
         .expect("should have account");
+
+    let router_package = account
+        .named_keys()
+        .get(consts::ROUTER_CONTRACT_KEY_NAME)
+        .and_then(|key| key.into_hash())
+        .map(ContractPackageHash::new)
+        .expect("should have contract package hash");
 
     let pair_0_1_package = account
         .named_keys()
@@ -150,13 +169,33 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         .map(ContractHash::new)
         .expect("should have contract hash");
 
+    let create_pair_0_1_request: ExecuteRequest = ExecuteRequestBuilder::versioned_contract_call_by_hash(
+        *DEFAULT_ACCOUNT_ADDR,
+        router_package,
+        None,
+        consts::METHOD_CREATE_PAIR,
+        runtime_args! {
+            consts::ARG_TOKEN0 => token0_contract,
+            consts::ARG_TOKEN1 => token1_contract,
+            consts::ARG_PAIR => Address::from(pair_0_1_package),
+        },
+    )
+    .build();
+
+    builder.exec(create_pair_0_1_request).expect_success().commit();
+
     let test_context = TestContext {
         token0_contract,
         token1_contract,
         wcspr_contract,
         pair_0_1_package,
         pair_0_1_contract,
+        router_package,
     };
 
     (builder, test_context)
+}
+#[test]
+fn should_setup() {
+    let (builder, test_context) = setup();
 }

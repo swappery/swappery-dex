@@ -25,11 +25,13 @@ pub const ARG_AMOUNT: &str = "amount";
 pub const ARG_RECIPIENT: &str = "recipient";
 pub const ARG_TOKEN_CONTRACT: &str = "token_contract";
 pub const ARG_ADDRESS: &str = "address";
+pub const ARG_PAIR: &str = "pair";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";
 pub const FEETO_SETTER_KEY_NAME: &str = "feeto_setter";
 pub const PAIR_LIST_KEY_NAME: &str = "pair_list";
+pub const ROUTER_CONTRACT_KEY_NAME: &str = "swappery_router";
 
 pub const PAIR_NAME: &str = "SwapperyPair";
 pub const PAIR_SYMBOL: &str = "SWP";
@@ -65,6 +67,8 @@ pub const METHOD_BURN: &str = "burn";
 pub const METHOD_SWAP: &str = "swap";
 pub const CHECK_BALANCE_OF_ENTRYPOINT: &str = "check_balance_of";
 pub const METHOD_TRANSFER_AS_STORED_CONTRACT: &str = "transfer_as_stored_contract";
+pub const METHOD_CREATE_PAIR: &str = "create_pair";
+pub const METHOD_GET_PAIR: &str = "get_pair";
 
 pub const RESULT_KEY: &str = "result";
 pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
