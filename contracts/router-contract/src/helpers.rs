@@ -94,7 +94,7 @@ pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (Contra
 pub(crate) fn revert_vector(input: Vec<U256>) -> Vec<U256> {
     let len = input.len();
     let mut result: Vec<U256> = Vec::with_capacity(len);
-    for i in 1..input.len() {
+    for i in 1..input.len() + 1 {
         result.push(*input.get(len - i).unwrap_or_revert());
     }
     result
@@ -124,11 +124,11 @@ pub(crate) fn get_amount_in(amount_out: U256, reserve_in: U256, reserve_out: U25
 }
 
 pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> {
-    if !(U256::from(path.len()) >= U256::one()) { runtime::revert(RouterError::InvalidPath); }
+    if !(path.len() >= 1) { runtime::revert(RouterError::InvalidPath); }
 
     let mut amounts: Vec<U256> = Vec::with_capacity(path.len() + 1);
     amounts.push(amount_in);
-    for i in 0..path.len() - 1 {
+    for i in 0..path.len() {
         let pair: Address = *path.get(i).unwrap_or_revert();
         let reserves: (U256, U256) = runtime::call_versioned_contract(
             *pair.as_contract_package_hash().unwrap_or_revert(),
@@ -142,11 +142,11 @@ pub(crate) fn get_amounts_out(amount_in: U256, path: Vec<Address>) -> Vec<U256> 
 }
 
 pub(crate) fn get_amounts_in(amount_out: U256, path: Vec<Address>) -> Vec<U256> {
-    if !(U256::from(path.len()) >= U256::one()) { runtime::revert(RouterError::InvalidPath); }
+    if !(path.len() >= 1) { runtime::revert(RouterError::InvalidPath); }
 
     let mut amounts: Vec<U256> = Vec::with_capacity(path.len() + 1);
     amounts.push(amount_out);
-    for i in 1..path.len() {
+    for i in 1..path.len() + 1 {
         let pair: Address = *path.get(path.len() - i).unwrap_or_revert();
         let reserves: (U256, U256) = runtime::call_versioned_contract(
             *pair.as_contract_package_hash().unwrap_or_revert(),

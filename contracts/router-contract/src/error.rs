@@ -16,7 +16,7 @@ const ERROR_INSUFFICIENT_INPUT_AMOUNT: u16 = u16::MAX-2;
 const ERROR_INSUFFICIENT_A_AMOUNT: u16 = u16::MAX - 3;
 const ERROR_INSUFFICIENT_B_AMOUNT: u16 = u16::MAX - 4;
 const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 5;
-const ERROR_INVALID_PATH: u16 = u16::MAX - 5;
+const ERROR_INVALID_PATH: u16 = u16::MAX - 6;
 
 impl From<Error> for ApiError {
     fn from(error: Error) -> Self {

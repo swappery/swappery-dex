@@ -33,6 +33,11 @@ pub const ARG_AMOUNT1_DESIRED: &str = "amount1_desired";
 pub const ARG_AMOUNT0_MIN: &str = "amount0_min";
 pub const ARG_AMOUNT1_MIN: &str = "amount1_min";
 pub const ARG_LIQUIDITY: &str = "liquidity";
+pub const ARG_PATH: &str = "path";
+pub const ARG_AMOUNT_OUT_MIN: &str = "amount_out_min";
+pub const ARG_AMOUNT_IN_MAX: &str = "amount_in_max";
+pub const ARG_AMOUNT_IN: &str = "amount_in";
+pub const ARG_AMOUNT_OUT: &str = "amount_out";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";
@@ -82,6 +87,8 @@ pub const METHOD_CREATE_PAIR: &str = "create_pair";
 pub const METHOD_GET_PAIR: &str = "get_pair";
 pub const METHOD_ADD_LIQUIDITY: &str = "add_liquidity";
 pub const METHOD_REMOVE_LIQUIDITY: &str = "remove_liquidity";
+pub const METHOD_SWAP_EXACT_TOKENS_FOR_TOKENS: &str = "swap_exact_tokens_for_tokens";
+pub const METHOD_SWAP_TOKENS_FOR_EXACT_TOKENS: &str = "swap_tokens_for_exact_tokens";
 
 pub const RESULT_KEY: &str = "result";
 pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";

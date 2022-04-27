@@ -90,8 +90,8 @@ impl SwapperyRouter {
     }
 
     pub fn make_pair_path_from_token_path(&self, token_path: Vec<ContractHash>) -> Vec<Address> {
-        let mut pair_path: Vec<Address> = Vec::with_capacity(token_path.len() - 1);
-        for i in 0..token_path.len() - 2 {
+        let mut pair_path: Vec<Address> = Vec::new();
+        for i in 0..token_path.len() - 1 {
             pair_path.push(self.get_pair_for(*token_path.get(i).unwrap_or_revert(), *token_path.get(i + 1).unwrap_or_revert()));
         }
         pair_path
@@ -337,11 +337,12 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
     let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
+
     if !(amounts.last().unwrap_or_revert() >= &amount_out_min) {
         runtime::revert(error::Error::InsufficientOutputAmount);
     }
 
-    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+    let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(
         *path.get(0).unwrap_or_revert(),
         TRANSFER_FROM_ENTRY_POINT_NAME,
@@ -367,11 +368,11 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
 
     let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
     
-    if !(amounts.get(0).unwrap_or_revert() >= &amount_in_max) {
+    if !(amounts.get(0).unwrap_or_revert() <= &amount_in_max) {
         runtime::revert(error::Error::InsufficientInputAmount);
     }
 
-    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+    let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(
         *path.get(0).unwrap_or_revert(),
         TRANSFER_FROM_ENTRY_POINT_NAME,
