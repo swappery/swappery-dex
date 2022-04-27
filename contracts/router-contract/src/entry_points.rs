@@ -15,7 +15,7 @@ use crate::constants::{
     REMOVE_LIQUIDITY_ENTRY_POINT_NAME, SWAP_EXACT_TOKENS_FOR_TOKENS_ENTRY_POINT_NAME, AMOUNT_IN_RUNTIME_ARG_NAME,
     AMOUNT_OUT_RUNTIME_ARG_NAME, AMOUNT_IN_MAX_RUNTIME_ARG_NAME, AMOUNT_OUT_MIN_RUNTIME_ARG_NAME,
     PATH_RUNTIME_ARG_NAME, SWAP_TOKENS_FOR_EXACT_TOKENS_ENTRY_POINT_NAME, FEETO_SETTER_KEY_NAME,
-    FEETO_KEY_NAME, 
+    FEETO_KEY_NAME, PAIR_RUNTIME_ARG_NAME
 };
 
 pub fn create_pair() -> EntryPoint {
@@ -24,6 +24,7 @@ pub fn create_pair() -> EntryPoint {
         vec![
             Parameter::new(TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
             Parameter::new(TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(PAIR_RUNTIME_ARG_NAME, Address::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
