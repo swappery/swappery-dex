@@ -28,18 +28,8 @@ use casper_contract::{
     unwrap_or_revert::UnwrapOrRevert,
 };
 
-use constants::{
-    ADDRESS_RUNTIME_ARG_NAME, ALLOWANCES_KEY_NAME, AMOUNT0_RUNTIME_ARG_NAME,
-    AMOUNT1_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, BALANCES_KEY_NAME,
-    BALANCE_OF_ENTRY_POINT_NAME, DECIMALS_KEY_NAME, DECIMALS_RUNTIME_ARG_NAME, FACTORY_KEY_NAME,
-    KLAST_KEY_NAME, LOCKED_FLAG_KEY_NAME, MINIMUM_LIQUIDITY, NAME_KEY_NAME, NAME_RUNTIME_ARG_NAME,
-    OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME, RESERVE0_KEY_NAME, RESERVE1_KEY_NAME,
-    SPENDER_RUNTIME_ARG_NAME, SYMBOL_KEY_NAME, SYMBOL_RUNTIME_ARG_NAME, TOKEN0_KEY_NAME,
-    TOKEN1_KEY_NAME, TOTAL_SUPPLY_KEY_NAME, TOTAL_SUPPLY_RUNTIME_ARG_NAME, TO_RUNTIME_ARG_NAME,
-    TRANSFER_ENTRY_POINT_NAME,
-};
+use constants as consts;
 pub use error::Error;
-
 pub use address::Address;
 
 #[derive(Default)]
@@ -125,17 +115,17 @@ impl SwapperyPair {
 
     /// Returns the name of the token.
     pub fn name(&self) -> String {
-        helpers::read_from(NAME_KEY_NAME)
+        helpers::read_from(consts::NAME_KEY_NAME)
     }
 
     /// Returns the symbol of the token.
     pub fn symbol(&self) -> String {
-        helpers::read_from(SYMBOL_KEY_NAME)
+        helpers::read_from(consts::SYMBOL_KEY_NAME)
     }
 
     /// Returns the decimals of the token.
     pub fn decimals(&self) -> u8 {
-        helpers::read_from(DECIMALS_KEY_NAME)
+        helpers::read_from(consts::DECIMALS_KEY_NAME)
     }
 
     /// Returns the total supply of the token.
@@ -291,15 +281,15 @@ impl SwapperyPair {
     }
 
     pub fn token0(&self) -> ContractHash {
-        helpers::read_from(TOKEN0_KEY_NAME)
+        helpers::read_from(consts::TOKEN0_KEY_NAME)
     }
 
     pub fn token1(&self) -> ContractHash {
-        helpers::read_from(TOKEN1_KEY_NAME)
+        helpers::read_from(consts::TOKEN1_KEY_NAME)
     }
 
     pub fn factory(&self) -> Address {
-        helpers::read_from(FACTORY_KEY_NAME)
+        helpers::read_from(consts::FACTORY_KEY_NAME)
     }
 
     pub fn klast(&self) -> U256 {
@@ -348,8 +338,8 @@ impl SwapperyPair {
         token0: ContractHash,
         token1: ContractHash,
     ) -> Result<SwapperyPair, Error> {
-        let balances_uref = storage::new_dictionary(BALANCES_KEY_NAME).unwrap_or_revert();
-        let allowances_uref = storage::new_dictionary(ALLOWANCES_KEY_NAME).unwrap_or_revert();
+        let balances_uref = storage::new_dictionary(consts::BALANCES_KEY_NAME).unwrap_or_revert();
+        let allowances_uref = storage::new_dictionary(consts::ALLOWANCES_KEY_NAME).unwrap_or_revert();
         let total_supply_uref = storage::new_uref(initial_supply).into_read_write();
         let reserve0_uref = storage::new_uref(U256::zero()).into_read_write();
         let reserve1_uref = storage::new_uref(U256::zero()).into_read_write();
@@ -378,13 +368,13 @@ impl SwapperyPair {
             let caller = helpers::get_caller_address()?;
             balances::write_balance_to(balances_uref, caller, initial_supply);
 
-            runtime::remove_key(BALANCES_KEY_NAME);
+            runtime::remove_key(consts::BALANCES_KEY_NAME);
 
             Key::from(balances_uref)
         };
 
         let allowances_dictionary_key = {
-            runtime::remove_key(ALLOWANCES_KEY_NAME);
+            runtime::remove_key(consts::ALLOWANCES_KEY_NAME);
 
             Key::from(allowances_uref)
         };
@@ -407,19 +397,19 @@ impl SwapperyPair {
 
         let mut named_keys = NamedKeys::new();
 
-        named_keys.insert(String::from(NAME_KEY_NAME), name_key);
-        named_keys.insert(String::from(SYMBOL_KEY_NAME), symbol_key);
-        named_keys.insert(String::from(DECIMALS_KEY_NAME), decimals_key);
-        named_keys.insert(String::from(BALANCES_KEY_NAME), balances_dictionary_key);
-        named_keys.insert(String::from(ALLOWANCES_KEY_NAME), allowances_dictionary_key);
-        named_keys.insert(String::from(TOTAL_SUPPLY_KEY_NAME), total_supply_key);
-        named_keys.insert(String::from(RESERVE0_KEY_NAME), Key::from(reserve0_uref));
-        named_keys.insert(String::from(RESERVE1_KEY_NAME), Key::from(reserve1_uref));
-        named_keys.insert(String::from(TOKEN0_KEY_NAME), token0_key);
-        named_keys.insert(String::from(TOKEN1_KEY_NAME), token1_key);
-        named_keys.insert(String::from(LOCKED_FLAG_KEY_NAME), Key::from(locked_uref));
-        named_keys.insert(String::from(KLAST_KEY_NAME), Key::from(klast_uref));
-        named_keys.insert(String::from(FACTORY_KEY_NAME), factory_key);
+        named_keys.insert(String::from(consts::NAME_KEY_NAME), name_key);
+        named_keys.insert(String::from(consts::SYMBOL_KEY_NAME), symbol_key);
+        named_keys.insert(String::from(consts::DECIMALS_KEY_NAME), decimals_key);
+        named_keys.insert(String::from(consts::BALANCES_KEY_NAME), balances_dictionary_key);
+        named_keys.insert(String::from(consts::ALLOWANCES_KEY_NAME), allowances_dictionary_key);
+        named_keys.insert(String::from(consts::TOTAL_SUPPLY_KEY_NAME), total_supply_key);
+        named_keys.insert(String::from(consts::RESERVE0_KEY_NAME), Key::from(reserve0_uref));
+        named_keys.insert(String::from(consts::RESERVE1_KEY_NAME), Key::from(reserve1_uref));
+        named_keys.insert(String::from(consts::TOKEN0_KEY_NAME), token0_key);
+        named_keys.insert(String::from(consts::TOKEN1_KEY_NAME), token1_key);
+        named_keys.insert(String::from(consts::LOCKED_FLAG_KEY_NAME), Key::from(locked_uref));
+        named_keys.insert(String::from(consts::KLAST_KEY_NAME), Key::from(klast_uref));
+        named_keys.insert(String::from(consts::FACTORY_KEY_NAME), factory_key);
 
         let (contract_hash, _version) = storage::new_contract(
             entry_points::default(),
@@ -470,15 +460,15 @@ pub extern "C" fn total_supply() {
 
 #[no_mangle]
 pub extern "C" fn balance_of() {
-    let address: Address = runtime::get_named_arg(ADDRESS_RUNTIME_ARG_NAME);
+    let address: Address = runtime::get_named_arg(consts::ADDRESS_RUNTIME_ARG_NAME);
     let balance = SwapperyPair::default().balance_of(address);
     runtime::ret(CLValue::from_t(balance).unwrap_or_revert());
 }
 
 #[no_mangle]
 pub extern "C" fn transfer() {
-    let recipient: Address = runtime::get_named_arg(RECIPIENT_RUNTIME_ARG_NAME);
-    let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
+    let recipient: Address = runtime::get_named_arg(consts::RECIPIENT_RUNTIME_ARG_NAME);
+    let amount: U256 = runtime::get_named_arg(consts::AMOUNT_RUNTIME_ARG_NAME);
 
     SwapperyPair::default()
         .transfer(recipient, amount)
@@ -487,8 +477,8 @@ pub extern "C" fn transfer() {
 
 #[no_mangle]
 pub extern "C" fn approve() {
-    let spender: Address = runtime::get_named_arg(SPENDER_RUNTIME_ARG_NAME);
-    let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
+    let spender: Address = runtime::get_named_arg(consts::SPENDER_RUNTIME_ARG_NAME);
+    let amount: U256 = runtime::get_named_arg(consts::AMOUNT_RUNTIME_ARG_NAME);
 
     SwapperyPair::default()
         .approve(spender, amount)
@@ -497,17 +487,17 @@ pub extern "C" fn approve() {
 
 #[no_mangle]
 pub extern "C" fn allowance() {
-    let owner: Address = runtime::get_named_arg(OWNER_RUNTIME_ARG_NAME);
-    let spender: Address = runtime::get_named_arg(SPENDER_RUNTIME_ARG_NAME);
+    let owner: Address = runtime::get_named_arg(consts::OWNER_RUNTIME_ARG_NAME);
+    let spender: Address = runtime::get_named_arg(consts::SPENDER_RUNTIME_ARG_NAME);
     let val = SwapperyPair::default().allowance(owner, spender);
     runtime::ret(CLValue::from_t(val).unwrap_or_revert());
 }
 
 #[no_mangle]
 pub extern "C" fn transfer_from() {
-    let owner: Address = runtime::get_named_arg(OWNER_RUNTIME_ARG_NAME);
-    let recipient: Address = runtime::get_named_arg(RECIPIENT_RUNTIME_ARG_NAME);
-    let amount: U256 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
+    let owner: Address = runtime::get_named_arg(consts::OWNER_RUNTIME_ARG_NAME);
+    let recipient: Address = runtime::get_named_arg(consts::RECIPIENT_RUNTIME_ARG_NAME);
+    let amount: U256 = runtime::get_named_arg(consts::AMOUNT_RUNTIME_ARG_NAME);
     SwapperyPair::default()
         .transfer_from(owner, recipient, amount)
         .unwrap_or_revert();
@@ -530,7 +520,7 @@ pub extern "C" fn mint() {
     }
     SwapperyPair::default().write_locked(true);
 
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
 
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
@@ -542,16 +532,16 @@ pub extern "C" fn mint() {
 
     let balance0: U256 = runtime::call_contract(
         token0,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
     let balance1: U256 = runtime::call_contract(
         token1,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
     let amount0: U256 = balance0 - _reserve0;
@@ -561,11 +551,11 @@ pub extern "C" fn mint() {
     let _total_supply: U256 = SwapperyPair::default().total_supply();
     let liquidity: U256;
     if _total_supply.is_zero() {
-        liquidity = (U256::from(amount0 * amount1).integer_sqrt()) - MINIMUM_LIQUIDITY;
+        liquidity = (U256::from(amount0 * amount1).integer_sqrt()) - consts::MINIMUM_LIQUIDITY;
         SwapperyPair::default()
             .mint(
                 Address::from(AccountHash::new([0u8; 32])),
-                U256::from(MINIMUM_LIQUIDITY),
+                U256::from(consts::MINIMUM_LIQUIDITY),
             )
             .unwrap_or_revert();
     } else {
@@ -600,7 +590,7 @@ pub extern "C" fn burn() {
     }
     SwapperyPair::default().write_locked(true);
 
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
 
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
@@ -612,16 +602,16 @@ pub extern "C" fn burn() {
 
     let mut balance0: U256 = runtime::call_contract(
         token0,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
     let mut balance1: U256 = runtime::call_contract(
         token1,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
     let liquidity: U256 = SwapperyPair::default().balance_of(self_addr);
@@ -639,33 +629,33 @@ pub extern "C" fn burn() {
         .unwrap_or_revert();
     runtime::call_contract::<()>(
         token0,
-        TRANSFER_ENTRY_POINT_NAME,
+        consts::TRANSFER_ENTRY_POINT_NAME,
         runtime_args! {
-            RECIPIENT_RUNTIME_ARG_NAME => to,
-            AMOUNT_RUNTIME_ARG_NAME => amount0
+            consts::RECIPIENT_RUNTIME_ARG_NAME => to,
+            consts::AMOUNT_RUNTIME_ARG_NAME => amount0
         },
     );
     runtime::call_contract::<()>(
         token1,
-        TRANSFER_ENTRY_POINT_NAME,
+        consts::TRANSFER_ENTRY_POINT_NAME,
         runtime_args! {
-            RECIPIENT_RUNTIME_ARG_NAME => to,
-            AMOUNT_RUNTIME_ARG_NAME => amount1
+            consts::RECIPIENT_RUNTIME_ARG_NAME => to,
+            consts::AMOUNT_RUNTIME_ARG_NAME => amount1
         },
     );
 
     balance0 = runtime::call_contract(
         token0,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
     balance1 = runtime::call_contract(
         token1,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
 
@@ -688,9 +678,9 @@ pub extern "C" fn swap() {
     }
     SwapperyPair::default().write_locked(true);
 
-    let amount0_out: U256 = runtime::get_named_arg(AMOUNT0_RUNTIME_ARG_NAME);
-    let amount1_out: U256 = runtime::get_named_arg(AMOUNT1_RUNTIME_ARG_NAME);
-    let to: Address = runtime::get_named_arg(TO_RUNTIME_ARG_NAME);
+    let amount0_out: U256 = runtime::get_named_arg(consts::AMOUNT0_RUNTIME_ARG_NAME);
+    let amount1_out: U256 = runtime::get_named_arg(consts::AMOUNT1_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
 
     if !(amount0_out > U256::zero() || amount1_out > U256::zero()) {
         runtime::revert(Error::InsufficientOutputAmount);
@@ -718,20 +708,20 @@ pub extern "C" fn swap() {
     if amount0_out > U256::zero() {
         runtime::call_contract::<()>(
             token0,
-            TRANSFER_ENTRY_POINT_NAME,
+            consts::TRANSFER_ENTRY_POINT_NAME,
             runtime_args! {
-                RECIPIENT_RUNTIME_ARG_NAME => to,
-                AMOUNT_RUNTIME_ARG_NAME => amount0_out
+                consts::RECIPIENT_RUNTIME_ARG_NAME => to,
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount0_out
             },
         );
     }
     if amount1_out > U256::zero() {
         runtime::call_contract::<()>(
             token1,
-            TRANSFER_ENTRY_POINT_NAME,
+            consts::TRANSFER_ENTRY_POINT_NAME,
             runtime_args! {
-                RECIPIENT_RUNTIME_ARG_NAME => to,
-                AMOUNT_RUNTIME_ARG_NAME => amount1_out
+                consts::RECIPIENT_RUNTIME_ARG_NAME => to,
+                consts::AMOUNT_RUNTIME_ARG_NAME => amount1_out
             },
         );
     }
@@ -740,16 +730,16 @@ pub extern "C" fn swap() {
 
     balance0 = runtime::call_contract(
         token0,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
     balance1 = runtime::call_contract(
         token1,
-        BALANCE_OF_ENTRY_POINT_NAME,
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
         runtime_args! {
-            ADDRESS_RUNTIME_ARG_NAME => self_addr
+            consts::ADDRESS_RUNTIME_ARG_NAME => self_addr
         },
     );
 
@@ -785,13 +775,13 @@ pub extern "C" fn swap() {
 fn call() {
     const CONTRACT_KEY_NAME_ARG_NAME: &str = "contract_key_name";
 
-    let name: String = runtime::get_named_arg(NAME_RUNTIME_ARG_NAME);
-    let symbol: String = runtime::get_named_arg(SYMBOL_RUNTIME_ARG_NAME);
-    let decimals: u8 = runtime::get_named_arg(DECIMALS_RUNTIME_ARG_NAME);
-    let initial_supply: U256 = runtime::get_named_arg(TOTAL_SUPPLY_RUNTIME_ARG_NAME);
+    let name: String = runtime::get_named_arg(consts::NAME_RUNTIME_ARG_NAME);
+    let symbol: String = runtime::get_named_arg(consts::SYMBOL_RUNTIME_ARG_NAME);
+    let decimals: u8 = runtime::get_named_arg(consts::DECIMALS_RUNTIME_ARG_NAME);
+    let initial_supply: U256 = runtime::get_named_arg(consts::TOTAL_SUPPLY_RUNTIME_ARG_NAME);
     let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
-    let token0: ContractHash = runtime::get_named_arg(TOKEN0_KEY_NAME);
-    let token1: ContractHash = runtime::get_named_arg(TOKEN1_KEY_NAME);
+    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_KEY_NAME);
+    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_KEY_NAME);
 
     let _ = SwapperyPair::create(
         name,
