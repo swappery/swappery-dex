@@ -5,21 +5,12 @@ use casper_types::{
 };
 
 use crate::address::Address;
-
-use crate::constants::{
-    ADDRESS_RUNTIME_ARG_NAME, ALLOWANCE_ENTRY_POINT_NAME, AMOUNT0_RUNTIME_ARG_NAME,
-    AMOUNT1_RUNTIME_ARG_NAME, AMOUNT_RUNTIME_ARG_NAME, APPROVE_ENTRY_POINT_NAME,
-    BALANCE_OF_ENTRY_POINT_NAME, BURN_ENTRY_POINT_NAME, DECIMALS_ENTRY_POINT_NAME,
-    GET_RESERVES_ENTRY_POINT_NAME, MINT_ENTRY_POINT_NAME, NAME_ENTRY_POINT_NAME,
-    OWNER_RUNTIME_ARG_NAME, RECIPIENT_RUNTIME_ARG_NAME, SPENDER_RUNTIME_ARG_NAME,
-    SWAP_ENTRY_POINT_NAME, SYMBOL_ENTRY_POINT_NAME, TOTAL_SUPPLY_ENTRY_POINT_NAME,
-    TO_RUNTIME_ARG_NAME, TRANSFER_ENTRY_POINT_NAME, TRANSFER_FROM_ENTRY_POINT_NAME,
-};
+use crate::constants as consts;
 
 /// Returns the `name` entry point.
 pub fn name() -> EntryPoint {
     EntryPoint::new(
-        String::from(NAME_ENTRY_POINT_NAME),
+        String::from(consts::NAME_ENTRY_POINT_NAME),
         Vec::new(),
         String::cl_type(),
         EntryPointAccess::Public,
@@ -30,7 +21,7 @@ pub fn name() -> EntryPoint {
 /// Returns the `symbol` entry point.
 pub fn symbol() -> EntryPoint {
     EntryPoint::new(
-        String::from(SYMBOL_ENTRY_POINT_NAME),
+        String::from(consts::SYMBOL_ENTRY_POINT_NAME),
         Vec::new(),
         String::cl_type(),
         EntryPointAccess::Public,
@@ -40,11 +31,11 @@ pub fn symbol() -> EntryPoint {
 /// Returns the `transfer_from` entry point.
 pub fn transfer_from() -> EntryPoint {
     EntryPoint::new(
-        String::from(TRANSFER_FROM_ENTRY_POINT_NAME),
+        String::from(consts::TRANSFER_FROM_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::OWNER_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -55,10 +46,10 @@ pub fn transfer_from() -> EntryPoint {
 /// Returns the `allowance` entry point.
 pub fn allowance() -> EntryPoint {
     EntryPoint::new(
-        String::from(ALLOWANCE_ENTRY_POINT_NAME),
+        String::from(consts::ALLOWANCE_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(OWNER_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(SPENDER_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::OWNER_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::SPENDER_RUNTIME_ARG_NAME, Address::cl_type()),
         ],
         U256::cl_type(),
         EntryPointAccess::Public,
@@ -69,10 +60,10 @@ pub fn allowance() -> EntryPoint {
 /// Returns the `approve` entry point.
 pub fn approve() -> EntryPoint {
     EntryPoint::new(
-        String::from(APPROVE_ENTRY_POINT_NAME),
+        String::from(consts::APPROVE_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(SPENDER_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::SPENDER_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -83,10 +74,10 @@ pub fn approve() -> EntryPoint {
 /// Returns the `transfer` entry point.
 pub fn transfer() -> EntryPoint {
     EntryPoint::new(
-        String::from(TRANSFER_ENTRY_POINT_NAME),
+        String::from(consts::TRANSFER_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
-            Parameter::new(AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::RECIPIENT_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::AMOUNT_RUNTIME_ARG_NAME, U256::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -97,8 +88,8 @@ pub fn transfer() -> EntryPoint {
 /// Returns the `balance_of` entry point.
 pub fn balance_of() -> EntryPoint {
     EntryPoint::new(
-        String::from(BALANCE_OF_ENTRY_POINT_NAME),
-        vec![Parameter::new(ADDRESS_RUNTIME_ARG_NAME, Address::cl_type())],
+        String::from(consts::BALANCE_OF_ENTRY_POINT_NAME),
+        vec![Parameter::new(consts::ADDRESS_RUNTIME_ARG_NAME, Address::cl_type())],
         U256::cl_type(),
         EntryPointAccess::Public,
         EntryPointType::Contract,
@@ -108,7 +99,7 @@ pub fn balance_of() -> EntryPoint {
 /// Returns the `total_supply` entry point.
 pub fn total_supply() -> EntryPoint {
     EntryPoint::new(
-        String::from(TOTAL_SUPPLY_ENTRY_POINT_NAME),
+        String::from(consts::TOTAL_SUPPLY_ENTRY_POINT_NAME),
         Vec::new(),
         U256::cl_type(),
         EntryPointAccess::Public,
@@ -119,7 +110,7 @@ pub fn total_supply() -> EntryPoint {
 /// Returns the `decimals` entry point.
 pub fn decimals() -> EntryPoint {
     EntryPoint::new(
-        String::from(DECIMALS_ENTRY_POINT_NAME),
+        String::from(consts::DECIMALS_ENTRY_POINT_NAME),
         Vec::new(),
         u8::cl_type(),
         EntryPointAccess::Public,
@@ -130,8 +121,8 @@ pub fn decimals() -> EntryPoint {
 /// Returns the 'mint' entry point.
 pub fn mint() -> EntryPoint {
     EntryPoint::new(
-        String::from(MINT_ENTRY_POINT_NAME),
-        vec![Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type())],
+        String::from(consts::MINT_ENTRY_POINT_NAME),
+        vec![Parameter::new(consts::TO_RUNTIME_ARG_NAME, Address::cl_type())],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
@@ -141,8 +132,8 @@ pub fn mint() -> EntryPoint {
 /// Returns the 'burn' entry point.
 pub fn burn() -> EntryPoint {
     EntryPoint::new(
-        String::from(BURN_ENTRY_POINT_NAME),
-        vec![Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type())],
+        String::from(consts::BURN_ENTRY_POINT_NAME),
+        vec![Parameter::new(consts::TO_RUNTIME_ARG_NAME, Address::cl_type())],
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
@@ -152,11 +143,11 @@ pub fn burn() -> EntryPoint {
 /// Returns the 'swap' entry point.
 pub fn swap() -> EntryPoint {
     EntryPoint::new(
-        String::from(SWAP_ENTRY_POINT_NAME),
+        String::from(consts::SWAP_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(AMOUNT0_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(AMOUNT1_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(TO_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::AMOUNT0_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::AMOUNT1_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Address::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -167,7 +158,7 @@ pub fn swap() -> EntryPoint {
 /// Returns the 'get_reserves' entry point.
 pub fn get_reserves() -> EntryPoint {
     EntryPoint::new(
-        String::from(GET_RESERVES_ENTRY_POINT_NAME),
+        String::from(consts::GET_RESERVES_ENTRY_POINT_NAME),
         vec![],
         CLType::Unit,
         EntryPointAccess::Public,
