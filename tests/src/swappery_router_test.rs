@@ -195,7 +195,13 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
 
     (builder, test_context)
 }
+
 #[test]
-fn should_setup() {
-    let (builder, test_context) = setup();
+fn should_setup_context() {
+    let _ = setup();
+}
+
+#[test]
+fn should_add_liquidity() {
+    let (mut builder, test_context) = setup();
 }

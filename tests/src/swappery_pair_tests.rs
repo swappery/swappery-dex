@@ -7,11 +7,12 @@ use casper_execution_engine::core::{
     execution::Error as ExecError,
 };
 use casper_types::{
-    account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped,
+    account::AccountHash, runtime_args, system::mint,
     ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
     ApiError,
 };
 use crate::constants as consts;
+use crate::test_call::{make_erc20_transfer_request, erc20_check_balance_of};
 
 #[derive(Copy, Clone)]
 struct TestContext {
@@ -134,89 +135,6 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
     };
 
     (builder, test_context)
-}
-
-fn get_test_result<T: FromBytes + CLTyped>(
-    builder: &mut InMemoryWasmTestBuilder,
-    erc20_test_contract_hash: ContractPackageHash,
-) -> T {
-    let contract_package = builder
-        .get_contract_package(erc20_test_contract_hash)
-        .expect("should have contract package");
-    let enabled_versions = contract_package.enabled_versions();
-    let (_version, contract_hash) = enabled_versions
-        .iter()
-        .rev()
-        .next()
-        .expect("should have latest version");
-
-    builder.get_value(*contract_hash, consts::RESULT_KEY)
-}
-
-fn erc20_check_balance_of(
-    builder: &mut InMemoryWasmTestBuilder,
-    erc20_contract_hash: &ContractHash,
-    address: Key,
-) -> U256 {
-    let account = builder
-        .get_account(*DEFAULT_ACCOUNT_ADDR)
-        .expect("should have account");
-
-    let erc20_test_contract_hash = account
-        .named_keys()
-        .get(consts::ERC20_TEST_CALL_KEY)
-        .and_then(|key| key.into_hash())
-        .map(ContractPackageHash::new)
-        .expect("should have test contract hash");
-
-    let check_balance_args = runtime_args! {
-        consts::ARG_TOKEN_CONTRACT => *erc20_contract_hash,
-        consts::ARG_ADDRESS => address,
-    };
-    let exec_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
-        *DEFAULT_ACCOUNT_ADDR,
-        erc20_test_contract_hash,
-        None,
-        consts::CHECK_BALANCE_OF_ENTRYPOINT,
-        check_balance_args,
-    )
-    .build();
-    builder.exec(exec_request).expect_success().commit();
-
-    get_test_result(builder, erc20_test_contract_hash)
-}
-
-fn make_erc20_transfer_request(
-    sender: Key,
-    erc20_token: &ContractHash,
-    recipient: Key,
-    amount: U256,
-) -> ExecuteRequest {
-    match sender {
-        Key::Account(sender) => ExecuteRequestBuilder::contract_call_by_hash(
-            sender,
-            *erc20_token,
-            consts::METHOD_TRANSFER,
-            runtime_args! {
-                consts::ARG_AMOUNT => amount,
-                consts::ARG_RECIPIENT => recipient,
-            },
-        )
-        .build(),
-        Key::Hash(contract_package_hash) => ExecuteRequestBuilder::versioned_contract_call_by_hash(
-            *DEFAULT_ACCOUNT_ADDR,
-            ContractPackageHash::new(contract_package_hash),
-            None,
-            consts::METHOD_TRANSFER_AS_STORED_CONTRACT,
-            runtime_args! {
-                consts::ARG_TOKEN_CONTRACT => *erc20_token,
-                consts::ARG_AMOUNT => amount,
-                consts::ARG_RECIPIENT => recipient,
-            },
-        )
-        .build(),
-        _ => panic!("Unknown variant"),
-    }
 }
 
 #[test]

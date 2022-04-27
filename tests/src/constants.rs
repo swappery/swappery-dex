@@ -26,6 +26,8 @@ pub const ARG_RECIPIENT: &str = "recipient";
 pub const ARG_TOKEN_CONTRACT: &str = "token_contract";
 pub const ARG_ADDRESS: &str = "address";
 pub const ARG_PAIR: &str = "pair";
+pub const ARG_OWNER: &str = "owner";
+pub const ARG_SPENDER: &str = "spender";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";
@@ -62,11 +64,15 @@ pub const WCSPR_CONTRACT_KEY_NAME: &str = "wcspr_token";
 
 //methods
 pub const METHOD_TRANSFER: &str = "transfer";
+pub const METHOD_APPROVE: &str = "approve";
 pub const METHOD_MINT: &str = "mint";
 pub const METHOD_BURN: &str = "burn";
 pub const METHOD_SWAP: &str = "swap";
+pub const CHECK_TOTAL_SUPPLY_ENTRYPOINT: &str = "check_total_supply";
 pub const CHECK_BALANCE_OF_ENTRYPOINT: &str = "check_balance_of";
+pub const CHECK_ALLOWANCE_OF_ENTRYPOINT: &str = "check_allowance_of";
 pub const METHOD_TRANSFER_AS_STORED_CONTRACT: &str = "transfer_as_stored_contract";
+pub const METHOD_APPROVE_AS_STORED_CONTRACT: &str = "approve_as_stored_contract";
 pub const METHOD_CREATE_PAIR: &str = "create_pair";
 pub const METHOD_GET_PAIR: &str = "get_pair";
 
