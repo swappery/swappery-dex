@@ -35,6 +35,11 @@ where
     value
 }
 
+fn get_immediate_call_stack_item() -> Option<CallStackElement> {
+    let call_stack = runtime::get_call_stack();
+    call_stack.into_iter().rev().nth(1)
+}
+
 fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Address {
     match call_stack_element {
         CallStackElement::Session { account_hash } => Address::from(account_hash),
@@ -46,6 +51,12 @@ fn call_stack_element_to_address(call_stack_element: CallStackElement) -> Addres
             ..
         } => Address::from(contract_package_hash),
     }
+}
+
+pub(crate) fn get_immediate_caller_address() -> Result<Address, Error> {
+    get_immediate_call_stack_item()
+        .map(call_stack_element_to_address)
+        .ok_or(Error::InvalidContext)
 }
 
 pub(crate) fn get_caller_address() -> Result<Address, Error> {
@@ -71,11 +82,12 @@ pub(crate) fn quote(amount0: U256, reserve0: U256, reserve1: U256) -> U256 {
 
 pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (ContractHash, ContractHash) {
     let tokens: (ContractHash, ContractHash);
-    if token0.lt(&token1) {
-        tokens = (token0, token1);
-    } else{
-        tokens = (token1, token0);
-    }
+    // if token0.lt(&token1) {
+    //     tokens = (token0, token1);
+    // } else{
+    //     tokens = (token1, token0);
+    // }
+    tokens = (token0, token1);
     tokens
 }
 

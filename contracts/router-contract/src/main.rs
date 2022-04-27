@@ -27,7 +27,7 @@ use constants as consts;
 
 use casper_types::{
     ContractHash, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
-    Error, CLValue, 
+    Error, CLValue, account::AccountHash, 
 };
 
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
@@ -153,9 +153,10 @@ impl SwapperyRouter {
             consts::GET_RESERVES_ENTRY_POINT_NAME,
             runtime_args! {},
         );
-        if !(reserves.0 == U256::zero() && reserves.1 == U256::zero()) {
+        if reserves.0 == U256::zero() && reserves.1 == U256::zero() {
             amounts = (amount0_desired, amount1_desired);
-        } else {
+        }
+        else {
             let amount1_optimal: U256 = helpers::quote(amount0_desired, reserves.0, reserves.1);
             if amount1_optimal <= amount1_desired {
                 if !(amount1_optimal >= amount1_min) {
@@ -256,7 +257,7 @@ pub extern "C" fn add_liquidity() {
 
     let amounts: (U256, U256) = SwapperyRouter::default()._add_liquidity(tokens.0, tokens.1, amount0_desired, amount1_desired, amount0_min, amount1_min);    
     let pair: Address = SwapperyRouter::default().get_pair_for(tokens.0, tokens.1);
-    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+    let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(
         tokens.0,
         TRANSFER_FROM_ENTRY_POINT_NAME,
@@ -275,7 +276,7 @@ pub extern "C" fn add_liquidity() {
             AMOUNT_RUNTIME_ARG_NAME => amounts.1
         },
     );
-    runtime::call_versioned_contract::<()>(
+    let liquidity: U256 = runtime::call_versioned_contract(
         *pair.as_contract_package_hash().unwrap_or_revert(),
         None,
         consts::MINT_ENTRY_POINT_NAME,
@@ -283,6 +284,7 @@ pub extern "C" fn add_liquidity() {
             consts::TO_RUNTIME_ARG_NAME => to
         },
     );
+    runtime::ret(CLValue::from_t(liquidity).unwrap_or_revert());
 }
 
 #[no_mangle]
@@ -298,7 +300,7 @@ pub extern "C" fn remove_liquidity() {
     let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
 
     let pair: Address = SwapperyRouter::default().get_pair_for(tokens.0, tokens.1);
-    let caller: Address = helpers::get_caller_address().unwrap_or_revert();
+    let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
 
     runtime::call_versioned_contract::<()>(
         *pair.as_contract_package_hash().unwrap_or_revert(),

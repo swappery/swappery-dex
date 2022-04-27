@@ -28,6 +28,11 @@ pub const ARG_ADDRESS: &str = "address";
 pub const ARG_PAIR: &str = "pair";
 pub const ARG_OWNER: &str = "owner";
 pub const ARG_SPENDER: &str = "spender";
+pub const ARG_AMOUNT0_DESIRED: &str = "amount0_desired";
+pub const ARG_AMOUNT1_DESIRED: &str = "amount1_desired";
+pub const ARG_AMOUNT0_MIN: &str = "amount0_min";
+pub const ARG_AMOUNT1_MIN: &str = "amount1_min";
+pub const ARG_LIQUIDITY: &str = "liquidity";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";
@@ -75,6 +80,8 @@ pub const METHOD_TRANSFER_AS_STORED_CONTRACT: &str = "transfer_as_stored_contrac
 pub const METHOD_APPROVE_AS_STORED_CONTRACT: &str = "approve_as_stored_contract";
 pub const METHOD_CREATE_PAIR: &str = "create_pair";
 pub const METHOD_GET_PAIR: &str = "get_pair";
+pub const METHOD_ADD_LIQUIDITY: &str = "add_liquidity";
+pub const METHOD_REMOVE_LIQUIDITY: &str = "remove_liquidity";
 
 pub const RESULT_KEY: &str = "result";
 pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
