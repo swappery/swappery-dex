@@ -94,8 +94,8 @@ pub const RESULT_KEY: &str = "result";
 pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
 
 //error
-pub const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 2;
-pub const ERROR_K: u16 = u16::MAX - 9;
+pub const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 6;
+pub const ERROR_K: u16 = u16::MAX - 13;
 
 //accounts
 pub const ACCOUNT_1_SECRET_KEY: Lazy<SecretKey> =
