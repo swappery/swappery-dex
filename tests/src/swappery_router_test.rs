@@ -1,3 +1,5 @@
+use std::thread::AccessError;
+
 use casper_engine_test_support::{
     ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_RUN_GENESIS_REQUEST,
     DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE,
@@ -273,6 +275,8 @@ fn should_add_liquidity() {
     builder.exec(add_liquidity_request).expect_success().commit();
     let lp_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.pair_0_1_contract, Key::Account(*consts::ACCOUNT_1_ADDR));
     assert_eq!(lp_balance, U256::from(37_729u64));
+    let fee_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.pair_0_1_contract, Key::from(AccountHash::new([10u8; 32])));
+    assert_eq!(fee_balance, U256::zero());
 }
 
 #[test]

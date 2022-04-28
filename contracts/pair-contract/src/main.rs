@@ -13,8 +13,6 @@ pub mod error;
 mod helpers;
 mod variables;
 
-use std::thread::AccessError;
-
 use alloc::string::String;
 
 use once_cell::unsync::OnceCell;
