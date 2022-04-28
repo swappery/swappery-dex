@@ -297,7 +297,11 @@ pub extern "C" fn remove_liquidity() {
     let amount0_min: U256 = runtime::get_named_arg(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME);
     let amount1_min: U256 = runtime::get_named_arg(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
-    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
+
+    if dead_line.lt(&U256::from(u64::from(runtime::get_blocktime()))) {
+        runtime::revert(error::Error::Expired);
+    }
 
     let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
@@ -334,7 +338,11 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     let amount_out_min: U256 = runtime::get_named_arg(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME);
     let path: Vec<ContractHash> = runtime::get_named_arg(consts::PATH_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
-    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
+
+    if dead_line.lt(&U256::from(u64::from(runtime::get_blocktime()))) {
+        runtime::revert(error::Error::Expired);
+    }
 
     let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
 
@@ -364,8 +372,12 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
     let amount_in_max: U256 = runtime::get_named_arg(consts::AMOUNT_IN_MAX_RUNTIME_ARG_NAME);
     let path: Vec<ContractHash> = runtime::get_named_arg(consts::PATH_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
-    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
+    if dead_line.lt(&U256::from(u64::from(runtime::get_blocktime()))) {
+        runtime::revert(error::Error::Expired);
+    }
+    
     let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
     
     if !(amounts.get(0).unwrap_or_revert() <= &amount_in_max) {
