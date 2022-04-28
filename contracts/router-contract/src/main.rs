@@ -233,6 +233,12 @@ pub extern "C" fn get_pair() {
 #[no_mangle]
 pub extern "C" fn set_feeto() {
     let feeto: Address = runtime::get_named_arg(consts::FEETO_KEY_NAME);
+    let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
+    let feeto_setter = SwapperyRouter::default().read_feeto_setter();
+    if caller != feeto_setter {
+        runtime::revert();
+    }
+
     SwapperyRouter::default().write_feeto(feeto);
 }
 
