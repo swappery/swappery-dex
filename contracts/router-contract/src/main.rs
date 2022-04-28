@@ -236,9 +236,8 @@ pub extern "C" fn set_feeto() {
     let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
     let feeto_setter = SwapperyRouter::default().read_feeto_setter();
     if caller != feeto_setter {
-        runtime::revert();
+        runtime::revert(error::Error::Permission);
     }
-
     SwapperyRouter::default().write_feeto(feeto);
 }
 
