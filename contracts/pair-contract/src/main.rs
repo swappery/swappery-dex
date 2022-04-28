@@ -13,6 +13,8 @@ pub mod error;
 mod helpers;
 mod variables;
 
+use std::thread::AccessError;
+
 use alloc::string::String;
 
 use once_cell::unsync::OnceCell;
@@ -303,11 +305,10 @@ impl SwapperyPair {
         self.write_reserve1(balance1);
     }
 
-    pub fn _mint_fee(&mut self, _reserve0: U256, _reserve1: U256) -> bool {
-        // address feeTo = IPancakeFactory(factory).feeTo();
-        // fee_on = feeTo != address(0);
+    pub fn _mint_fee(&mut self, _reserve0: U256, _reserve1: U256, feeto: Address) -> bool {
+        let fee_on = feeto != Address::from(AccountHash::new([0u8; 32]));
         let _klast: U256 = self.klast(); // gas savings
-        if true {
+        if fee_on {
             if !(_klast.is_zero()) {
                 let mut rootk: U256 = _reserve0 * _reserve1;
                 rootk = rootk.integer_sqrt();
@@ -325,7 +326,7 @@ impl SwapperyPair {
         } else if !(_klast.is_zero()) {
             self.write_klast(U256::zero());
         }
-        return true;
+        return fee_on;
     }
 
     pub fn create(
@@ -520,6 +521,7 @@ pub extern "C" fn mint() {
     SwapperyPair::default().write_locked(true);
 
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
+    let fee_to: Address = runtime::get_named_arg(consts::FEETO_RUNTIME_ARG_NAME);
 
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
@@ -546,7 +548,7 @@ pub extern "C" fn mint() {
     let amount0: U256 = balance0 - _reserve0;
     let amount1: U256 = balance1 - _reserve1;
 
-    let fee_on: bool = SwapperyPair::default()._mint_fee(_reserve0, _reserve1);
+    let fee_on: bool = SwapperyPair::default()._mint_fee(_reserve0, _reserve1, fee_to);
     let _total_supply: U256 = SwapperyPair::default().total_supply();
     let liquidity: U256;
     if _total_supply.is_zero() {
@@ -590,6 +592,7 @@ pub extern "C" fn burn() {
     SwapperyPair::default().write_locked(true);
 
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
+    let fee_to: Address = runtime::get_named_arg(consts::FEETO_RUNTIME_ARG_NAME);
 
     let _reserve0: U256 = SwapperyPair::default().reserve0();
     let _reserve1: U256 = SwapperyPair::default().reserve1();
@@ -615,7 +618,7 @@ pub extern "C" fn burn() {
     );
     let liquidity: U256 = SwapperyPair::default().balance_of(self_addr);
 
-    let fee_on: bool = SwapperyPair::default()._mint_fee(_reserve0, _reserve1);
+    let fee_on: bool = SwapperyPair::default()._mint_fee(_reserve0, _reserve1, fee_to);
     let _total_supply: U256 = SwapperyPair::default().total_supply();
     let amount0: U256 = liquidity * balance0 / _total_supply;
     let amount1: U256 = liquidity * balance1 / _total_supply;

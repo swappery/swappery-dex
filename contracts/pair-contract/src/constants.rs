@@ -1,4 +1,5 @@
 pub const TO_RUNTIME_ARG_NAME: &str = "to";
+pub const FEETO_RUNTIME_ARG_NAME: &str = "feeto";
 pub const AMOUNT0_RUNTIME_ARG_NAME: &str = "amount0";
 pub const AMOUNT1_RUNTIME_ARG_NAME: &str = "amount1";
 pub const RESERVE0_KEY_NAME: &str = "reserve0";

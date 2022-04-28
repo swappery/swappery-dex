@@ -293,7 +293,8 @@ pub extern "C" fn add_liquidity() {
         None,
         consts::MINT_ENTRY_POINT_NAME,
         runtime_args! {
-            consts::TO_RUNTIME_ARG_NAME => to
+            consts::TO_RUNTIME_ARG_NAME => to,
+            consts::FEETO_KEY_NAME => SwapperyRouter::default().read_feeto(),
         },
     );
     runtime::ret(CLValue::from_t(liquidity).unwrap_or_revert());
@@ -331,7 +332,8 @@ pub extern "C" fn remove_liquidity() {
         None,
         consts::BURN_ENTRY_POINT_NAME,
         runtime_args! {
-            consts::TO_RUNTIME_ARG_NAME => to
+            consts::TO_RUNTIME_ARG_NAME => to,
+            consts::FEETO_KEY_NAME => SwapperyRouter::default().read_feeto(),
         },
     );
     if amounts.0 < amount0_min {
