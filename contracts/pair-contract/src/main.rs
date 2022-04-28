@@ -11,7 +11,6 @@ pub mod constants;
 mod entry_points;
 pub mod error;
 mod helpers;
-mod total_supply;
 mod variables;
 
 use alloc::string::String;
@@ -67,15 +66,15 @@ impl SwapperyPair {
     fn total_supply_uref(&self) -> URef {
         *self
             .total_supply_uref
-            .get_or_init(total_supply::total_supply_uref)
+            .get_or_init(variables::total_supply_uref)
     }
 
     fn read_total_supply(&self) -> U256 {
-        total_supply::read_total_supply_from(self.total_supply_uref())
+        variables::read_total_supply_from(self.total_supply_uref())
     }
 
     fn write_total_supply(&self, total_supply: U256) {
-        total_supply::write_total_supply_to(self.total_supply_uref(), total_supply)
+        variables::write_total_supply_to(self.total_supply_uref(), total_supply)
     }
 
     fn balances_uref(&self) -> URef {
