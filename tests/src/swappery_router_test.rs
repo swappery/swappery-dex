@@ -13,7 +13,7 @@ use casper_types::{
 };
 use casper_erc20::Address;
 use crate::constants as consts;
-use crate::test_call::{make_erc20_approve_request, make_erc20_transfer_request, erc20_check_allowance_of, erc20_check_balance_of};
+use crate::test_call::{make_erc20_transfer_request, erc20_check_allowance_of, erc20_check_balance_of};
 
 #[derive(Copy, Clone)]
 struct TestContext {
@@ -265,6 +265,7 @@ fn should_add_liquidity() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -337,6 +338,7 @@ fn should_not_mint_liquidity_with_amount_less_than_minimum() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -356,6 +358,7 @@ fn should_not_mint_liquidity_with_amount_less_than_minimum() {
             consts::ARG_AMOUNT0_MIN => U256::from(50_000u64),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -426,6 +429,7 @@ fn should_remove_liquidity() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -460,6 +464,7 @@ fn should_remove_liquidity() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -536,6 +541,7 @@ fn should_not_remove_liquidity_over_balance() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -570,6 +576,7 @@ fn should_not_remove_liquidity_over_balance() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -640,6 +647,7 @@ fn should_swap_exact_tokens_for_tokens() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -662,13 +670,12 @@ fn should_swap_exact_tokens_for_tokens() {
             consts::ARG_AMOUNT_OUT_MIN => U256::zero(),
             consts::ARG_PATH => path,
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
 
     builder.exec(swap_request).expect_success().commit();
-
-    let token1_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.token1_contract, Key::Account(*consts::ACCOUNT_1_ADDR));
 }
 
 #[test]
@@ -734,6 +741,7 @@ fn should_swap_tokens_for_exact_tokens() {
             consts::ARG_AMOUNT0_MIN => U256::zero(),
             consts::ARG_AMOUNT1_MIN => U256::zero(),
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
@@ -756,6 +764,7 @@ fn should_swap_tokens_for_exact_tokens() {
             consts::ARG_AMOUNT_IN_MAX => U256::from(100_000u64),
             consts::ARG_PATH => path,
             consts::ARG_TO => Key::Account(*consts::ACCOUNT_1_ADDR),
+            consts::ARG_DEAD_LINE => U256::MAX,
         },
     )
     .build();
