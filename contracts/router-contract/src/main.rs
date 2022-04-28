@@ -252,14 +252,12 @@ pub extern "C" fn add_liquidity() {
     let amount1_min: U256 = runtime::get_named_arg(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
-    
-    let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
 
-    let amounts: (U256, U256) = SwapperyRouter::default()._add_liquidity(tokens.0, tokens.1, amount0_desired, amount1_desired, amount0_min, amount1_min);    
-    let pair: Address = SwapperyRouter::default().get_pair_for(tokens.0, tokens.1);
+    let amounts: (U256, U256) = SwapperyRouter::default()._add_liquidity(token0, token1, amount0_desired, amount1_desired, amount0_min, amount1_min);    
+    let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
     runtime::call_contract::<()>(
-        tokens.0,
+        token0,
         TRANSFER_FROM_ENTRY_POINT_NAME,
         runtime_args! {
             OWNER_RUNTIME_ARG_NAME => caller,
@@ -268,7 +266,7 @@ pub extern "C" fn add_liquidity() {
         },
     );
     runtime::call_contract::<()>(
-        tokens.1,
+        token1,
         TRANSFER_FROM_ENTRY_POINT_NAME,
         runtime_args! {
             OWNER_RUNTIME_ARG_NAME => caller,
@@ -297,9 +295,7 @@ pub extern "C" fn remove_liquidity() {
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
 
-    let tokens: (ContractHash, ContractHash) = helpers::sort_tokens(token0, token1);
-
-    let pair: Address = SwapperyRouter::default().get_pair_for(tokens.0, tokens.1);
+    let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
 
     runtime::call_versioned_contract::<()>(
