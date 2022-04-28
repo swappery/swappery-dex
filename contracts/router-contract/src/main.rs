@@ -251,7 +251,11 @@ pub extern "C" fn add_liquidity() {
     let amount0_min: U256 = runtime::get_named_arg(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME);
     let amount1_min: U256 = runtime::get_named_arg(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME);
     let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
-    // let dead_line: U256 = runtime::get_named_arg(DEAD_LINE_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
+
+    if dead_line.lt(&U256::from(u64::from(runtime::get_blocktime()))) {
+        runtime::revert(error::Error::Expired);
+    }
 
     let amounts: (U256, U256) = SwapperyRouter::default()._add_liquidity(token0, token1, amount0_desired, amount1_desired, amount0_min, amount1_min);    
     let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
