@@ -5,7 +5,7 @@ use casper_types::{bytesrepr::ToBytes, URef, ContractHash};
 
 use casper_erc20::{Address};
 
-use crate::helpers::{get_uref};
+use crate::helpers::{get_uref, sort_tokens};
 
 use crate::constants::{PAIR_LIST_KEY_NAME};
 
@@ -28,7 +28,8 @@ pub(crate) fn add_pair_for(
     token1: ContractHash,
     pair_address: Address,
 ) {
-    let dictionary_item_key = make_dictionary_item_key(token0, token1);
+    let tokens = sort_tokens(token0, token1);
+    let dictionary_item_key = make_dictionary_item_key(tokens.0, tokens.1);
     storage::dictionary_put(pair_list_uref, &dictionary_item_key, pair_address)
 }
 

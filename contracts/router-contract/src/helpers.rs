@@ -82,12 +82,11 @@ pub(crate) fn quote(amount0: U256, reserve0: U256, reserve1: U256) -> U256 {
 
 pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (ContractHash, ContractHash) {
     let tokens: (ContractHash, ContractHash);
-    // if token0.lt(&token1) {
-    //     tokens = (token0, token1);
-    // } else{
-    //     tokens = (token1, token0);
-    // }
-    tokens = (token0, token1);
+    if token0.lt(&token1) {
+        tokens = (token0, token1);
+    } else{
+        tokens = (token1, token0);
+    }
     tokens
 }
 
