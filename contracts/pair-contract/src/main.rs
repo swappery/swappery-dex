@@ -305,7 +305,7 @@ impl SwapperyPair {
 
     pub fn _mint_fee(&mut self, _reserve0: U256, _reserve1: U256, feeto: Address) -> bool {
         let fee_on = feeto != Address::from(AccountHash::new([0u8; 32]));
-        let _klast: U256 = self.klast(); // gas savings
+        let _klast: U256 = self.klast();
         if fee_on {
             if !(_klast.is_zero()) {
                 let mut rootk: U256 = _reserve0 * _reserve1;
@@ -317,7 +317,7 @@ impl SwapperyPair {
                     let denominator: U256 = rootk * U256::from(3u64) + rootklast;
                     let liquidity: U256 = numerator / denominator;
                     if liquidity > U256::zero() {
-                        //ERC20::default().mint(feeTo, liquidity).unwrap_or_revert();
+                        SwapperyPair::default().mint(feeto, liquidity);
                     }
                 }
             }
