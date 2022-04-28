@@ -8,6 +8,7 @@ pub enum Error {
     InsufficientBAmount,
     InsufficientLiquidity,
     InvalidPath,
+    Expired,
 }
 
 const ERROR_EXCESSIVE_INPUT_AMOUNT: u16 = u16::MAX - 17;
@@ -17,6 +18,7 @@ const ERROR_INSUFFICIENT_A_AMOUNT: u16 = u16::MAX - 20;
 const ERROR_INSUFFICIENT_B_AMOUNT: u16 = u16::MAX - 21;
 const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 22;
 const ERROR_INVALID_PATH: u16 = u16::MAX - 23;
+const ERROR_EXPIRED: u16 = u16::MAX - 24;
 
 impl From<Error> for ApiError {
     fn from(error: Error) -> Self {
@@ -28,6 +30,7 @@ impl From<Error> for ApiError {
             Error::InsufficientBAmount => ERROR_INSUFFICIENT_B_AMOUNT,
             Error::InsufficientLiquidity => ERROR_INSUFFICIENT_LIQUIDITY,
             Error::InvalidPath => ERROR_INVALID_PATH,
+            Error::Expired => ERROR_EXPIRED,
         };
         ApiError::User(user_error)
     }
