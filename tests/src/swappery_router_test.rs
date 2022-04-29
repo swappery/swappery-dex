@@ -896,7 +896,7 @@ fn should_mint_fee_to_feeto_address() {
 }
 
 #[test]
-fn should_get_error_set_feeto_with_no_permission() {
+fn should_get_error_set_feeto_without_permission() {
     let (mut builder, test_context) = setup();
 
     let set_feeto_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
@@ -921,7 +921,7 @@ fn should_get_error_set_feeto_with_no_permission() {
 }
 
 #[test]
-fn should_get_error_set_feeto_setter_with_no_permission() {
+fn should_get_error_set_feeto_setter_without_permission() {
     let (mut builder, test_context) = setup();
 
     let set_feeto_setter_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
