@@ -473,6 +473,53 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
 }
 
 #[no_mangle]
+pub extern "C" fn swap_exact_tokens_for_tokens_supporting_fee() {
+    let amount_in: U256 = runtime::get_named_arg(consts::AMOUNT_IN_RUNTIME_ARG_NAME);
+    let amount_out_min: U256 = runtime::get_named_arg(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME);
+    let path: Vec<ContractHash> = runtime::get_named_arg(consts::PATH_RUNTIME_ARG_NAME);
+    let to: Address = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
+    let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
+
+    if dead_line.lt(&U256::from(u64::from(runtime::get_blocktime()))) {
+        runtime::revert(error::Error::Expired);
+    }
+
+    let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
+    runtime::call_contract::<()>(
+        *path.get(0).unwrap_or_revert(),
+        TRANSFER_FROM_ENTRY_POINT_NAME,
+        runtime_args! {
+            OWNER_RUNTIME_ARG_NAME => caller,
+            RECIPIENT_RUNTIME_ARG_NAME => SwapperyRouter::default().get_pair_for(
+                *path.get(0).unwrap_or_revert(),
+                *path.get(1).unwrap_or_revert(),
+            ),
+            AMOUNT_RUNTIME_ARG_NAME => amount_in,
+        },
+    );
+
+    let balance_before: U256 = runtime::call_contract(
+        *path.last().unwrap_or_revert(),
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
+        runtime_args! {
+            consts::ADDRESS_RUNTIME_ARG_NAME => to,
+        },
+    );
+    SwapperyRouter::default()._swap_supporting_fee(path, to);
+
+    let balance_after: U256 = runtime::call_contract(
+        *path.last().unwrap_or_revert(),
+        consts::BALANCE_OF_ENTRY_POINT_NAME,
+        runtime_args! {
+            consts::ADDRESS_RUNTIME_ARG_NAME => to,
+        },
+    );
+    if (balance_after - balance_before) < amount_out_min {
+        runtime::revert(error::Error::InsufficientOutputAmount);
+    }
+}
+
+#[no_mangle]
 fn call() {
     let feeto: Address = runtime::get_named_arg(consts::FEETO_KEY_NAME);
     let feeto_setter: Address = runtime::get_named_arg(consts::FEETO_SETTER_KEY_NAME);
