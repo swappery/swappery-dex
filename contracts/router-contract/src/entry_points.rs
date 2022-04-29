@@ -113,6 +113,22 @@ pub fn swap_exact_tokens_for_tokens() -> EntryPoint {
     )
 }
 
+pub fn swap_exact_tokens_for_tokens_supporting_fee() -> EntryPoint {
+    EntryPoint::new(
+        String::from(consts::SWAP_EXACT_TOKENS_FOR_TOKENS_SUPPORTING_FEE_ENTRY_POINT_NAME),
+        vec![
+            Parameter::new(consts::AMOUNT_IN_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
+            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<ContractHash>::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Address::cl_type()),
+            Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
+        ],
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    )
+}
+
 pub fn swap_tokens_for_exact_tokens() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::SWAP_TOKENS_FOR_EXACT_TOKENS_ENTRY_POINT_NAME),
