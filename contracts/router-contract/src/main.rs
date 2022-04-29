@@ -217,9 +217,9 @@ impl SwapperyRouter {
         _to: Address
     ) {
         for i in 0..path.len() - 1 {
-            let (input, output): (&ContractHash, &ContractHash) = (path.get(i).unwrap_or_revert(), path.get(i + 1).unwrap_or_revert());
+            let (input, output) = (path.get(i).unwrap_or_revert(), path.get(i + 1).unwrap_or_revert());
             let (token0, ..) = helpers::sort_tokens(*input, *output);
-            let pair: Address = self.get_pair_for(*input, *output);
+            let pair = self.get_pair_for(*input, *output);
             let reserves: (U256, U256) = runtime::call_versioned_contract(
                 *pair.as_contract_package_hash().unwrap_or_revert(),
                 None,

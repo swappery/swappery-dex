@@ -1,5 +1,5 @@
 //! Implementation details.
-use core::convert::TryInto;
+use core::{convert::TryInto, ops::Add};
 
 extern crate alloc;
 
@@ -82,12 +82,11 @@ pub(crate) fn quote(amount0: U256, reserve0: U256, reserve1: U256) -> U256 {
 
 pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (ContractHash, ContractHash) {
     let tokens: (ContractHash, ContractHash);
-    // if token0.lt(&token1) {
-    //     tokens = (token0, token1);
-    // } else{
-    //     tokens = (token1, token0);
-    // }
-    tokens = (token0, token1);
+    if token0.lt(&token1) {
+        tokens = (token0, token1);
+    } else{
+        tokens = (token1, token0);
+    }
     tokens
 }
 
@@ -98,6 +97,23 @@ pub(crate) fn revert_vector(input: Vec<U256>) -> Vec<U256> {
         result.push(*input.get(len - i).unwrap_or_revert());
     }
     result
+}
+
+pub(crate) fn get_reserves(token0: ContractHash, token1: ContractHash, pair: Address) -> (U256, U256) {
+    let _reserves: (U256, U256) = runtime::call_versioned_contract(
+        *pair.as_contract_package_hash().unwrap_or_revert(),
+        None,
+        GET_RESERVES_ENTRY_POINT_NAME,
+        runtime_args! {},
+    );
+    let reserves: (U256, U256);
+    let (tokena, ..) = sort_tokens(token0, token1);
+    if tokena.eq(&token0) {
+        reserves = _reserves;
+    } else {
+        reserves = (_reserves.1, _reserves.0);
+    }
+    reserves
 }
 
 pub(crate) fn get_amount_out(amount_in: U256, reserve_in: U256, reserve_out: U256) -> U256 {
