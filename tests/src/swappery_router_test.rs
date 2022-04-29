@@ -903,7 +903,7 @@ fn should_get_error_set_feeto_with_no_permission() {
         *consts::ACCOUNT_1_ADDR,
         test_context.router_package,
         None, 
-        METHOD_SET_FEETO,
+        consts::METHOD_SET_FEETO,
         runtime_args! {
             consts::FEETO_KEY_NAME => Key::Account(AccountHash::new([111u8; 32])),
         }
@@ -911,6 +911,31 @@ fn should_get_error_set_feeto_with_no_permission() {
     .build();
 
     builder.exec(set_feeto_request).commit();
+
+    let error = builder.get_error().expect("should have error");
+    assert!(
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == consts::ERROR_PERMISSION),
+        "{:?}",
+        error
+    );
+}
+
+#[test]
+fn should_get_error_set_feeto_setter_with_no_permission() {
+    let (mut builder, test_context) = setup();
+
+    let set_feeto_setter_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
+        *consts::ACCOUNT_1_ADDR,
+        test_context.router_package,
+        None, 
+        consts::METHOD_SET_FEETO_SETTER,
+        runtime_args! {
+            consts::FEETO_SETTER_KEY_NAME => Key::Account(AccountHash::new([111u8; 32])),
+        }
+    )
+    .build();
+
+    builder.exec(set_feeto_setter_request).commit();
 
     let error = builder.get_error().expect("should have error");
     assert!(
