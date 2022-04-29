@@ -28,14 +28,14 @@ pub(crate) fn add_pair_for(
     token1: ContractHash,
     pair_address: Address,
 ) {
-    let tokens = sort_tokens(token0, token1);
-    let dictionary_item_key = make_dictionary_item_key(tokens.0, tokens.1);
-    storage::dictionary_put(pair_list_uref, &dictionary_item_key, pair_address)
+    let dictionary_item_key = make_dictionary_item_key(token0, token1);
+    storage::dictionary_put(pair_list_uref, &dictionary_item_key, pair_address);
+    let dictionary_item_key = make_dictionary_item_key(token1, token0);
+    storage::dictionary_put(pair_list_uref, &dictionary_item_key, pair_address);
 }
 
 pub(crate) fn get_pair_for(pair_list_uref: URef, token0: ContractHash, token1: ContractHash) -> Address {
-    let tokens = sort_tokens(token0, token1);
-    let dictionary_item_key = make_dictionary_item_key(tokens.0, tokens.1);
+    let dictionary_item_key = make_dictionary_item_key(token0, token1);
     storage::dictionary_get(pair_list_uref, &dictionary_item_key)
         .unwrap_or_revert()
         .unwrap_or_revert()
