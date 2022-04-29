@@ -11,6 +11,7 @@ pub const ADD_LIQUIDITY_ENTRY_POINT_NAME: &str = "add_liquidity";
 pub const REMOVE_LIQUIDITY_ENTRY_POINT_NAME: &str = "remove_liquidity";
 pub const SWAP_EXACT_TOKENS_FOR_TOKENS_ENTRY_POINT_NAME: &str = "swap_exact_tokens_for_tokens";
 pub const SWAP_TOKENS_FOR_EXACT_TOKENS_ENTRY_POINT_NAME: &str = "swap_tokens_for_exact_tokens";
+pub const BALANCE_OF_ENTRY_POINT_NAME: &str = "balance_of";
 
 //runtime args names
 pub const TOKEN0_RUNTIME_ARG_NAME: &str = "token0";
@@ -31,6 +32,7 @@ pub const AMOUNT_IN_MAX_RUNTIME_ARG_NAME: &str = "amount_in_max";
 pub const AMOUNT_OUT_MIN_RUNTIME_ARG_NAME: &str = "amount_out_min";
 pub const PATH_RUNTIME_ARG_NAME: &str = "path";
 pub const CONTRACT_KEY_NAME_ARG_NAME: &str = "contract_key_name";
+pub const ADDRESS_RUNTIME_ARG_NAME: &str = "address";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";

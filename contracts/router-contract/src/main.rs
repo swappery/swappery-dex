@@ -210,6 +210,66 @@ impl SwapperyRouter {
             );
         }
     }
+
+    pub fn _swap_supporting_fee(
+        &self,
+        path: Vec<ContractHash>,
+        _to: Address
+    ) {
+        for i in 0..path.len() - 1 {
+            let (input, output): (&ContractHash, &ContractHash) = (path.get(i).unwrap_or_revert(), path.get(i + 1).unwrap_or_revert());
+            let (token0, ..) = helpers::sort_tokens(*input, *output);
+            let pair: Address = self.get_pair_for(*input, *output);
+            let reserves: (U256, U256) = runtime::call_versioned_contract(
+                *pair.as_contract_package_hash().unwrap_or_revert(),
+                None,
+                consts::GET_RESERVES_ENTRY_POINT_NAME,
+                runtime_args! {},
+            );
+            let reserve_in: U256;
+            let reserve_out: U256;
+            if input.eq(&token0) {
+                reserve_in = reserves.0;
+                reserve_out = reserves.1;
+            } else {
+                reserve_in = reserves.1;
+                reserve_out = reserves.0;
+            }
+            let mut amount_in = runtime::call_contract(
+                *input,
+                consts::BALANCE_OF_ENTRY_POINT_NAME,
+                runtime_args! {
+                    consts::ADDRESS_RUNTIME_ARG_NAME => pair
+                },
+            );
+            amount_in = amount_in - reserve_in;
+            let amount_out = helpers::get_amount_out(amount_in, reserve_in, reserve_out);
+
+            let amounts_out: (U256, U256);
+            if input.eq(&token0) {
+                amounts_out = (U256::zero(), amount_out);
+            } else {
+                amounts_out = (amount_out, U256::zero());
+            }
+
+            let to: Address;
+            if i < path.len() - 2 {
+                to = self.get_pair_for(*output, *path.get(i + 2).unwrap_or_revert());
+            } else {
+                to = _to;
+            }
+            runtime::call_versioned_contract::<()>(
+                *pair.as_contract_package_hash().unwrap_or_revert(),
+                None,
+                consts::SWAP_ENTRY_POINT_NAME,
+                runtime_args! {
+                    consts::AMOUNT0_RUNTIME_ARG_NAME => amounts_out.0,
+                    consts::AMOUNT1_RUNTIME_ARG_NAME => amounts_out.1,
+                    consts::TO_RUNTIME_ARG_NAME => to
+                }
+            );
+        }
+    }
 }
 
 #[no_mangle]
