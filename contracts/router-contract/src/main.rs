@@ -505,7 +505,7 @@ pub extern "C" fn swap_exact_tokens_for_tokens_supporting_fee() {
             consts::ADDRESS_RUNTIME_ARG_NAME => to,
         },
     );
-    SwapperyRouter::default()._swap_supporting_fee(path, to);
+    SwapperyRouter::default()._swap_supporting_fee(path.clone(), to);
 
     let balance_after: U256 = runtime::call_contract(
         *path.last().unwrap_or_revert(),
