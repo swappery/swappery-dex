@@ -14,7 +14,7 @@ use casper_types::{
     ApiError,
 };
 use casper_erc20::Address;
-use crate::constants as consts;
+use crate::constants::{self as consts, METHOD_SET_FEETO};
 use crate::test_call::{make_erc20_transfer_request, erc20_check_allowance_of, erc20_check_balance_of};
 
 #[derive(Copy, Clone)]
@@ -122,7 +122,7 @@ fn setup() -> (InMemoryWasmTestBuilder, TestContext) {
         consts::CONTRACT_SWAPPERY_ROUTER,
         runtime_args! {
             consts::FEETO_KEY_NAME => Address::from(AccountHash::new([10u8; 32])),
-            consts::FEETO_SETTER_KEY_NAME => Address::from(AccountHash::new([11u8; 32])),
+            consts::FEETO_SETTER_KEY_NAME => Key::Account(*DEFAULT_ACCOUNT_ADDR),
             consts::WCSPR_CONTRACT_KEY_NAME => wcspr_contract,
             consts::ARG_CONTRACT_KEY_NAME => consts::ROUTER_CONTRACT_KEY_NAME,
         }
@@ -893,4 +893,29 @@ fn should_mint_fee_to_feeto_address() {
 
     let fee_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.pair_0_1_contract, Key::from(AccountHash::new([10u8; 32])));
     assert_eq!(fee_balance, U256::from(2u64));
+}
+
+#[test]
+fn should_get_error_set_feeto_with_no_permission() {
+    let (mut builder, test_context) = setup();
+
+    let set_feeto_request = ExecuteRequestBuilder::versioned_contract_call_by_hash(
+        *consts::ACCOUNT_1_ADDR,
+        test_context.router_package,
+        None, 
+        METHOD_SET_FEETO,
+        runtime_args! {
+            consts::FEETO_KEY_NAME => Key::Account(AccountHash::new([111u8; 32])),
+        }
+    )
+    .build();
+
+    builder.exec(set_feeto_request).commit();
+
+    let error = builder.get_error().expect("should have error");
+    assert!(
+        matches!(error, CoreError::Exec(ExecError::Revert(ApiError::User(user_error))) if user_error == consts::ERROR_PERMISSION),
+        "{:?}",
+        error
+    );
 }

@@ -90,6 +90,8 @@ pub const METHOD_ADD_LIQUIDITY: &str = "add_liquidity";
 pub const METHOD_REMOVE_LIQUIDITY: &str = "remove_liquidity";
 pub const METHOD_SWAP_EXACT_TOKENS_FOR_TOKENS: &str = "swap_exact_tokens_for_tokens";
 pub const METHOD_SWAP_TOKENS_FOR_EXACT_TOKENS: &str = "swap_tokens_for_exact_tokens";
+pub const METHOD_SET_FEETO: &str = "set_feeto";
+pub const METHOD_SET_FEETO_SETTER: &str = "set_feeto_setter";
 
 pub const RESULT_KEY: &str = "result";
 pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
@@ -97,6 +99,7 @@ pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
 //error
 pub const ERROR_INSUFFICIENT_LIQUIDITY: u16 = u16::MAX - 6;
 pub const ERROR_K: u16 = u16::MAX - 13;
+pub const ERROR_PERMISSION: u16 = u16::MAX - 25;
 
 //accounts
 pub const ACCOUNT_1_SECRET_KEY: Lazy<SecretKey> =
