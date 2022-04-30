@@ -913,7 +913,7 @@ fn should_swap_tokens_for_exact_tokens_reverse() {
         runtime_args! {
             consts::ARG_OWNER => Key::Account(*consts::ACCOUNT_1_ADDR),
             consts::ARG_SPENDER => Key::Hash(test_context.router_package.value()),
-            consts::ARG_AMOUNT => U256::from(50_000u64),
+            consts::ARG_AMOUNT => U256::from(100_000u64),
         }
     )
     .build();
@@ -921,8 +921,6 @@ fn should_swap_tokens_for_exact_tokens_reverse() {
     builder.exec(token0_approve_request).expect_success().commit();
     builder.exec(token1_approve_request).expect_success().commit();
 
-    let router_allowance: U256 = erc20_check_allowance_of(&mut builder, Key::Account(*consts::ACCOUNT_1_ADDR), Key::Hash(test_context.router_package.value()));
-    assert_eq!(router_allowance, U256::from(50_000u64));
     let add_liquidity_request: ExecuteRequest = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *consts::ACCOUNT_1_ADDR,
         test_context.router_package,
@@ -946,8 +944,8 @@ fn should_swap_tokens_for_exact_tokens_reverse() {
     assert_eq!(lp_balance, U256::from(37_729u64));
 
     let mut path: Vec<ContractHash> = Vec::new();
-    path.push(test_context.token0_contract);
     path.push(test_context.token1_contract);
+    path.push(test_context.token0_contract);
 
     let swap_request: ExecuteRequest = ExecuteRequestBuilder::versioned_contract_call_by_hash(
         *consts::ACCOUNT_1_ADDR,
@@ -966,8 +964,11 @@ fn should_swap_tokens_for_exact_tokens_reverse() {
 
     builder.exec(swap_request).expect_success().commit();
 
+    let token0_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.token0_contract, Key::Account(*consts::ACCOUNT_1_ADDR));
+    assert_eq!(token0_balance, U256::from(80_000u64));
+
     let token1_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.token1_contract, Key::Account(*consts::ACCOUNT_1_ADDR));
-    assert_eq!(token1_balance, U256::from(60_000u64));
+    assert_eq!(token1_balance, U256::from(24_949u64));
 }
 
 
