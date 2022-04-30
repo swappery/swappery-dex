@@ -679,7 +679,7 @@ fn should_swap_exact_tokens_for_tokens() {
 
     builder.exec(swap_request).expect_success().commit();
     let token1_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.token1_contract, Key::Account(*consts::ACCOUNT_1_ADDR));
-    assert_eq!(token1_balance, U256::zero());
+    assert_eq!(token1_balance, U256::from(62_481u64));
 }
 
 #[test]
@@ -1235,5 +1235,5 @@ fn should_swap_exact_tokens_for_tokens_supporting_fee() {
 
     builder.exec(swap_request).expect_success().commit();
     let token1_balance: U256 = erc20_check_balance_of(&mut builder, &test_context.token1_contract, Key::Account(*consts::ACCOUNT_1_ADDR));
-    assert_eq!(token1_balance, U256::zero());
+    assert_eq!(token1_balance, U256::from(62_481u64));
 }
