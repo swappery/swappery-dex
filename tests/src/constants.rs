@@ -92,6 +92,7 @@ pub const METHOD_SWAP_EXACT_TOKENS_FOR_TOKENS: &str = "swap_exact_tokens_for_tok
 pub const METHOD_SWAP_TOKENS_FOR_EXACT_TOKENS: &str = "swap_tokens_for_exact_tokens";
 pub const METHOD_SET_FEETO: &str = "set_feeto";
 pub const METHOD_SET_FEETO_SETTER: &str = "set_feeto_setter";
+pub const METHOD_SWAP_EXACT_TOKENS_FOR_TOKENS_SUPPORTING_FEE: &str = "swap_exact_tokens_for_tokens_supporting_fee";
 
 pub const RESULT_KEY: &str = "result";
 pub const ERC20_TEST_CALL_KEY: &str = "erc20_test_call";
