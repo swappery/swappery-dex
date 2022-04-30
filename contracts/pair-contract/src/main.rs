@@ -782,6 +782,10 @@ fn call() {
     let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
     let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_KEY_NAME);
     let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_KEY_NAME);
+    
+    let tokens = 
+    if token0 < token1 { (token0, token1) }
+    else { (token1, token0) };
 
     let _ = SwapperyPair::create(
         name,
@@ -789,8 +793,8 @@ fn call() {
         decimals,
         initial_supply,
         contract_key_name.as_str(),
-        token0,
-        token1,
+        tokens.0,
+        tokens.1,
     )
     .unwrap_or_revert();
 }
