@@ -39,6 +39,7 @@ pub const ARG_AMOUNT_IN_MAX: &str = "amount_in_max";
 pub const ARG_AMOUNT_IN: &str = "amount_in";
 pub const ARG_AMOUNT_OUT: &str = "amount_out";
 pub const ARG_DEAD_LINE: &str = "dead_line";
+pub const ARG_FEETO: &str = "feeto";
 
 //key names
 pub const FEETO_KEY_NAME: &str = "feeto";

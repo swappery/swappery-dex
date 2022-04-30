@@ -1,6 +1,6 @@
 use casper_engine_test_support::{
     ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_RUN_GENESIS_REQUEST,
-    DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE,
+    DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE, DEFAULT_ACCOUNTS,
 };
 use casper_execution_engine::core::{
     engine_state::{Error as CoreError, ExecuteRequest},
@@ -168,6 +168,7 @@ fn should_mint_and_burn_lp_token() {
         consts::METHOD_MINT,
         runtime_args!{
             consts::ARG_TO => owner_key,
+            consts::ARG_FEETO => Key::Account(*DEFAULT_ACCOUNT_ADDR),
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -187,6 +188,7 @@ fn should_mint_and_burn_lp_token() {
         consts::METHOD_BURN,
         runtime_args!{
             consts::ARG_TO => owner_key,
+            consts::ARG_FEETO => Key::Account(*DEFAULT_ACCOUNT_ADDR),
         },
     ).build();
     builder.exec(pair_burn_request).expect_success().commit();
@@ -228,6 +230,7 @@ fn should_swap_tokens_with_pair() {
         consts::METHOD_MINT,
         runtime_args!{
             consts::ARG_TO => owner_key,
+            consts::ARG_FEETO => Key::Account(*DEFAULT_ACCOUNT_ADDR),
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -287,6 +290,7 @@ fn should_not_swap_tokens_above_reserves() {
         consts::METHOD_MINT,
         runtime_args!{
             consts::ARG_TO => owner_key,
+            consts::ARG_FEETO => Key::Account(*DEFAULT_ACCOUNT_ADDR),
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -340,6 +344,7 @@ fn should_not_swap_over_limits() {
         consts::METHOD_MINT,
         runtime_args!{
             consts::ARG_TO => owner_key,
+            consts::ARG_FEETO => Key::Account(*DEFAULT_ACCOUNT_ADDR),
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
@@ -400,6 +405,7 @@ fn should_mint_minimum_liquidity_to_zero_address() {
         consts::METHOD_MINT,
         runtime_args!{
             consts::ARG_TO => owner_key,
+            consts::ARG_FEETO => Key::Account(*DEFAULT_ACCOUNT_ADDR),
         },
     ).build();
     builder.exec(pair_mint_request).expect_success().commit();
