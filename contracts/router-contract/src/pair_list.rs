@@ -5,7 +5,7 @@ use casper_types::{bytesrepr::ToBytes, URef, ContractHash};
 
 use casper_erc20::{Address};
 
-use crate::helpers::{get_uref, sort_tokens};
+use crate::helpers::{get_uref};
 
 use crate::constants::{PAIR_LIST_KEY_NAME};
 

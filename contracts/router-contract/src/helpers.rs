@@ -1,5 +1,5 @@
 //! Implementation details.
-use core::{convert::TryInto, ops::Add};
+use core::{convert::TryInto};
 
 extern crate alloc;
 
