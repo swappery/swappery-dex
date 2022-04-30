@@ -89,14 +89,6 @@ impl SwapperyRouter {
         helpers::read_from(consts::WCSPR_CONTRACT_KEY_NAME)
     }
 
-    pub fn make_pair_path_from_token_path(&self, token_path: Vec<ContractHash>) -> Vec<Address> {
-        let mut pair_path: Vec<Address> = Vec::new();
-        for i in 0..token_path.len() - 1 {
-            pair_path.push(self.get_pair_for(*token_path.get(i).unwrap_or_revert(), *token_path.get(i + 1).unwrap_or_revert()));
-        }
-        pair_path
-    }
-
     pub fn create(
         feeto: Address,
         feeto_setter: Address,
@@ -135,6 +127,38 @@ impl SwapperyRouter {
             feeto_setter_uref,
         ))
     }
+
+    pub fn get_amounts_out(&self, amount_in: U256, path: Vec<ContractHash>) -> Vec<U256> {
+        if !(path.len() >= 2) { runtime::revert(error::Error::InvalidPath); }
+    
+        let mut amounts: Vec<U256> = Vec::with_capacity(path.len());
+        amounts.push(amount_in);
+        for i in 0..path.len() - 1 {
+            let pair: Address = self.get_pair_for(*path.get(i).unwrap(), *path.get(i + 1).unwrap());
+            let reserves: (U256, U256) = helpers::get_reserves(
+                *path.get(i).unwrap(),
+                *path.get(i + 1).unwrap(),
+                pair);
+            amounts.push(helpers::get_amount_out(*amounts.get(i).unwrap_or_revert(), reserves.0, reserves.1));
+        }
+        amounts
+    }
+    
+    pub fn get_amounts_in(&self, amount_out: U256, path: Vec<ContractHash>) -> Vec<U256> {
+        if !(path.len() >= 1) { runtime::revert(error::Error::InvalidPath); }
+    
+        let mut amounts: Vec<U256> = Vec::with_capacity(path.len());
+        amounts.push(amount_out);
+        for i in 1..path.len() {
+            let pair: Address = self.get_pair_for(*path.get(path.len() - i - 1).unwrap(), *path.get(path.len() - i).unwrap());
+            let reserves: (U256, U256) = helpers::get_reserves(
+                *path.get(path.len() - i - 1).unwrap(),
+                *path.get(path.len() - i).unwrap(),
+                pair);
+            amounts.push(helpers::get_amount_in(*amounts.get(i - 1).unwrap_or_revert(), reserves.0, reserves.1));
+        }
+        helpers::revert_vector(amounts)
+    }
     
     pub fn _add_liquidity(
         &self,
@@ -147,12 +171,8 @@ impl SwapperyRouter {
     ) -> (U256, U256) {
         let amounts: (U256, U256);
         let pair: Address = self.get_pair_for(token0, token1);
-        let reserves: (U256, U256) = runtime::call_versioned_contract(
-            *pair.as_contract_package_hash().unwrap_or_revert(),
-            None,
-            consts::GET_RESERVES_ENTRY_POINT_NAME,
-            runtime_args! {},
-        );
+        let reserves = helpers::get_reserves(token0, token1, pair);
+
         if reserves.0 == U256::zero() && reserves.1 == U256::zero() {
             amounts = (amount0_desired, amount1_desired);
         }
@@ -220,21 +240,8 @@ impl SwapperyRouter {
             let (input, output) = (path.get(i).unwrap_or_revert(), path.get(i + 1).unwrap_or_revert());
             let (token0, ..) = helpers::sort_tokens(*input, *output);
             let pair = self.get_pair_for(*input, *output);
-            let reserves: (U256, U256) = runtime::call_versioned_contract(
-                *pair.as_contract_package_hash().unwrap_or_revert(),
-                None,
-                consts::GET_RESERVES_ENTRY_POINT_NAME,
-                runtime_args! {},
-            );
-            let reserve_in: U256;
-            let reserve_out: U256;
-            if input.eq(&token0) {
-                reserve_in = reserves.0;
-                reserve_out = reserves.1;
-            } else {
-                reserve_in = reserves.1;
-                reserve_out = reserves.0;
-            }
+            let reserves = helpers::get_reserves(*input, *output, pair);
+
             let mut amount_in = runtime::call_contract(
                 *input,
                 consts::BALANCE_OF_ENTRY_POINT_NAME,
@@ -242,8 +249,8 @@ impl SwapperyRouter {
                     consts::ADDRESS_RUNTIME_ARG_NAME => pair
                 },
             );
-            amount_in = amount_in - reserve_in;
-            let amount_out = helpers::get_amount_out(amount_in, reserve_in, reserve_out);
+            amount_in = amount_in - reserves.0;
+            let amount_out = helpers::get_amount_out(amount_in, reserves.0, reserves.1);
 
             let amounts_out: (U256, U256);
             if input.eq(&token0) {
@@ -416,7 +423,7 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
         runtime::revert(error::Error::Expired);
     }
 
-    let amounts: Vec<U256> = helpers::get_amounts_out(amount_in, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
+    let amounts: Vec<U256> = SwapperyRouter::default().get_amounts_out(amount_in, path.clone());
 
     if !(amounts.last().unwrap_or_revert() >= &amount_out_min) {
         runtime::revert(error::Error::InsufficientOutputAmount);
@@ -450,7 +457,7 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
         runtime::revert(error::Error::Expired);
     }
     
-    let amounts: Vec<U256> = helpers::get_amounts_in(amount_out, SwapperyRouter::default().make_pair_path_from_token_path(path.clone()));
+    let amounts: Vec<U256> = SwapperyRouter::default().get_amounts_in(amount_out, path.clone());
     
     if !(amounts.get(0).unwrap_or_revert() <= &amount_in_max) {
         runtime::revert(error::Error::InsufficientInputAmount);
