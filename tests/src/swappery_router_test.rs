@@ -1,20 +1,16 @@
-use std::thread::AccessError;
-
 use casper_engine_test_support::{
     ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_RUN_GENESIS_REQUEST,
     DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE,
 };
 use casper_execution_engine::core::{
-    engine_state::{Error as CoreError, ExecuteRequest},
-    execution::Error as ExecError,
+    engine_state::{ExecuteRequest},
 };
 use casper_types::{
-    account::AccountHash, bytesrepr::FromBytes, runtime_args, system::mint, CLTyped,
-    ContractHash, ContractPackageHash, Key, PublicKey, RuntimeArgs, SecretKey, U256,
-    ApiError,
+    account::AccountHash, runtime_args, system::mint,
+    ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
 };
 use casper_erc20::Address;
-use crate::constants::{self as consts, METHOD_SET_FEETO};
+use crate::constants as consts;
 use crate::test_call::{make_erc20_transfer_request, erc20_check_allowance_of, erc20_check_balance_of};
 
 #[derive(Copy, Clone)]
