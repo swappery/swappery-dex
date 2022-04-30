@@ -330,10 +330,10 @@ fn should_not_swap_over_limits() {
     let owner_key = Key::Account(*DEFAULT_ACCOUNT_ADDR);
     let pair_key = Key::from(pair_package);
     
-    let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
-    let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
-    assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
+    // let owner_balance = erc20_check_balance_of(&mut builder, &token0_contract, owner_key);
+    // assert_eq!(owner_balance, U256::from(consts::TOKEN0_TOTAL_SUPPLY));
+    // let owner_balance = erc20_check_balance_of(&mut builder, &token1_contract, owner_key);
+    // assert_eq!(owner_balance, U256::from(consts::TOKEN1_TOTAL_SUPPLY));
 
     let token0_transfer_request = make_erc20_transfer_request(owner_key, &token0_contract, pair_key, U256::from(100_000u64));
     builder.exec(token0_transfer_request).expect_success().commit();

@@ -3,11 +3,13 @@ use casper_engine_test_support::{
     DEFAULT_ACCOUNT_ADDR, MINIMUM_ACCOUNT_CREATION_BALANCE,
 };
 use casper_execution_engine::core::{
-    engine_state::{ExecuteRequest},
+    engine_state::{Error as CoreError, ExecuteRequest},
+    execution::Error as ExecError,
 };
 use casper_types::{
-    account::AccountHash, runtime_args, system::mint,
+    account::AccountHash, runtime_args, system::mint, 
     ContractHash, ContractPackageHash, Key, RuntimeArgs, U256,
+    ApiError,
 };
 use casper_erc20::Address;
 use crate::constants as consts;
