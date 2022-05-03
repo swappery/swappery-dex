@@ -157,7 +157,8 @@ impl SwapperyRouter {
                 pair);
             amounts.push(helpers::get_amount_in(*amounts.get(i - 1).unwrap_or_revert(), reserves.0, reserves.1));
         }
-        helpers::revert_vector(amounts)
+        amounts.reverse();
+        amounts
     }
     
     pub fn _add_liquidity(

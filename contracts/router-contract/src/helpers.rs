@@ -90,15 +90,6 @@ pub(crate) fn sort_tokens(token0: ContractHash, token1: ContractHash) -> (Contra
     tokens
 }
 
-pub(crate) fn revert_vector(input: Vec<U256>) -> Vec<U256> {
-    let len = input.len();
-    let mut result: Vec<U256> = Vec::with_capacity(len);
-    for i in 1..input.len() + 1 {
-        result.push(*input.get(len - i).unwrap_or_revert());
-    }
-    result
-}
-
 pub(crate) fn get_reserves(token0: ContractHash, token1: ContractHash, pair: Address) -> (U256, U256) {
     let _reserves: (U256, U256) = runtime::call_versioned_contract(
         *pair.as_contract_package_hash().unwrap_or_revert(),
