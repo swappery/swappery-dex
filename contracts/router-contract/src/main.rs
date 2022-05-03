@@ -27,7 +27,7 @@ use constants as consts;
 
 use casper_types::{
     ContractHash, Key, URef, U256, runtime_args, RuntimeArgs, contracts::NamedKeys,
-    Error, CLValue, account::AccountHash, 
+    Error, CLValue, account::AccountHash, HashAddr,
 };
 
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
@@ -282,8 +282,12 @@ impl SwapperyRouter {
 
 #[no_mangle]
 pub extern "C" fn create_pair() {
-    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let token0_key: Key = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1_key: Key = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let _token0_hash: HashAddr = token0_key.into_hash().unwrap_or_revert();
+    let token0: ContractHash = ContractHash::new(_token0_hash);
+    let _token1_hash: HashAddr = token1_key.into_hash().unwrap_or_revert();
+    let token1: ContractHash = ContractHash::new(_token1_hash);
     let pair: Address = runtime::get_named_arg(consts::PAIR_RUNTIME_ARG_NAME);
 
     SwapperyRouter::default().add_pair_for(token0, token1, pair);
@@ -291,8 +295,12 @@ pub extern "C" fn create_pair() {
 
 #[no_mangle]
 pub extern "C" fn get_pair() {
-    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let token0_key: Key = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1_key: Key = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let _token0_hash: HashAddr = token0_key.into_hash().unwrap_or_revert();
+    let token0: ContractHash = ContractHash::new(_token0_hash);
+    let _token1_hash: HashAddr = token1_key.into_hash().unwrap_or_revert();
+    let token1: ContractHash = ContractHash::new(_token1_hash);
 
     let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     runtime::ret(CLValue::from_t(pair).unwrap_or_revert());
@@ -322,8 +330,12 @@ pub extern "C" fn set_feeto_setter() {
 
 #[no_mangle]
 pub extern "C" fn add_liquidity() {
-    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let token0_key: Key = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1_key: Key = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let _token0_hash: HashAddr = token0_key.into_hash().unwrap_or_revert();
+    let token0: ContractHash = ContractHash::new(_token0_hash);
+    let _token1_hash: HashAddr = token1_key.into_hash().unwrap_or_revert();
+    let token1: ContractHash = ContractHash::new(_token1_hash);
     let amount0_desired: U256 = runtime::get_named_arg(consts::AMOUNT0_DESIRED_RUNTIME_ARG_NAME);
     let amount1_desired: U256 = runtime::get_named_arg(consts::AMOUNT1_DESIRED_RUNTIME_ARG_NAME);
     let amount0_min: U256 = runtime::get_named_arg(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME);
@@ -366,8 +378,12 @@ pub extern "C" fn add_liquidity() {
 
 #[no_mangle]
 pub extern "C" fn remove_liquidity() {
-    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
-    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let token0_key: Key = runtime::get_named_arg(consts::TOKEN0_RUNTIME_ARG_NAME);
+    let token1_key: Key = runtime::get_named_arg(consts::TOKEN1_RUNTIME_ARG_NAME);
+    let _token0_hash: HashAddr = token0_key.into_hash().unwrap_or_revert();
+    let token0: ContractHash = ContractHash::new(_token0_hash);
+    let _token1_hash: HashAddr = token1_key.into_hash().unwrap_or_revert();
+    let token1: ContractHash = ContractHash::new(_token1_hash);
     let liquidity: U256 = runtime::get_named_arg(consts::LIQUIDITY_RUNTIME_ARG_NAME);
     let amount0_min: U256 = runtime::get_named_arg(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME);
     let amount1_min: U256 = runtime::get_named_arg(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME);

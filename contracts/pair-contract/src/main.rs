@@ -19,7 +19,7 @@ use once_cell::unsync::OnceCell;
 
 use casper_types::{
     account::AccountHash, contracts::NamedKeys, runtime_args, CLValue, Key, RuntimeArgs, URef, U256,
-    ContractHash,
+    ContractHash, HashAddr,
 };
 
 use casper_contract::{
@@ -780,8 +780,12 @@ fn call() {
     let decimals: u8 = runtime::get_named_arg(consts::DECIMALS_RUNTIME_ARG_NAME);
     let initial_supply: U256 = runtime::get_named_arg(consts::TOTAL_SUPPLY_RUNTIME_ARG_NAME);
     let contract_key_name: String = runtime::get_named_arg(CONTRACT_KEY_NAME_ARG_NAME);
-    let token0: ContractHash = runtime::get_named_arg(consts::TOKEN0_KEY_NAME);
-    let token1: ContractHash = runtime::get_named_arg(consts::TOKEN1_KEY_NAME);
+    let token0_key: Key = runtime::get_named_arg(consts::TOKEN0_KEY_NAME);
+    let token1_key: Key = runtime::get_named_arg(consts::TOKEN1_KEY_NAME);
+    let _token0_hash: HashAddr = token0_key.into_hash().unwrap_or_revert();
+    let token0: ContractHash = ContractHash::new(_token0_hash);
+    let _token1_hash: HashAddr = token1_key.into_hash().unwrap_or_revert();
+    let token1: ContractHash = ContractHash::new(_token1_hash);
     
     let tokens = 
     if token0 < token1 { (token0, token1) }
