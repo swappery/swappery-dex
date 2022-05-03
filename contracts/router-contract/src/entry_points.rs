@@ -4,7 +4,7 @@ use casper_erc20::{ Address };
 
 use casper_types::{
     U256, CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter,
-    ContractHash, 
+    ContractHash, Key, 
 };
 
 use crate::constants as consts;
@@ -13,8 +13,8 @@ pub fn create_pair() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::CREATE_PAIR_ENTRY_POINT),
         vec![
-            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
-            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(consts::PAIR_RUNTIME_ARG_NAME, Address::cl_type()),
         ],
         CLType::Unit,
@@ -27,8 +27,8 @@ pub fn get_pair() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::GET_PAIR_ENTRY_POINT),
         vec![
-            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
-            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, Key::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -64,8 +64,8 @@ pub fn add_liquidity() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::ADD_LIQUIDITY_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
-            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(consts::AMOUNT0_DESIRED_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT1_DESIRED_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
@@ -83,8 +83,8 @@ pub fn remove_liquidity() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::REMOVE_LIQUIDITY_ENTRY_POINT_NAME),
         vec![
-            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, ContractHash::cl_type()),
-            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, ContractHash::cl_type()),
+            Parameter::new(consts::TOKEN0_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TOKEN1_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(consts::LIQUIDITY_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
