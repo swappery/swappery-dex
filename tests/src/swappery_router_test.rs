@@ -640,8 +640,8 @@ fn should_swap_exact_tokens_for_tokens() {
         None,
         consts::METHOD_ADD_LIQUIDITY,
         runtime_args! {
-            consts::ARG_TOKEN0 => Key::from(test_context.token0_contract),
-            consts::ARG_TOKEN1 => Key::from(test_context.token1_contract),
+            consts::ARG_TOKEN0 => test_context.token0_contract,
+            consts::ARG_TOKEN1 => test_context.token1_contract,
             consts::ARG_AMOUNT0_DESIRED => U256::from(30_000u64),
             consts::ARG_AMOUNT1_DESIRED => U256::from(50_000u64),
             consts::ARG_AMOUNT0_MIN => U256::zero(),
