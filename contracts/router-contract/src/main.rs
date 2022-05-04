@@ -430,14 +430,14 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     let to = Address::Account(runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
-    let path: Vec<ContractHash> = Vec::new();
+    let mut path: Vec<ContractHash> = Vec::new();
     for i in 0..path_key.len() {
         path.push({
             let _hash = path_key.get(i).unwrap().into_hash().unwrap_or_revert();
             ContractHash::new(_hash)
         });
     }
-    
+
     let amounts: Vec<U256> = SwapperyRouter::default().get_amounts_out(amount_in, path.clone());
 
     if !(amounts.last().unwrap_or_revert() >= &amount_out_min) {
@@ -468,7 +468,7 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
     let to = Address::Account(runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
-    let path: Vec<ContractHash> = Vec::new();
+    let mut path: Vec<ContractHash> = Vec::new();
     for i in 0..path_key.len() {
         path.push({
             let _hash = path_key.get(i).unwrap().into_hash().unwrap_or_revert();
@@ -506,7 +506,7 @@ pub extern "C" fn swap_exact_tokens_for_tokens_supporting_fee() {
     let to = Address::Account(runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
-    let path: Vec<ContractHash> = Vec::new();
+    let mut path: Vec<ContractHash> = Vec::new();
     for i in 0..path_key.len() {
         path.push({
             let _hash = path_key.get(i).unwrap().into_hash().unwrap_or_revert();
