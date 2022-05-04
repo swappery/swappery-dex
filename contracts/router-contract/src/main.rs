@@ -85,23 +85,23 @@ impl SwapperyRouter {
         feeto::write_feeto_setter_to(self.feeto_setter_uref(), feeto_setter)
     }
 
-    pub fn wcspr_token(&self) -> ContractHash {
-        helpers::read_from(consts::WCSPR_CONTRACT_KEY_NAME)
-    }
+    // pub fn wcspr_token(&self) -> ContractHash {
+    //     helpers::read_from(consts::WCSPR_CONTRACT_KEY_NAME)
+    // }
 
     pub fn create(
         feeto: Address,
         feeto_setter: Address,
-        wcspr_token: ContractHash,
+        // wcspr_token: ContractHash,
         contract_key_name: String,
     ) -> Result<SwapperyRouter, Error> {
         let pair_list_uref: URef = storage::new_dictionary(consts::PAIR_LIST_KEY_NAME).unwrap_or_revert();
         let feeto_uref: URef = storage::new_uref(feeto).into_read_write();
         let feeto_setter_uref: URef = storage::new_uref(feeto_setter).into_read_write();
-        let wcspr_token_key: Key = {
-            let wcspr_token_uref = storage::new_uref(wcspr_token).into_read();
-            Key::from(wcspr_token_uref)
-        };
+        // let wcspr_token_key: Key = {
+        //     let wcspr_token_uref = storage::new_uref(wcspr_token).into_read();
+        //     Key::from(wcspr_token_uref)
+        // };
         let pair_list_key = {
             runtime::remove_key(consts::PAIR_LIST_KEY_NAME);
             Key::from(pair_list_uref)
@@ -113,7 +113,7 @@ impl SwapperyRouter {
         named_keys.insert(String::from(consts::PAIR_LIST_KEY_NAME), pair_list_key);
         named_keys.insert(String::from(consts::FEETO_KEY_NAME), feeto_key);
         named_keys.insert(String::from(consts::FEETO_SETTER_KEY_NAME), feeto_setter_key);
-        named_keys.insert(String::from(consts::WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
+        // named_keys.insert(String::from(consts::WCSPR_CONTRACT_KEY_NAME), wcspr_token_key);
 
         let _ = storage::new_contract(
             entry_points::default(),
@@ -511,13 +511,13 @@ pub extern "C" fn swap_exact_tokens_for_tokens_supporting_fee() {
 fn call() {
     let feeto: Address = runtime::get_named_arg(consts::FEETO_KEY_NAME);
     let feeto_setter: Address = runtime::get_named_arg(consts::FEETO_SETTER_KEY_NAME);
-    let wcspr_token: ContractHash = runtime::get_named_arg(consts::WCSPR_CONTRACT_KEY_NAME);
+    // let wcspr_token: ContractHash = runtime::get_named_arg(consts::WCSPR_CONTRACT_KEY_NAME);
     let contract_key_name: String = runtime::get_named_arg(consts::CONTRACT_KEY_NAME_ARG_NAME);
 
     let _ = SwapperyRouter::create(
         feeto,
         feeto_setter,
-        wcspr_token,
+        // wcspr_token,
         contract_key_name,
     );
 }
