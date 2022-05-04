@@ -103,7 +103,7 @@ pub fn swap_exact_tokens_for_tokens() -> EntryPoint {
         vec![
             Parameter::new(consts::AMOUNT_IN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<ContractHash>::cl_type()),
+            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<Key>::cl_type()),
             Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
@@ -119,7 +119,7 @@ pub fn swap_exact_tokens_for_tokens_supporting_fee() -> EntryPoint {
         vec![
             Parameter::new(consts::AMOUNT_IN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<ContractHash>::cl_type()),
+            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<Key>::cl_type()),
             Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
@@ -135,7 +135,7 @@ pub fn swap_tokens_for_exact_tokens() -> EntryPoint {
         vec![
             Parameter::new(consts::AMOUNT_OUT_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT_IN_MAX_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<ContractHash>::cl_type()),
+            Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<Key>::cl_type()),
             Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
