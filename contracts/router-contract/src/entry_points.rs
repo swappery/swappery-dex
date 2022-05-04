@@ -4,7 +4,7 @@ use casper_erc20::{ Address };
 
 use casper_types::{
     U256, CLType, CLTyped, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, Parameter,
-    ContractHash, Key, 
+    ContractHash, Key, account::AccountHash, 
 };
 
 use crate::constants as consts;
@@ -40,7 +40,7 @@ pub fn set_feeto() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::SET_FEETO_ENTRY_POINT),
         vec![
-            Parameter::new(consts::FEETO_KEY_NAME, Key::cl_type()),
+            Parameter::new(consts::FEETO_KEY_NAME, AccountHash::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -52,7 +52,7 @@ pub fn set_feeto_setter() -> EntryPoint {
     EntryPoint::new(
         String::from(consts::SET_FEETO_SETTER_ENTRY_POINT),
         vec![
-            Parameter::new(consts::FEETO_SETTER_KEY_NAME, Key::cl_type()),
+            Parameter::new(consts::FEETO_SETTER_KEY_NAME, AccountHash::cl_type()),
         ],
         CLType::Unit,
         EntryPointAccess::Public,
@@ -70,7 +70,7 @@ pub fn add_liquidity() -> EntryPoint {
             Parameter::new(consts::AMOUNT1_DESIRED_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, AccountHash::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
         CLType::Unit,
@@ -88,7 +88,7 @@ pub fn remove_liquidity() -> EntryPoint {
             Parameter::new(consts::LIQUIDITY_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT0_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT1_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
-            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, AccountHash::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
         CLType::Unit,
@@ -104,7 +104,7 @@ pub fn swap_exact_tokens_for_tokens() -> EntryPoint {
             Parameter::new(consts::AMOUNT_IN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<Key>::cl_type()),
-            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, AccountHash::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
         CLType::Unit,
@@ -120,7 +120,7 @@ pub fn swap_exact_tokens_for_tokens_supporting_fee() -> EntryPoint {
             Parameter::new(consts::AMOUNT_IN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT_OUT_MIN_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<Key>::cl_type()),
-            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, AccountHash::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
         CLType::Unit,
@@ -136,7 +136,7 @@ pub fn swap_tokens_for_exact_tokens() -> EntryPoint {
             Parameter::new(consts::AMOUNT_OUT_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::AMOUNT_IN_MAX_RUNTIME_ARG_NAME, U256::cl_type()),
             Parameter::new(consts::PATH_RUNTIME_ARG_NAME, Vec::<Key>::cl_type()),
-            Parameter::new(consts::TO_RUNTIME_ARG_NAME, Key::cl_type()),
+            Parameter::new(consts::TO_RUNTIME_ARG_NAME, AccountHash::cl_type()),
             Parameter::new(consts::DEAD_LINE_RUNTIME_ARG_NAME, U256::cl_type()),            
         ],
         CLType::Unit,
