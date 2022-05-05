@@ -348,6 +348,10 @@ pub extern "C" fn add_liquidity() {
     let to = Address::from(AccountHash::new(to_key.into_hash().unwrap_or_revert()));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
+    // if dead_line < U256::from(u64::from(runtime::get_blocktime())) {
+    //     runtime::revert(error::Error::Expired);
+    // }
+
     let amounts: (U256, U256) = SwapperyRouter::default()._add_liquidity(token0, token1, amount0_desired, amount1_desired, amount0_min, amount1_min);    
     let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
@@ -396,6 +400,10 @@ pub extern "C" fn remove_liquidity() {
     let to = Address::from(AccountHash::new(to_key.into_hash().unwrap_or_revert()));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
+    // if dead_line < U256::from(u64::from(runtime::get_blocktime())) {
+    //     runtime::revert(error::Error::Expired);
+    // }
+
     let pair: Address = SwapperyRouter::default().get_pair_for(token0, token1);
     let caller: Address = helpers::get_immediate_caller_address().unwrap_or_revert();
 
@@ -434,6 +442,10 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
     let to_key: Key = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     let to = Address::from(AccountHash::new(to_key.into_hash().unwrap_or_revert()));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
+
+    // if dead_line < U256::from(u64::from(runtime::get_blocktime())) {
+    //     runtime::revert(error::Error::Expired);
+    // }
 
     let mut path: Vec<ContractHash> = Vec::new();
     for i in 0..path_key.len() {
@@ -474,6 +486,10 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
     let to = Address::from(AccountHash::new(to_key.into_hash().unwrap_or_revert()));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
 
+    // if dead_line < U256::from(u64::from(runtime::get_blocktime())) {
+    //     runtime::revert(error::Error::Expired);
+    // }
+
     let mut path: Vec<ContractHash> = Vec::new();
     for i in 0..path_key.len() {
         path.push({
@@ -512,6 +528,10 @@ pub extern "C" fn swap_exact_tokens_for_tokens_supporting_fee() {
     let to_key: Key = runtime::get_named_arg(consts::TO_RUNTIME_ARG_NAME);
     let to = Address::from(AccountHash::new(to_key.into_hash().unwrap_or_revert()));
     // let dead_line: U256 = runtime::get_named_arg(consts::DEAD_LINE_RUNTIME_ARG_NAME);
+
+    // if dead_line < U256::from(u64::from(runtime::get_blocktime())) {
+    //     runtime::revert(error::Error::Expired);
+    // }
 
     let mut path: Vec<ContractHash> = Vec::new();
     for i in 0..path_key.len() {
