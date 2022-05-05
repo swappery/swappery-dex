@@ -1,7 +1,7 @@
 use alloc::{string::String, vec::Vec};
 
 use casper_contract::{contract_api::{runtime, storage}, unwrap_or_revert::UnwrapOrRevert};
-use casper_types::{bytesrepr::ToBytes, URef, ContractHash};
+use casper_types::{bytesrepr::ToBytes, URef, ContractHash, Key};
 
 use casper_erc20::{Address};
 
@@ -14,9 +14,11 @@ pub(crate) fn get_pair_list_uref() -> URef {
 }
 
 fn make_dictionary_item_key(token0: ContractHash, token1: ContractHash) -> String {
+    let token0_key = Key::Hash(token0.value());
+    let token1_key = Key::Hash(token1.value());
     let mut preimage = Vec::new();
-    preimage.append(&mut token0.to_bytes().unwrap_or_revert());
-    preimage.append(&mut token1.to_bytes().unwrap_or_revert());
+    preimage.append(&mut token0_key.to_bytes().unwrap_or_revert());
+    preimage.append(&mut token1_key.to_bytes().unwrap_or_revert());
 
     let key_bytes = runtime::blake2b(&preimage);
     hex::encode(&key_bytes)
