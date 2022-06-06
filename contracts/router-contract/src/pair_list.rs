@@ -10,14 +10,10 @@ use casper_erc20::Address;
 
 use crate::helpers::get_uref;
 
-use crate::constants::{PAIR_CONTRACT_LIST_KEY_NAME, PAIR_LIST_KEY_NAME};
+use crate::constants::PAIR_LIST_KEY_NAME;
 
 pub(crate) fn get_pair_list_uref() -> URef {
     get_uref(PAIR_LIST_KEY_NAME)
-}
-
-pub(crate) fn get_pair_contract_list_uref() -> URef {
-    get_uref(PAIR_CONTRACT_LIST_KEY_NAME)
 }
 
 fn make_dictionary_item_key(token0: ContractHash, token1: ContractHash) -> String {
@@ -33,26 +29,14 @@ fn make_dictionary_item_key(token0: ContractHash, token1: ContractHash) -> Strin
 
 pub(crate) fn add_pair_for(
     pair_list_uref: URef,
-    pair_contract_list_uref: URef,
     token0: ContractHash,
     token1: ContractHash,
     pair_address: Address,
-    pair_contract_hash: ContractHash,
 ) {
     let dictionary_item_key = make_dictionary_item_key(token0, token1);
     storage::dictionary_put(pair_list_uref, &dictionary_item_key, pair_address);
-    storage::dictionary_put(
-        pair_contract_list_uref,
-        &dictionary_item_key,
-        pair_contract_hash,
-    );
     let dictionary_item_key = make_dictionary_item_key(token1, token0);
     storage::dictionary_put(pair_list_uref, &dictionary_item_key, pair_address);
-    storage::dictionary_put(
-        pair_contract_list_uref,
-        &dictionary_item_key,
-        pair_contract_hash,
-    );
 }
 
 pub(crate) fn get_pair_for(
