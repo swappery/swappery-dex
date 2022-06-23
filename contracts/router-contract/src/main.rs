@@ -9,12 +9,10 @@ extern crate alloc;
 mod constants;
 mod entry_points;
 mod error;
-mod event;
+pub mod event;
 mod feeto;
 mod helpers;
 mod pair_list;
-
-use core::hash::Hash;
 
 use alloc::{string::String, vec::Vec};
 
@@ -30,7 +28,7 @@ use constants as consts;
 
 use casper_types::{
     account::AccountHash, contracts::NamedKeys, runtime_args, CLValue, ContractHash,
-    ContractPackage, ContractPackageHash, Error, HashAddr, Key, RuntimeArgs, URef, U256,
+    ContractPackageHash, Error, HashAddr, Key, RuntimeArgs, URef, U256,
 };
 
 use casper_contract::{
@@ -117,6 +115,7 @@ impl SwapperyRouter {
         let feeto_setter_key = Key::from(feeto_setter_uref);
 
         let mut named_keys = NamedKeys::new();
+        named_keys.insert(String::from(consts::PAIR_LIST_KEY_NAME), pair_list_key);
         named_keys.insert(String::from(consts::FEETO_KEY_NAME), feeto_key);
         named_keys.insert(
             String::from(consts::FEETO_SETTER_KEY_NAME),
@@ -126,27 +125,15 @@ impl SwapperyRouter {
             String::from(consts::WCSPR_CONTRACT_KEY_NAME),
             wcspr_token_key,
         );
-        let routerContractPackageHash: ContractPackageHash = runtime::get_key("Swappery Router")
-            .unwrap_or_revert()
-            .into_hash()
-            .unwrap_or_revert()
-            .into();
-        let routerContractHash: ContractHash = ContractHash::from_formatted_str(
-            "contract-dc32f60fa3fe420f5e3b4acce68ca8b71f2351bf2b6d65b8ae1fca5f17577815",
-        )
-        .unwrap();
-        storage::disable_contract_version(routerContractPackageHash, routerContractHash);
-        let _ = storage::add_contract_version(
-            routerContractPackageHash,
+
+        let (contract_hash, version) = storage::new_contract(
             entry_points::default(),
-            named_keys,
+            Some(named_keys),
+            Some(contract_key_name),
+            None,
         );
-        // let _ = storage::new_contract(
-        //     entry_points::default(),
-        //     Some(named_keys),
-        //     Some(contract_key_name),
-        //     None,
-        // );
+        let event = event::RouterEvent::Installed { contract_hash };
+        helpers::emit(&event);
         Ok(SwapperyRouter::new(
             pair_list_uref,
             feeto_uref,
@@ -340,9 +327,12 @@ pub extern "C" fn create_pair() {
 
     SwapperyRouter::default().add_pair_for(token0, token1, pair);
     let event = event::RouterEvent::CreatePair {
-        token0: token0_key,
-        token1: token1_key,
-        pair: pair_key,
+        token0: token0.to_formatted_string(),
+        token1: token1.to_formatted_string(),
+        pair: pair
+            .as_contract_package_hash()
+            .unwrap()
+            .to_formatted_string(),
     };
     helpers::emit(&event);
 }
@@ -442,11 +432,11 @@ pub extern "C" fn add_liquidity() {
         },
     );
     let event = event::RouterEvent::AddLiquidity {
-        token0: token0_key,
-        token1: token1_key,
+        token0: token0.to_formatted_string(),
+        token1: token1.to_formatted_string(),
         amount0: amounts.0,
         amount1: amounts.1,
-        recipient: to_key,
+        recipient: to.as_account_hash().unwrap().to_formatted_string(),
     };
     helpers::emit(&event);
     runtime::ret(CLValue::from_t(liquidity).unwrap_or_revert());
@@ -520,10 +510,10 @@ pub extern "C" fn remove_liquidity() {
         );
     }
     let event = event::RouterEvent::RemoveLiquidity {
-        token0: token0_key,
-        token1: token1_key,
+        token0: token0.to_formatted_string(),
+        token1: token1.to_formatted_string(),
         liquidity: liquidity,
-        recipient: to_key,
+        recipient: to.as_account_hash().unwrap().to_formatted_string(),
     };
     helpers::emit(&event);
 }
@@ -568,12 +558,12 @@ pub extern "C" fn swap_exact_tokens_for_tokens() {
             AMOUNT_RUNTIME_ARG_NAME => *amounts.clone().get(0).unwrap_or_revert(),
         },
     );
-    SwapperyRouter::default()._swap(amounts.clone(), path, to);
+    SwapperyRouter::default()._swap(amounts.clone(), path.clone(), to);
     let event = event::RouterEvent::SwapExactIn {
         amount_in: (*amounts.get(0).unwrap_or_revert()),
         amount_out: { *amounts.last().unwrap_or_revert() },
-        path: path_key,
-        recipient: to_key,
+        path,
+        recipient: to.as_account_hash().unwrap().to_formatted_string(),
     };
     helpers::emit(&event);
 }
@@ -618,12 +608,12 @@ pub extern "C" fn swap_tokens_for_exact_tokens() {
             AMOUNT_RUNTIME_ARG_NAME => *amounts.clone().get(0).unwrap_or_revert(),
         },
     );
-    SwapperyRouter::default()._swap(amounts.clone(), path, to);
+    SwapperyRouter::default()._swap(amounts.clone(), path.clone(), to);
     let event = event::RouterEvent::SwapExactOut {
         amount_in: (*amounts.get(0).unwrap_or_revert()),
         amount_out: { *amounts.last().unwrap_or_revert() },
-        path: path_key,
-        recipient: to_key,
+        path,
+        recipient: to.as_account_hash().unwrap().to_formatted_string(),
     };
     helpers::emit(&event);
 }

@@ -213,6 +213,12 @@ pub fn emit(event: &RouterEvent) {
             param.insert("recipient", recipient.to_string());
             events.push(param);
         }
+        RouterEvent::Installed { contract_hash } => {
+            let mut param = BTreeMap::new();
+            param.insert("event_type", "installed".to_string());
+            param.insert("contract_hash", contract_hash.to_string());
+            events.push(param);
+        }
     };
     for param in events {
         let _: URef = storage::new_uref(param);

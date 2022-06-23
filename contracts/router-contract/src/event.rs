@@ -1,35 +1,38 @@
-use alloc::vec::Vec;
-use casper_types::{Key, U256};
+use alloc::{string::String, vec::Vec};
+use casper_types::{ContractHash, U256};
 
 pub enum RouterEvent {
     CreatePair {
-        token0: Key,
-        token1: Key,
-        pair: Key,
+        token0: String,
+        token1: String,
+        pair: String,
     },
     AddLiquidity {
-        token0: Key,
-        token1: Key,
+        token0: String,
+        token1: String,
         amount0: U256,
         amount1: U256,
-        recipient: Key,
+        recipient: String,
     },
     RemoveLiquidity {
-        token0: Key,
-        token1: Key,
+        token0: String,
+        token1: String,
         liquidity: U256,
-        recipient: Key,
+        recipient: String,
     },
     SwapExactIn {
         amount_in: U256,
         amount_out: U256,
-        path: Vec<Key>,
-        recipient: Key,
+        path: Vec<ContractHash>,
+        recipient: String,
     },
     SwapExactOut {
         amount_in: U256,
         amount_out: U256,
-        path: Vec<Key>,
-        recipient: Key,
+        path: Vec<ContractHash>,
+        recipient: String,
+    },
+    Installed {
+        contract_hash: ContractHash,
     },
 }
