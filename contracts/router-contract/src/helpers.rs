@@ -11,7 +11,7 @@ use casper_contract::{
 };
 use casper_types::{
     bytesrepr::FromBytes, runtime_args, system::CallStackElement, ApiError, CLTyped, ContractHash,
-    RuntimeArgs, URef, U256,
+    ContractPackageHash, RuntimeArgs, URef, U256,
 };
 
 use casper_erc20::{Address, Error};
@@ -140,6 +140,19 @@ pub(crate) fn get_amount_in(amount_out: U256, reserve_in: U256, reserve_out: U25
     (nume / deno) + U256::one()
 }
 
+pub fn contract_package_hash() -> ContractPackageHash {
+    let call_stacks = runtime::get_call_stack();
+    let last_entry = call_stacks.last().unwrap_or_revert();
+    let package_hash: Option<ContractPackageHash> = match last_entry {
+        CallStackElement::StoredContract {
+            contract_package_hash,
+            contract_hash: _,
+        } => Some(*contract_package_hash),
+        _ => None,
+    };
+    package_hash.unwrap_or_revert()
+}
+
 pub fn emit(event: &RouterEvent) {
     let mut events = Vec::new();
     match event {
@@ -149,6 +162,10 @@ pub fn emit(event: &RouterEvent) {
             pair,
         } => {
             let mut param = BTreeMap::new();
+            param.insert(
+                "contract_package_hash",
+                contract_package_hash().to_formatted_string(),
+            );
             param.insert("event_type", "create_pair".to_string());
             param.insert("token0", token0.to_string());
             param.insert("token1", token1.to_string());
@@ -163,6 +180,10 @@ pub fn emit(event: &RouterEvent) {
             recipient,
         } => {
             let mut param = BTreeMap::new();
+            param.insert(
+                "contract_package_hash",
+                contract_package_hash().to_formatted_string(),
+            );
             param.insert("event_type", "add_liquidity".to_string());
             param.insert("token0", token0.to_string());
             param.insert("token1", token1.to_string());
@@ -178,6 +199,10 @@ pub fn emit(event: &RouterEvent) {
             recipient,
         } => {
             let mut param = BTreeMap::new();
+            param.insert(
+                "contract_package_hash",
+                contract_package_hash().to_formatted_string(),
+            );
             param.insert("event_type", "remove_liquidity".to_string());
             param.insert("token0", token0.to_string());
             param.insert("token1", token1.to_string());
@@ -192,6 +217,10 @@ pub fn emit(event: &RouterEvent) {
             recipient,
         } => {
             let mut param = BTreeMap::new();
+            param.insert(
+                "contract_package_hash",
+                contract_package_hash().to_formatted_string(),
+            );
             param.insert("event_type", "swap_exact_in".to_string());
             param.insert("amount_in", amount_in.to_string());
             param.insert("amount_out", amount_out.to_string());
@@ -206,6 +235,10 @@ pub fn emit(event: &RouterEvent) {
             recipient,
         } => {
             let mut param = BTreeMap::new();
+            param.insert(
+                "contract_package_hash",
+                contract_package_hash().to_formatted_string(),
+            );
             param.insert("event_type", "swap_exact_out".to_string());
             param.insert("amount_in", amount_in.to_string());
             param.insert("amount_out", amount_out.to_string());
